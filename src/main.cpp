@@ -158,7 +158,7 @@ private:
     }
 };
 
-int main() 
+int _main() 
 {
     HelloTriangleApplication app;
 
@@ -173,4 +173,25 @@ int main()
     }
 
     return EXIT_SUCCESS;
+}
+
+#include "Vector3f.hpp"
+
+int main()
+{
+    Vector3f a{1,1,1};
+    std::cout << a << std::endl;
+    std::cout << a.normalize() << std::endl;
+    std::cout << a << std::endl;
+
+    Vector3f b{1,2,3};
+
+    std::cout << a + b << std::endl;
+    std::cout << a - b << std::endl;
+    std::cout << -b << std::endl;
+
+    std::cout << b * 3 << std::endl;
+    std::cout << 2 * b << std::endl;
+
+    return 0;
 }
