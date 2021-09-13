@@ -23,6 +23,16 @@ Vector3f Vector3f::normalize() const
     return Vector3f{x / n, y / n, z / n};
 }
 
+float Vector3f::dotProduct(const Vector3f & b) const
+{
+    return x*b.x + y*b.y + z*b.z;
+}
+
+Vector3f Vector3f::crossProduct(const Vector3f & b) const
+{
+    return Vector3f{ y*b.z - z*b.y, z*b.x - x*b.z, x*b.y - y*b.x };
+}
+
 Vector3f & Vector3f::operator+=(const Vector3f & b)
 {
     x += b.x;
@@ -76,7 +86,7 @@ Vector3f operator-(Vector3f a)
     a.x = -a.x;
     a.y = -a.y;
     a.z = -a.z;
-    
+
     return a;
 }
 

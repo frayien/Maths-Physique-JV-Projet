@@ -14,6 +14,9 @@ public:
     float norm() const;
     Vector3f normalize() const;
 
+    float dotProduct(const Vector3f & b) const;
+    Vector3f crossProduct(const Vector3f & b) const;
+
     Vector3f & operator+=(const Vector3f & b);
     Vector3f & operator-=(const Vector3f & b);
     Vector3f & operator*=(const float & b);
@@ -28,7 +31,15 @@ public:
 
     friend std::ostream& operator<<(std::ostream & out, const Vector3f & a);
 
-public:
+    inline const float& getX() const { return x; }
+    inline const float& getY() const { return y; }
+    inline const float& getZ() const { return z; }
+
+    inline void setX(float _x) const { x = _x; }
+    inline void setY(float _y) const { y = _y; }
+    inline void setZ(float _z) const { z = _z; }
+
+private:
     float x;
     float y;
     float z;

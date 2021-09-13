@@ -193,5 +193,10 @@ int main()
     std::cout << b * 3 << std::endl;
     std::cout << 2 * b << std::endl;
 
+    std::cout << a.crossProduct(b) << std::endl;
+    std::cout << b.crossProduct(a) << std::endl;
+
+    std::cout << Vector3f{1,0,0}.crossProduct(Vector3f{0,1,0}) << std::endl;
+
     return 0;
 }
