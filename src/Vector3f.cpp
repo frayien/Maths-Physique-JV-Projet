@@ -51,7 +51,7 @@ Vector3f & Vector3f::operator-=(const Vector3f & b)
     return *this;
 }
 
-Vector3f & Vector3f::operator*=(const float & b)
+Vector3f & Vector3f::operator*=(float b)
 {
     m_x *= b;
     m_y *= b;
@@ -60,7 +60,7 @@ Vector3f & Vector3f::operator*=(const float & b)
     return *this;
 }
 
-Vector3f & Vector3f::operator/=(const float & b)
+Vector3f & Vector3f::operator/=(float b)
 {
     m_x /= b;
     m_y /= b;
@@ -90,17 +90,17 @@ Vector3f operator-(Vector3f a)
     return a;
 }
 
-Vector3f operator*(Vector3f a, const float & b)
+Vector3f operator*(Vector3f a, float b)
 {
     return a *= b;
 }
 
-Vector3f operator*(float const& a, Vector3f b)
+Vector3f operator*(float a, Vector3f b)
 {
     return b *= a;
 }
 
-Vector3f operator/(Vector3f a, const float & b)
+Vector3f operator/(Vector3f a, float b)
 {
     return a /= b;
 }
