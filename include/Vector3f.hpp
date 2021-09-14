@@ -8,7 +8,7 @@ class Vector3f
 {
 public:
     Vector3f();
-    Vector3f(float _x, float _y, float _z);
+    Vector3f(float x, float y, float z);
     ~Vector3f();
 
     float norm() const;
@@ -31,18 +31,18 @@ public:
 
     friend std::ostream& operator<<(std::ostream & out, const Vector3f & a);
 
-    inline const float& getX() const { return x; }
-    inline const float& getY() const { return y; }
-    inline const float& getZ() const { return z; }
+    inline const float& getX() const { return m_x; }
+    inline const float& getY() const { return m_y; }
+    inline const float& getZ() const { return m_z; }
 
-    inline void setX(float _x) const { x = _x; }
-    inline void setY(float _y) const { y = _y; }
-    inline void setZ(float _z) const { z = _z; }
+    inline void setX(float x) { m_x = x; }
+    inline void setY(float y) { m_y = y; }
+    inline void setZ(float z) { m_z = z; }
 
 private:
-    float x;
-    float y;
-    float z;
+    float m_x;
+    float m_y;
+    float m_z;
 };
 
 #endif // FNES_VECTOR3F
