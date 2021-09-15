@@ -6,6 +6,7 @@
 #include <set>
 #include <stdexcept>
 #include <cstdlib>
+#include <string>
 #include <cstring>
 #include <optional>
 
@@ -144,7 +145,7 @@ private:
         }
     }
 
-    void createSurface() 
+    void createSurface()
     {
         VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface);
         if (result != VK_SUCCESS) 

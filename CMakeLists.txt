@@ -4,25 +4,34 @@ project(Proj VERSION 0.1.0)
 ### CMake config ###
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_C_COMPILER "gcc")
-
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+if(CMAKE_COMPILER_IS_GNUCXX)
+    message(STATUS "GCC detected, adding compile flags")
+    set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+    set(CMAKE_CXX_FLAGS_DEBUG "-g")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+else(CMAKE_COMPILER_IS_GNUCXX)
+    message(STATUS "MSVC detected, adding compile flags")
+    set(CMAKE_CXX_FLAGS "/EHsc")
+    set(CMAKE_CXX_FLAGS_DEBUG "/Od")
+  set(CMAKE_CXX_FLAGS_RELEASE "/O2")
+endif(CMAKE_COMPILER_IS_GNUCXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../")
 
 ### Project headers ###
-include_directories(/mingw64/include)
 include_directories(include)
 
 ### Dependencies ###
+include_directories(./lib/vulkan/Include)
+link_directories(./lib/vulkan/Lib)
+
+include_directories(./lib/glfw-3.3.4.bin.WIN64/include)
+link_directories(./lib/glfw-3.3.4.bin.WIN64/lib-vc2019)
 
 ### Project sources ###
 file(GLOB_RECURSE SRCS src/*)
@@ -36,7 +45,6 @@ include(CPack)
 
 target_link_libraries(
     Proj
+    vulkan-1
     glfw3
-    vulkan
-    VkLayer_khronos_validation
 )
