@@ -311,7 +311,7 @@ private:
 
         return indices.isComplete() && extensionsSupported && swapChainAdequate;
     }
-
+ 
     void pickPhysicalDevice()
     {
         // query the number of available GPU
