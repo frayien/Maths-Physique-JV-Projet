@@ -1058,29 +1058,41 @@ int main()
 
     return EXIT_SUCCESS;
 }
+
 /*
 #include "Vector3f.hpp"
+#include <chrono>
 
 int main()
 {
-    Vector3f a{1,1,1};
-    std::cout << a << std::endl;
-    std::cout << a.normalize() << std::endl;
-    std::cout << a << std::endl;
+    const std::chrono::nanoseconds TIMESTEP(1s);
+    const float DELTA_TIME = TIMESTEP.count() / 1'000'000'000;
+    using clock = std::chrono::high_resolution_clock;
 
-    Vector3f b{1,2,3};
+    std::chrono::nanoseconds lag(0ns);
+    auto base_time = clock::now();
 
-    std::cout << a + b << std::endl;
-    std::cout << a - b << std::endl;
-    std::cout << -b << std::endl;
+    Vector3f acceleration{1, 2, 1};
+    Vector3f speed{0, 0, 0};
+    Vector3f position{0, 0, 0};
 
-    std::cout << b * 3 << std::endl;
-    std::cout << 2 * b << std::endl;
+    while(true) {
+        auto current_time = clock::now();
+        auto frame_time = current_time - base_time;
+        base_time = current_time;
+        lag += std::chrono::duration_cast<std::chrono::nanoseconds>(frame_time);
 
-    std::cout << a.crossProduct(b) << std::endl;
-    std::cout << b.crossProduct(a) << std::endl;
+        while(lag >= TIMESTEP) {
+            lag -= TIMESTEP;
 
-    std::cout << Vector3f{1,0,0}.crossProduct(Vector3f{0,1,0}) << std::endl;
+            speed += (acceleration * DELTA_TIME);
+            position += speed * DELTA_TIME + (DELTA_TIME * DELTA_TIME * acceleration / 2);
 
-    return 0;
+            std::cout << "================" << std::endl;
+            std::cout << "acceleration = " << acceleration << std::endl;
+            std::cout << "speed = " << speed << std::endl;
+            std::cout << "position = " << position << std::endl;
+            std::cout << "================" << std::endl << std::endl;
+        }
+    }
 }*/
