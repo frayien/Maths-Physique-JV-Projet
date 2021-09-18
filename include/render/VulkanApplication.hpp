@@ -37,6 +37,8 @@ class VulkanApplication
 public:
     void run();
 
+    bool isKeyPressed(int key);
+
 private:
     const uint32_t WIDTH = 800;
     const uint32_t HEIGHT = 600;
@@ -146,6 +148,7 @@ private:
 
 private:
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+
     void initWindow();
     bool checkValidationLayerSupport();
     void createInstance();

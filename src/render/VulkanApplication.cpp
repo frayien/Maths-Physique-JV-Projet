@@ -28,6 +28,11 @@ void VulkanApplication::run()
     cleanup();
 }
 
+bool VulkanApplication::isKeyPressed(int key)
+{
+    return glfwGetKey(window, key) == GLFW_PRESS;
+}
+
 void VulkanApplication::framebufferResizeCallback(GLFWwindow* window, int width, int height)
 {
     auto app = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
@@ -43,6 +48,7 @@ void VulkanApplication::initWindow()
     window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
     glfwSetWindowUserPointer(window, this);
     glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
 }
 
 bool VulkanApplication::checkValidationLayerSupport() 
@@ -1283,12 +1289,31 @@ void VulkanApplication::recreateSwapChain()
 void VulkanApplication::updateUniformBuffer(uint32_t currentImage)
 {
     static auto startTime = std::chrono::high_resolution_clock::now();
+    static auto previousTime = std::chrono::high_resolution_clock::now();
+    static float rotationAngle = 0.0f;
+
+    const float rotationSpeed = 1.0f * glm::pi<float>(); // rad/s
 
     auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+    float totalTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+    float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - previousTime).count();
+    previousTime = currentTime;
+
+    if(isKeyPressed(GLFW_KEY_LEFT))
+    {
+        rotationAngle += deltaTime * rotationSpeed;
+    }
+    else if(isKeyPressed(GLFW_KEY_RIGHT))
+    {
+        rotationAngle -= deltaTime * rotationSpeed;
+    }
+    else if(isKeyPressed(GLFW_KEY_UP))
+    {
+        rotationAngle = 0;
+    }
 
     UniformBufferObject ubo{};
-    ubo.model = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.model = glm::rotate(glm::mat4(1.0f), rotationAngle, glm::vec3(0.0f, 0.0f, 1.0f));
     ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 10.0f);
     ubo.proj[1][1] *= -1;
@@ -1297,6 +1322,28 @@ void VulkanApplication::updateUniformBuffer(uint32_t currentImage)
     vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
         memcpy(data, &ubo, sizeof(ubo));
     vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
+
+     // TODO
+   /*vertices[0].pos.z = glm::cos(totalTime);
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+
+    // Create staging buffer
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+    // Copy vertices data into staging buffer
+    data = nullptr;
+    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        memcpy(data, vertices.data(), (size_t) bufferSize);
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    // Copy staging buffer data into vertex buffer
+    copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+
+    // Clean staging buffer
+    vkDestroyBuffer(device, stagingBuffer, nullptr);
+    vkFreeMemory(device, stagingBufferMemory, nullptr);*/
 }
 
 void VulkanApplication::drawFrame()
