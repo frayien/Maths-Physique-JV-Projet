@@ -22,7 +22,9 @@
 #include <fstream>
 #include <array>
 #include <chrono>
+#include <memory>
 
+#include "render/Window.hpp"
 #include "render/Vertex.hpp"
 
 struct UniformBufferObject
@@ -37,12 +39,7 @@ class VulkanApplication
 public:
     void run();
 
-    bool isKeyPressed(int key);
-
 private:
-    const uint32_t WIDTH = 800;
-    const uint32_t HEIGHT = 600;
-
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
     std::vector<Vertex> vertices;
@@ -72,7 +69,7 @@ private:
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     };
 
-    GLFWwindow* window;
+    std::unique_ptr<Window> window;
 
     VkInstance instance;
     VkSurfaceKHR surface;
@@ -103,7 +100,6 @@ private:
     std::vector<VkFence> inFlightFences;
     std::vector<VkFence> imagesInFlight;
     size_t currentFrame = 0;
-    bool framebufferResized = false;
 
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
@@ -147,8 +143,6 @@ private:
     };
 
 private:
-    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
-
     void initWindow();
     bool checkValidationLayerSupport();
     void createInstance();

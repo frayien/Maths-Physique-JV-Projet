@@ -28,27 +28,9 @@ void VulkanApplication::run()
     cleanup();
 }
 
-bool VulkanApplication::isKeyPressed(int key)
-{
-    return glfwGetKey(window, key) == GLFW_PRESS;
-}
-
-void VulkanApplication::framebufferResizeCallback(GLFWwindow* window, int width, int height)
-{
-    auto app = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
-    app->framebufferResized = true;
-}
-
 void VulkanApplication::initWindow() 
 {
-    glfwInit();
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-    window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-    glfwSetWindowUserPointer(window, this);
-    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+    window = std::make_unique<Window>();
 }
 
 bool VulkanApplication::checkValidationLayerSupport() 
@@ -106,10 +88,7 @@ void VulkanApplication::createInstance()
     createInfo.pApplicationInfo = &appInfo;
 
     // get vulkan extensions from glfw
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    auto [glfwExtensionCount, glfwExtensions] = Window::getRequiredInstanceExtensions();
     
     createInfo.enabledExtensionCount = glfwExtensionCount;
     createInfo.ppEnabledExtensionNames = glfwExtensions;
@@ -134,13 +113,7 @@ void VulkanApplication::createInstance()
 
 void VulkanApplication::createSurface()
 {
-    VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface);
-    if (result != VK_SUCCESS) 
-    {
-        const char* description;
-        glfwGetError(&description);
-        throw std::runtime_error("failed to create window surface! " + std::to_string(result) + " " + description);
-    }
+    window->createWindowSurface(instance, &surface);
 }
 
 VulkanApplication::QueueFamilyIndices VulkanApplication::findQueueFamilies(VkPhysicalDevice device) 
@@ -377,8 +350,7 @@ VkExtent2D VulkanApplication::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& c
     }
     else
     {
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
+        auto [width, height] = window->getFramebufferSize();
 
         VkExtent2D actualExtent =
         {
@@ -1265,8 +1237,8 @@ void VulkanApplication::recreateSwapChain()
     int width = 0, height = 0;
     while (width == 0 || height == 0)
     {
-        glfwGetFramebufferSize(window, &width, &height);
-        glfwWaitEvents();
+        auto [width, height] = window->getFramebufferSize();
+        Window::waitEvents();
     }
     
     vkDeviceWaitIdle(device);
@@ -1299,15 +1271,15 @@ void VulkanApplication::updateUniformBuffer(uint32_t currentImage)
     float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - previousTime).count();
     previousTime = currentTime;
 
-    if(isKeyPressed(GLFW_KEY_LEFT))
+    if(window->isKeyPressed(GLFW_KEY_LEFT))
     {
         rotationAngle += deltaTime * rotationSpeed;
     }
-    else if(isKeyPressed(GLFW_KEY_RIGHT))
+    else if(window->isKeyPressed(GLFW_KEY_RIGHT))
     {
         rotationAngle -= deltaTime * rotationSpeed;
     }
-    else if(isKeyPressed(GLFW_KEY_UP))
+    else if(window->isKeyPressed(GLFW_KEY_UP))
     {
         rotationAngle = 0;
     }
@@ -1324,7 +1296,7 @@ void VulkanApplication::updateUniformBuffer(uint32_t currentImage)
     vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
 
      // TODO
-   /*vertices[0].pos.z = glm::cos(totalTime);
+    vertices[0].pos.z = glm::cos(totalTime);
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
     // Create staging buffer
@@ -1343,7 +1315,7 @@ void VulkanApplication::updateUniformBuffer(uint32_t currentImage)
 
     // Clean staging buffer
     vkDestroyBuffer(device, stagingBuffer, nullptr);
-    vkFreeMemory(device, stagingBufferMemory, nullptr);*/
+    vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
 void VulkanApplication::drawFrame()
@@ -1414,9 +1386,9 @@ void VulkanApplication::drawFrame()
     
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window->isFramebufferResized())
     {
-        framebufferResized = false;
+        window->setFramebufferResized(false);
         recreateSwapChain();
     }
     else if (result != VK_SUCCESS)
@@ -1429,9 +1401,9 @@ void VulkanApplication::drawFrame()
 
 void VulkanApplication::mainLoop() 
 {
-    while (!glfwWindowShouldClose(window)) 
+    while (!window->shouldClose()) 
     {
-        glfwPollEvents();
+        Window::pollEvents();
         drawFrame();
     }
 
@@ -1461,7 +1433,4 @@ void VulkanApplication::cleanup()
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
 }
