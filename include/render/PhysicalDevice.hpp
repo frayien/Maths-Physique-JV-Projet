@@ -46,8 +46,8 @@ public:
     PhysicalDevice(const std::shared_ptr<Instance> & instance, const std::shared_ptr<Surface> & surface);
     virtual ~PhysicalDevice();
 
-    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-    VkFormat findDepthFormat();
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+    VkFormat findDepthFormat() const;
 
     inline std::vector<const char*> getDeviceExtensions() const { return m_deviceExtensions; }
     inline VkSampleCountFlagBits getMsaaSampleCount() const { return m_msaaSampleCount; }
@@ -61,7 +61,7 @@ private:
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     VkSampleCountFlagBits getMaxUsableSampleCount();
-    VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+    VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 };
 
 

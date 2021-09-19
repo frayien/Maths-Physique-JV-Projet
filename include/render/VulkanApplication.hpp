@@ -33,13 +33,6 @@
 
 #include "render/Vertex.hpp"
 
-struct UniformBufferObject
-{
-    alignas(16) glm::mat4 model;
-    alignas(16) glm::mat4 view;
-    alignas(16) glm::mat4 proj;
-};
-
 class VulkanApplication 
 {
 public:
@@ -48,9 +41,6 @@ public:
 private:
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
-    std::vector<Vertex> vertices;
-    std::vector<uint32_t> indices;
-    
 
     std::shared_ptr<Window>         window         ;
     std::shared_ptr<Instance>       instance       ;
@@ -60,15 +50,8 @@ private:
     std::shared_ptr<SwapChain>      swapChain      ;
 
 
-    std::vector<VkImageView> swapChainImageViews;
-    VkRenderPass renderPass;
-    VkDescriptorSetLayout descriptorSetLayout;
-    VkPipelineLayout pipelineLayout;
-    VkPipeline graphicsPipeline;
 
-    std::vector<VkFramebuffer> swapChainFramebuffers;
-
-    VkCommandPool commandPool;
+    
     std::vector<VkCommandBuffer> commandBuffers;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
@@ -77,48 +60,11 @@ private:
     std::vector<VkFence> imagesInFlight;
     size_t currentFrame = 0;
 
-    VkBuffer vertexBuffer;
-    VkDeviceMemory vertexBufferMemory;
-
-    VkBuffer indexBuffer;
-    VkDeviceMemory indexBufferMemory;
-
-    std::vector<VkBuffer> uniformBuffers;
-    std::vector<VkDeviceMemory> uniformBuffersMemory;
-
-    VkDescriptorPool descriptorPool;
-    std::vector<VkDescriptorSet> descriptorSets;
-
-    VkImage depthImage;
-    VkDeviceMemory depthImageMemory;
-    VkImageView depthImageView;
-
-    VkImage colorImage;
-    VkDeviceMemory colorImageMemory;
-    VkImageView colorImageView;
 
 private:
-    
 
-    void createImageViews();
-    static std::vector<char> readFile(const std::string& filename);
-    VkShaderModule createShaderModule(const std::vector<char>& code);
-    void createRenderPass();
-    void createDescriptorSetLayout();
-    void createGraphicsPipeline();
-    void createFramebuffers();
-    void createCommandPool();
-    void createImage(uint32_t width, uint32_t height, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
-    VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-    void createColorResources();
     bool hasStencilComponent(VkFormat format);
-    void createDepthResources();
-    void createVertexBuffer();
-    void createIndexBuffer();
-    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-    void createUniformBuffers();
-    void createDescriptorPool();
-    void createDescriptorSets();
+
     void createCommandBuffers();
     void createSyncObjects();
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);

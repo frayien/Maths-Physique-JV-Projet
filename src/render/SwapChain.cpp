@@ -7,6 +7,55 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
     m_logicalDevice{logicalDevice}
 {
     create();
+    m_renderPass = std::make_shared<RenderPass>(m_logicalDevice, getImageFormat(), m_physicalDevice->findDepthFormat(), m_physicalDevice->getMsaaSampleCount());
+    m_descriptorSetLayout = std::make_shared<DescriptorSetLayout>(m_logicalDevice);
+    m_graphicsPipeline = std::make_shared<GraphicsPipeline>(m_logicalDevice, m_renderPass, m_descriptorSetLayout, getExtent(), m_physicalDevice->getMsaaSampleCount());
+    m_commandPool = std::make_shared<CommandPool>(m_logicalDevice, physicalDevice->getQueueFamilies());
+
+    {
+        VkFormat colorFormat = getImageFormat();
+        m_colorImage = std::make_shared<Image>(m_logicalDevice, *m_physicalDevice, getExtent().width, getExtent().height, m_physicalDevice->getMsaaSampleCount(), colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        m_colorImageView = std::make_shared<ImageView>(m_logicalDevice, m_colorImage->raw(), colorFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+    }
+    {
+        VkFormat depthFormat = m_physicalDevice->findDepthFormat();
+        m_depthImage = std::make_shared<Image>(m_logicalDevice, *m_physicalDevice, getExtent().width, getExtent().height, m_physicalDevice->getMsaaSampleCount(), depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        m_depthImageView = std::make_shared<ImageView>(m_logicalDevice, m_depthImage->raw(), depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+    }
+
+    for (std::shared_ptr<ImageView> & imageView : m_imageViews)
+    {
+        m_frameBuffers.push_back(std::make_shared<FrameBuffer>(m_logicalDevice, m_renderPass, m_colorImageView, m_depthImageView, imageView, getExtent()));
+    }
+
+    m_entities.emplace_back(m_logicalDevice, m_commandPool, *m_physicalDevice, 
+    std::vector<Vertex>({
+        {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+        {{0.5f , -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+        {{0.5f ,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+        {{-0.5f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+        {{0.5f , -0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}},
+        {{0.5f ,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+        {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+    }),
+    std::vector<uint32_t>({
+        0, 1, 2, 2, 3, 0,
+        4, 5, 6, 6, 7, 4,
+    }));
+
+    {
+        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+        for (std::shared_ptr<ImageView> & imageView : m_imageViews)
+        {
+            m_uniformBuffers.push_back(std::make_shared<Buffer>(m_logicalDevice, m_commandPool, *m_physicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
+        }
+    }
+
+    m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, m_imageViews.size());
+
+    std::vector<VkDescriptorSet> descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_descriptorSetLayout->raw());
 }
 
 SwapChain::~SwapChain()
@@ -28,6 +77,37 @@ void SwapChain::recreate()
     cleanup();
     
     create();
+    m_renderPass = std::make_shared<RenderPass>(m_logicalDevice, getImageFormat(), m_physicalDevice->findDepthFormat(), m_physicalDevice->getMsaaSampleCount());
+    m_graphicsPipeline = std::make_shared<GraphicsPipeline>(m_logicalDevice, m_renderPass, m_descriptorSetLayout, getExtent(), m_physicalDevice->getMsaaSampleCount());
+
+    {
+        VkFormat colorFormat = getImageFormat();
+        m_colorImage = std::make_shared<Image>(m_logicalDevice, *m_physicalDevice, getExtent().width, getExtent().height, m_physicalDevice->getMsaaSampleCount(), colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        m_colorImageView = std::make_shared<ImageView>(m_logicalDevice, m_colorImage->raw(), colorFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+    }
+    {
+        VkFormat depthFormat = m_physicalDevice->findDepthFormat();
+        m_depthImage = std::make_shared<Image>(m_logicalDevice, *m_physicalDevice, getExtent().width, getExtent().height, m_physicalDevice->getMsaaSampleCount(), depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        m_depthImageView = std::make_shared<ImageView>(m_logicalDevice, m_depthImage->raw(), depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+    }
+
+    for (std::shared_ptr<ImageView> & imageView : m_imageViews)
+    {
+        m_frameBuffers.push_back(std::make_shared<FrameBuffer>(m_logicalDevice, m_renderPass, m_colorImageView, m_depthImageView, imageView, getExtent()));
+    }
+
+    {
+        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+        for (std::shared_ptr<ImageView> & imageView : m_imageViews)
+        {
+            m_uniformBuffers.push_back(std::make_shared<Buffer>(m_logicalDevice, m_commandPool, *m_physicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
+        }
+    }
+
+    m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, m_imageViews.size());
+
+    std::vector<VkDescriptorSet> descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_descriptorSetLayout->raw());
+
 }
 
 void SwapChain::create()
@@ -85,8 +165,13 @@ void SwapChain::create()
 
     // retrive the created swap chain
     vkGetSwapchainImagesKHR(m_logicalDevice->raw(), m_swapChain, &imageCount, nullptr);
-    m_images.resize(imageCount);
-    vkGetSwapchainImagesKHR(m_logicalDevice->raw(), m_swapChain, &imageCount, m_images.data());
+    std::vector<VkImage> images(imageCount);
+    vkGetSwapchainImagesKHR(m_logicalDevice->raw(), m_swapChain, &imageCount, images.data());
+
+    for(VkImage & img : images)
+    {
+        m_imageViews.push_back(std::make_shared<ImageView>(m_logicalDevice, img, getImageFormat(), VK_IMAGE_ASPECT_COLOR_BIT));
+    }
 
     m_imageFormat = surfaceFormat.format;
     m_extent = extent;
@@ -94,6 +179,20 @@ void SwapChain::create()
 
 void SwapChain::cleanup()
 {
+    m_descriptorPool.reset();
+
+    m_uniformBuffers.clear();
+    m_frameBuffers.clear();
+
+    m_depthImageView.reset();
+    m_depthImage.reset();
+
+    m_colorImageView.reset();
+    m_colorImage.reset();
+
+    m_graphicsPipeline.reset();
+    m_renderPass.reset();
+    m_imageViews.clear();
 
     vkDestroySwapchainKHR(m_logicalDevice->raw(), m_swapChain, nullptr);
 
