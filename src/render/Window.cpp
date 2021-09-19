@@ -19,17 +19,6 @@ Window::~Window()
     glfwTerminate();
 }
 
-void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
-{
-    VkResult result = glfwCreateWindowSurface(instance, m_window, nullptr, surface);
-    if (result != VK_SUCCESS) 
-    {
-        const char* description;
-        glfwGetError(&description);
-        throw std::runtime_error("failed to create window surface! " + std::to_string(result) + " " + description);
-    }
-}
-
 std::tuple<int, int> Window::getFramebufferSize()
 {
     int width, height;

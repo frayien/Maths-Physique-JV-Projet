@@ -25,6 +25,12 @@
 #include <memory>
 
 #include "render/Window.hpp"
+#include "render/Instance.hpp"
+#include "render/Surface.hpp"
+#include "render/PhysicalDevice.hpp"
+#include "render/LogicalDevice.hpp"
+#include "render/SwapChain.hpp"
+
 #include "render/Vertex.hpp"
 
 struct UniformBufferObject
@@ -44,45 +50,15 @@ private:
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
-
-    /* List all required validation layers
-    * 
-    * By default, vulkan dont check if the arguments given to it's functions are correct
-    * Misuse will result in crashs or undefined behavior
-    * Validaiton layers had themselves to vulkan functions to verify their arguments
-    * This way we can ensure functions are not misused when in debug mode
-    */
-    const std::vector<const char*> validationLayers = 
-    {
-        "VK_LAYER_KHRONOS_validation",
-    };
-
-    // Validation layers should only be enabled when in debug mode
-    #ifdef NDEBUG
-        const bool enableValidationLayers = false;
-    #else
-        const bool enableValidationLayers = true;
-    #endif
-
-    const std::vector<const char*> deviceExtensions = 
-    {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-    };
-
-    std::unique_ptr<Window> window;
-
-    VkInstance instance;
-    VkSurfaceKHR surface;
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-    VkDevice device;
     
-    VkQueue graphicsQueue;
-    VkQueue presentQueue;
 
-    VkSwapchainKHR swapChain;
-    std::vector<VkImage> swapChainImages;
-    VkFormat swapChainImageFormat;
-    VkExtent2D swapChainExtent;
+    std::shared_ptr<Window>         window         ;
+    std::shared_ptr<Instance>       instance       ;
+    std::shared_ptr<Surface>        surface        ;
+    std::shared_ptr<PhysicalDevice> physicalDevice ;
+    std::shared_ptr<LogicalDevice>  logicalDevice  ;
+    std::shared_ptr<SwapChain>      swapChain      ;
+
 
     std::vector<VkImageView> swapChainImageViews;
     VkRenderPass renderPass;
@@ -117,50 +93,13 @@ private:
     VkDeviceMemory depthImageMemory;
     VkImageView depthImageView;
 
-    VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
-
     VkImage colorImage;
     VkDeviceMemory colorImageMemory;
     VkImageView colorImageView;
 
 private:
-    struct QueueFamilyIndices 
-    {
-        std::optional<uint32_t> graphicsFamily;
-        std::optional<uint32_t> presentFamily;
+    
 
-        bool isComplete() 
-        {
-            return graphicsFamily.has_value() && presentFamily.has_value();
-        }
-    };
-
-    struct SwapChainSupportDetails 
-    {
-        VkSurfaceCapabilitiesKHR capabilities;
-        std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR> presentModes;
-    };
-
-private:
-    void initWindow();
-    bool checkValidationLayerSupport();
-    void createInstance();
-    void createSurface();
-
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-
-
-    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-    bool isDeviceSuitable(VkPhysicalDevice device);
-    VkSampleCountFlagBits getMaxUsableSampleCount();
-    void pickPhysicalDevice();
-    void createLogicalDevice();
-    VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-    void createSwapChain();
     void createImageViews();
     static std::vector<char> readFile(const std::string& filename);
     VkShaderModule createShaderModule(const std::vector<char>& code);
@@ -172,11 +111,8 @@ private:
     void createImage(uint32_t width, uint32_t height, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
     VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     void createColorResources();
-    VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-    VkFormat findDepthFormat();
     bool hasStencilComponent(VkFormat format);
     void createDepthResources();
-    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     void createVertexBuffer();
     void createIndexBuffer();
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);

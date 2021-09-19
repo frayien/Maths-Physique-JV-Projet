@@ -6,7 +6,6 @@
 
 #include <tuple>
 #include <stdexcept>
-#include <string>
 
 class Window
 {
@@ -22,8 +21,6 @@ public:
     Window();
     virtual ~Window();
 
-    void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
-
     /*
      * @return std::tuple<int, int> (width, height)
      */
@@ -38,6 +35,8 @@ public:
     static std::tuple<uint32_t, const char**> getRequiredInstanceExtensions();
     inline static void waitEvents() { glfwWaitEvents(); }
     inline static void pollEvents() { glfwPollEvents(); }
+
+    inline GLFWwindow* & raw() { return m_window; }
 
 private:
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
