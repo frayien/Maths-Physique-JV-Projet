@@ -74,7 +74,8 @@ void SwapChain::recreate()
     int width = 0, height = 0;
     while (width == 0 || height == 0)
     {
-        auto [width, height] = m_window->getFramebufferSize();
+        auto [nwidth, nheight] = m_window->getFramebufferSize();
+        width = nwidth; height = nheight;
         Window::waitEvents();
     }
 
