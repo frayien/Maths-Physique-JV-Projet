@@ -9,7 +9,7 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     m_physicalDevice = std::make_shared<PhysicalDevice>(m_instance, m_surface);
     m_logicalDevice  = std::make_shared<LogicalDevice> (m_physicalDevice);
     m_commandPool    = std::make_shared<CommandPool>   (m_logicalDevice, m_physicalDevice->getQueueFamilies());
-    m_world          = std::make_shared<World>         (m_physicalDevice, m_logicalDevice, m_commandPool);
+    m_world          = std::make_shared<World>         (m_window, m_physicalDevice, m_logicalDevice, m_commandPool);
 
     m_application->init(*m_world);
 
@@ -62,66 +62,41 @@ void VulkanApplication::run()
     m_logicalDevice->waitIdle();
 }
 
-void VulkanApplication::updateUniformBuffer(uint32_t currentImage)
+void VulkanApplication::update(uint32_t currentImage)
 {
     static auto startTime = std::chrono::high_resolution_clock::now();
     static auto previousTime = std::chrono::high_resolution_clock::now();
-    static float rotationAngle = 0.0f;
-
-    const float rotationSpeed = 1.0f * glm::pi<float>(); // rad/s
 
     auto currentTime = std::chrono::high_resolution_clock::now();
     float totalTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
     float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - previousTime).count();
     previousTime = currentTime;
 
-    if(m_window->isKeyPressed(GLFW_KEY_LEFT))
+    m_application->update(*m_world, deltaTime);
+
+    if(m_world->hasChanged())
     {
-        rotationAngle += deltaTime * rotationSpeed;
+        for(size_t i = 0; i<m_needRecord.size(); ++i)
+        {
+            m_needRecord[i] = true;
+        }
+        m_world->setChanged(false);
     }
-    else if(m_window->isKeyPressed(GLFW_KEY_RIGHT))
+    if(m_needRecord[currentImage])
     {
-        rotationAngle -= deltaTime * rotationSpeed;
-    }
-    else if(m_window->isKeyPressed(GLFW_KEY_UP))
-    {
-        rotationAngle = 0;
+        m_swapChain->recordCommandBuffer(currentImage);
+        m_needRecord[currentImage] = false;
     }
 
     UniformBufferObject ubo{};
-    ubo.model = glm::rotate(glm::mat4(1.0f), rotationAngle, glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.model = glm::mat4(1.0f);
+    ubo.view = glm::lookAt(m_world->getCamera().getPosition(), m_world->getCamera().getPosition() + m_world->getCamera().getDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
     ubo.proj = glm::perspective(glm::radians(45.0f), m_swapChain->getExtent().width / (float) m_swapChain->getExtent().height, 0.1f, 10.0f);
     ubo.proj[1][1] *= -1;
 
     Buffer & uniformBuffer = *(m_swapChain->getUniformBuffer(currentImage));
 
     uniformBuffer.loadData(&ubo, sizeof(ubo));
-
-     // TODO
-     /*
-    vertices[0].pos.z = glm::cos(totalTime);
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-
-    // Create staging buffer
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-    // Copy vertices data into staging buffer
-    data = nullptr;
-    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, vertices.data(), (size_t) bufferSize);
-    vkUnmapMemory(device, stagingBufferMemory);
-
-    // Copy staging buffer data into vertex buffer
-    copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
-
-    // Clean staging buffer
-    vkDestroyBuffer(device, stagingBuffer, nullptr);
-    vkFreeMemory(device, stagingBufferMemory, nullptr);
-
-    */
 }
 
 void VulkanApplication::drawFrame()
@@ -152,22 +127,7 @@ void VulkanApplication::drawFrame()
 
     /// ////////////////// execute the command buffer ////////////////// ///
 
-    m_application->update(*m_world);
-
-    if(m_world->hasChanged())
-    {
-        for(size_t i = 0; i<m_needRecord.size(); ++i)
-        {
-            m_needRecord[i] = true;
-        }
-        m_world->setChanged(false);
-    }
-    if(m_needRecord[imageIndex])
-    {
-        m_swapChain->recordCommandBuffer(imageIndex);
-        m_needRecord[imageIndex] = false;
-    }
-    updateUniformBuffer(imageIndex);
+    update(imageIndex);
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

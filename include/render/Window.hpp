@@ -26,7 +26,7 @@ public:
      */
     std::tuple<int, int> getFramebufferSize();
 
-    bool isKeyPressed(int key);
+    bool isKeyPressed(int key) const;
     bool shouldClose();
 
     inline bool isFramebufferResized() const { return m_framebufferResized; }

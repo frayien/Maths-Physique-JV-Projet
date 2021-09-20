@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+
 #include <chrono>
 
 #include "render/Window.hpp"
@@ -51,7 +52,7 @@ public:
     void run();
 
 private:
-    void updateUniformBuffer(uint32_t currentImage);
+    void update(uint32_t currentImage);
     void drawFrame();
 };
 

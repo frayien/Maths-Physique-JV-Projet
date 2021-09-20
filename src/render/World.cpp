@@ -1,6 +1,7 @@
 #include "render/World.hpp"
 
-World::World(const std::shared_ptr<PhysicalDevice> & physicalDevice, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool) :
+World::World(const std::shared_ptr<Window> & window, const std::shared_ptr<PhysicalDevice> & physicalDevice, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool) :
+    m_window{window},
     m_physicalDevice{physicalDevice},
     m_logicalDevice{logicalDevice},
     m_commandPool{commandPool}

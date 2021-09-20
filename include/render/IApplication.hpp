@@ -10,7 +10,7 @@ public:
     virtual ~IApplication() {}
 
     virtual void init(World & world) = 0;
-    virtual void update(World & world) = 0;
+    virtual void update(World & world, float deltaTime) = 0;
 };
 
 #endif // FNES_IAPPLICATION

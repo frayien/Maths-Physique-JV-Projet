@@ -26,7 +26,7 @@ std::tuple<int, int> Window::getFramebufferSize()
     return {width, height};
 }
 
-bool Window::isKeyPressed(int key)
+bool Window::isKeyPressed(int key) const
 {
     return glfwGetKey(m_window, key) == GLFW_PRESS;
 }
