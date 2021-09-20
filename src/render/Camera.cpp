@@ -19,7 +19,7 @@ void Camera::rotateYaw(float yaw)
 void Camera::rotatePitch(float pitch)
 {
     m_pitch += pitch;
-    pitch = std::clamp(pitch, -glm::pi<float>()/2.0f, glm::pi<float>()/2.0f);
+    m_pitch = std::clamp(m_pitch, -glm::pi<float>()/2.0f + 0.01f, glm::pi<float>()/2.0f - 0.01f);
 }
 
 void Camera::move(glm::vec3 dir)

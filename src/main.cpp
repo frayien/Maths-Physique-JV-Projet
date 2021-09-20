@@ -20,6 +20,7 @@ class Application : public IApplication
         std::vector<uint32_t>({
             0, 1, 2, 2, 3, 0,
         }));
+
         world.addEntity(
         std::vector<Vertex>({
             {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
@@ -113,4 +114,5 @@ int _main()
     Vector3f initialVelocity{ 5, 5, 5 };
     particle.setInitialVelocity(initialVelocity);
     particle.integrate();
+    return 0;
 }
