@@ -1,16 +1,16 @@
 #include "render/SwapChain.hpp"
 
-SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_ptr<Surface> & surface, const std::shared_ptr<PhysicalDevice> & physicalDevice, const std::shared_ptr<LogicalDevice> & logicalDevice) :
+SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_ptr<Surface> & surface, const std::shared_ptr<PhysicalDevice> & physicalDevice, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool) :
     m_window{window},
     m_surface{surface},
     m_physicalDevice{physicalDevice},
-    m_logicalDevice{logicalDevice}
+    m_logicalDevice{logicalDevice},
+    m_commandPool{commandPool}
 {
     create();
     m_renderPass = std::make_shared<RenderPass>(m_logicalDevice, getImageFormat(), m_physicalDevice->findDepthFormat(), m_physicalDevice->getMsaaSampleCount());
     m_descriptorSetLayout = std::make_shared<DescriptorSetLayout>(m_logicalDevice);
     m_graphicsPipeline = std::make_shared<GraphicsPipeline>(m_logicalDevice, m_renderPass, m_descriptorSetLayout, getExtent(), m_physicalDevice->getMsaaSampleCount());
-    m_commandPool = std::make_shared<CommandPool>(m_logicalDevice, physicalDevice->getQueueFamilies());
 
     {
         VkFormat colorFormat = getImageFormat();

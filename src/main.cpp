@@ -1,10 +1,25 @@
-#include "render/VulkanApplication.hpp"
-
 #include <iostream>
+
+#include "render/VulkanApplication.hpp"
+#include "render/IApplication.hpp"
+
+
+class Application : public IApplication
+{
+    virtual void init() override
+    {
+        
+    }
+
+    virtual void update() override
+    {
+
+    }
+};
 
 int main() 
 {
-    VulkanApplication app;
+    VulkanApplication app{std::make_shared<Application>()};
 
     try 
     {
@@ -19,7 +34,7 @@ int main()
     return EXIT_SUCCESS;
 }
 
-/*
+
 #include "Vector3f.hpp"
 
 int _main()
@@ -58,4 +73,4 @@ int _main()
             std::cout << "================" << std::endl << std::endl;
         }
     }
-}*/
+}
