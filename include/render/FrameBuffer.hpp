@@ -31,6 +31,8 @@ public:
         const std::shared_ptr<ImageView> & swapChainImageView, 
         VkExtent2D extent);
     virtual ~FrameBuffer();
+
+    inline VkFramebuffer & raw() { return m_frameBuffer; }
 };
 
 #endif // FNES_FRAMEBUFFER

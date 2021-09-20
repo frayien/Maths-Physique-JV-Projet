@@ -1,5 +1,7 @@
 #include "render/VulkanApplication.hpp"
 
+#include <iostream>
+
 int main() 
 {
     VulkanApplication app;

@@ -149,7 +149,7 @@ GraphicsPipeline::GraphicsPipeline(const std::shared_ptr<LogicalDevice> & logica
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
 
-    if (vkCreateGraphicsPipelines(m_logicalDevice->raw(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(m_logicalDevice->raw(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
@@ -160,7 +160,7 @@ GraphicsPipeline::GraphicsPipeline(const std::shared_ptr<LogicalDevice> & logica
 
 GraphicsPipeline::~GraphicsPipeline()
 {
-    vkDestroyPipeline(m_logicalDevice->raw(), m_graphicsPipeline, nullptr);
+    vkDestroyPipeline(m_logicalDevice->raw(), m_pipeline, nullptr);
     vkDestroyPipelineLayout(m_logicalDevice->raw(), m_pipelineLayout, nullptr);
 }
 

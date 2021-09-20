@@ -56,6 +56,12 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
     m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, m_imageViews.size());
 
     std::vector<VkDescriptorSet> descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_descriptorSetLayout->raw());
+    m_commandBuffers = std::make_shared<CommandBuffers>(m_logicalDevice, m_commandPool, m_imageViews.size());
+    for(size_t i = 0; i < m_commandBuffers->size(); ++i)
+    {
+        CommandBuffer commandBuffer = (*m_commandBuffers)[i];
+        commandBuffer.record(*m_renderPass, *(m_frameBuffers[i]), *m_graphicsPipeline, getExtent(), descriptorSets[i], m_entities);
+    }
 }
 
 SwapChain::~SwapChain()
@@ -107,7 +113,12 @@ void SwapChain::recreate()
     m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, m_imageViews.size());
 
     std::vector<VkDescriptorSet> descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_descriptorSetLayout->raw());
-
+    m_commandBuffers = std::make_shared<CommandBuffers>(m_logicalDevice, m_commandPool, m_imageViews.size());
+    for(size_t i = 0; i < m_commandBuffers->size(); ++i)
+    {
+        CommandBuffer commandBuffer = (*m_commandBuffers)[i];
+        commandBuffer.record(*m_renderPass, *(m_frameBuffers[i]), *m_graphicsPipeline, getExtent(), descriptorSets[i], m_entities);
+    }
 }
 
 void SwapChain::create()
@@ -117,6 +128,9 @@ void SwapChain::create()
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
     VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+
+    m_imageFormat = surfaceFormat.format;
+    m_extent = extent;
 
     uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
     if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
@@ -172,9 +186,6 @@ void SwapChain::create()
     {
         m_imageViews.push_back(std::make_shared<ImageView>(m_logicalDevice, img, getImageFormat(), VK_IMAGE_ASPECT_COLOR_BIT));
     }
-
-    m_imageFormat = surfaceFormat.format;
-    m_extent = extent;
 }
 
 void SwapChain::cleanup()
@@ -195,43 +206,6 @@ void SwapChain::cleanup()
     m_imageViews.clear();
 
     vkDestroySwapchainKHR(m_logicalDevice->raw(), m_swapChain, nullptr);
-
-    
-    
-
-/*  vkDestroyImageView(device, colorImageView, nullptr);
-    vkDestroyImage(device, colorImage, nullptr);
-    vkFreeMemory(device, colorImageMemory, nullptr);
-
-    vkDestroyImageView(device, depthImageView, nullptr);
-    vkDestroyImage(device, depthImage, nullptr);
-    vkFreeMemory(device, depthImageMemory, nullptr);
-
-    for (size_t i = 0; i < swapChainFramebuffers.size(); i++)
-    {
-        vkDestroyFramebuffer(device, swapChainFramebuffers[i], nullptr);
-    }
-
-    vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
-
-    vkDestroyPipeline(device, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-    vkDestroyRenderPass(device, renderPass, nullptr);
-
-    for (size_t i = 0; i < swapChainImageViews.size(); i++)
-    {
-        vkDestroyImageView(device, swapChainImageViews[i], nullptr);
-    }
-
-    vkDestroySwapchainKHR(device, swapChain, nullptr);
-
-    for (size_t i = 0; i < swapChainImages.size(); i++)
-    {
-        vkDestroyBuffer(device, uniformBuffers[i], nullptr);
-        vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
-    }
-
-    vkDestroyDescriptorPool(device, descriptorPool, nullptr);*/
 }
 
 VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) 

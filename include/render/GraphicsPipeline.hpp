@@ -21,12 +21,15 @@ private:
     std::shared_ptr<RenderPass> m_renderPass;
     std::shared_ptr<DescriptorSetLayout> m_descriptorSetLayout;
 
-    VkPipeline m_graphicsPipeline;
+    VkPipeline m_pipeline;
     VkPipelineLayout m_pipelineLayout;
     
 public:
     GraphicsPipeline(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<RenderPass> & renderPass, const std::shared_ptr<DescriptorSetLayout> & descriptorSetLayout, VkExtent2D extent, VkSampleCountFlagBits msaaSampleCount);
     virtual ~GraphicsPipeline();
+
+    inline VkPipeline & raw() { return m_pipeline; }
+    inline VkPipelineLayout & rawLayout() { return m_pipelineLayout; }
 
 private:
     static std::vector<char> readFile(const std::string& filename);

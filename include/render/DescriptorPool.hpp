@@ -17,10 +17,10 @@ private:
     std::shared_ptr<LogicalDevice> m_logicalDevice;
 
     VkDescriptorPool m_descriptorPool;
-    uint32_t m_size;
+    size_t m_size;
     
 public:
-    DescriptorPool(const std::shared_ptr<LogicalDevice> & logicalDevice, uint32_t size);
+    DescriptorPool(const std::shared_ptr<LogicalDevice> & logicalDevice, size_t size);
     virtual ~DescriptorPool();
 
     std::vector<VkDescriptorSet> createDescriptorSets(std::vector<std::shared_ptr<Buffer> > & uniformBuffers, VkDescriptorSetLayout descriptorSetLayout);

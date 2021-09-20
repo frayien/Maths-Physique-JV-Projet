@@ -8,12 +8,13 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <optional>
 
 #include "render/Instance.hpp"
 #include "render/Surface.hpp"
 
-namespace
-{
+//namespace
+//{
     struct QueueFamilyIndices 
     {
         std::optional<uint32_t> graphicsFamily;
@@ -24,7 +25,7 @@ namespace
             return graphicsFamily.has_value() && presentFamily.has_value();
         }
     };
-}
+//}
 
 class PhysicalDevice
 {

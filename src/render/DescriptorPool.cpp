@@ -1,18 +1,18 @@
 #include "render/DescriptorPool.hpp"
 
-DescriptorPool::DescriptorPool(const std::shared_ptr<LogicalDevice> & logicalDevice, uint32_t size) :
+DescriptorPool::DescriptorPool(const std::shared_ptr<LogicalDevice> & logicalDevice, size_t size) :
     m_logicalDevice{logicalDevice},
     m_size{size}
 {
     VkDescriptorPoolSize poolSize{};
     poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSize.descriptorCount = m_size;
+    poolSize.descriptorCount = static_cast<uint32_t>(m_size);
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = 1;
     poolInfo.pPoolSizes = &poolSize;
-    poolInfo.maxSets = m_size;
+    poolInfo.maxSets = static_cast<uint32_t>(m_size);
 
     if (vkCreateDescriptorPool(m_logicalDevice->raw(), &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS)
     {
@@ -31,7 +31,7 @@ std::vector<VkDescriptorSet> DescriptorPool::createDescriptorSets(std::vector<st
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = m_descriptorPool;
-    allocInfo.descriptorSetCount = m_size;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(m_size);
     allocInfo.pSetLayouts = layouts.data();
 
     std::vector<VkDescriptorSet> descriptorSets(m_size);

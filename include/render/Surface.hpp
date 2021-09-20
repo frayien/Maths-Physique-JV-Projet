@@ -10,15 +10,15 @@
 #include "render/Window.hpp"
 #include "render/Instance.hpp"
 
-namespace
-{
+//namespace
+//{
     struct SwapChainSupportDetails 
     {
         VkSurfaceCapabilitiesKHR capabilities;
         std::vector<VkSurfaceFormatKHR> formats;
         std::vector<VkPresentModeKHR> presentModes;
     };
-}
+//}
 
 class Surface
 {
