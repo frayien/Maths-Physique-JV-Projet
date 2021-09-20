@@ -34,7 +34,12 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
         {{0.5f , -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
         {{0.5f ,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
         {{-0.5f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-
+    }),
+    std::vector<uint32_t>({
+        0, 1, 2, 2, 3, 0,
+    }));
+    m_entities.emplace_back(m_logicalDevice, m_commandPool, *m_physicalDevice, 
+    std::vector<Vertex>({
         {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
         {{0.5f , -0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}},
         {{0.5f ,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
@@ -42,7 +47,6 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
     }),
     std::vector<uint32_t>({
         0, 1, 2, 2, 3, 0,
-        4, 5, 6, 6, 7, 4,
     }));
 
     {

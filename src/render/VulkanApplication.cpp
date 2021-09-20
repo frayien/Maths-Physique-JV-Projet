@@ -1,7 +1,6 @@
 #include "render/VulkanApplication.hpp"
 
-
-void VulkanApplication::run()
+VulkanApplication::VulkanApplication()
 {
     window         = std::make_shared<Window>        ();
     instance       = std::make_shared<Instance>      ();
@@ -10,14 +9,6 @@ void VulkanApplication::run()
     logicalDevice  = std::make_shared<LogicalDevice> (physicalDevice);
     swapChain      = std::make_shared<SwapChain>     (window, surface, physicalDevice, logicalDevice);
 
-
-    initVulkan();
-    mainLoop();
-    cleanup();
-}
-
-void VulkanApplication::createSyncObjects()
-{
     imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -42,10 +33,25 @@ void VulkanApplication::createSyncObjects()
     }
 }
 
-
-void VulkanApplication::initVulkan() 
+VulkanApplication::~VulkanApplication()
 {
-    createSyncObjects();
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        vkDestroySemaphore(logicalDevice->raw(), renderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(logicalDevice->raw(), imageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(logicalDevice->raw(), inFlightFences[i], nullptr);
+    }
+}
+
+void VulkanApplication::run()
+{
+    while (!window->shouldClose()) 
+    {
+        Window::pollEvents();
+        drawFrame();
+    }
+
+    logicalDevice->waitIdle();
 }
 
 void VulkanApplication::updateUniformBuffer(uint32_t currentImage)
@@ -189,25 +195,4 @@ void VulkanApplication::drawFrame()
     }
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-}
-
-void VulkanApplication::mainLoop() 
-{
-    while (!window->shouldClose()) 
-    {
-        Window::pollEvents();
-        drawFrame();
-    }
-
-    logicalDevice->waitIdle();
-}
-
-void VulkanApplication::cleanup()
-{
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        vkDestroySemaphore(logicalDevice->raw(), renderFinishedSemaphores[i], nullptr);
-        vkDestroySemaphore(logicalDevice->raw(), imageAvailableSemaphores[i], nullptr);
-        vkDestroyFence(logicalDevice->raw(), inFlightFences[i], nullptr);
-    }
 }

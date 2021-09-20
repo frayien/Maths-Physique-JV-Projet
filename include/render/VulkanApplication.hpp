@@ -20,20 +20,20 @@
 class VulkanApplication 
 {
 public:
+    VulkanApplication();
+    virtual ~VulkanApplication();
+
     void run();
 
 private:
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
-
-    std::shared_ptr<Window>         window         ;
-    std::shared_ptr<Instance>       instance       ;
-    std::shared_ptr<Surface>        surface        ;
-    std::shared_ptr<PhysicalDevice> physicalDevice ;
-    std::shared_ptr<LogicalDevice>  logicalDevice  ;
-    std::shared_ptr<SwapChain>      swapChain      ;
-
-
+    std::shared_ptr<Window>         window        ;
+    std::shared_ptr<Instance>       instance      ;
+    std::shared_ptr<Surface>        surface       ;
+    std::shared_ptr<PhysicalDevice> physicalDevice;
+    std::shared_ptr<LogicalDevice>  logicalDevice ;
+    std::shared_ptr<SwapChain>      swapChain     ;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -41,16 +41,9 @@ private:
     std::vector<VkFence> imagesInFlight;
     size_t currentFrame = 0;
 
-
 private:
-
-    void createSyncObjects();
-    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-    void initVulkan();
     void updateUniformBuffer(uint32_t currentImage);
     void drawFrame();
-    void mainLoop();
-    void cleanup();
 };
 
 #endif // FNES_VULKANAPPLICATION
