@@ -9,7 +9,11 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     m_physicalDevice = std::make_shared<PhysicalDevice>(m_instance, m_surface);
     m_logicalDevice  = std::make_shared<LogicalDevice> (m_physicalDevice);
     m_commandPool    = std::make_shared<CommandPool>   (m_logicalDevice, m_physicalDevice->getQueueFamilies());
-    m_swapChain      = std::make_shared<SwapChain>     (m_window, m_surface, m_physicalDevice, m_logicalDevice, m_commandPool);
+    m_world          = std::make_shared<World>         (m_physicalDevice, m_logicalDevice, m_commandPool);
+
+    m_application->init(*m_world);
+
+    m_swapChain      = std::make_shared<SwapChain>     (m_window, m_surface, m_physicalDevice, m_logicalDevice, m_commandPool, m_world);
 
     m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -33,6 +37,8 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
             throw std::runtime_error("failed to create synchronization objects for a frame!");
         }
     }
+
+    m_needRecord.resize(m_swapChain->size(), false);
 }
 
 VulkanApplication::~VulkanApplication()
@@ -146,6 +152,21 @@ void VulkanApplication::drawFrame()
 
     /// ////////////////// execute the command buffer ////////////////// ///
 
+    m_application->update(*m_world);
+
+    if(m_world->hasChanged())
+    {
+        for(size_t i = 0; i<m_needRecord.size(); ++i)
+        {
+            m_needRecord[i] = true;
+        }
+        m_world->setChanged(false);
+    }
+    if(m_needRecord[imageIndex])
+    {
+        m_swapChain->recordCommandBuffer(imageIndex);
+        m_needRecord[imageIndex] = false;
+    }
     updateUniformBuffer(imageIndex);
 
     VkSubmitInfo submitInfo{};

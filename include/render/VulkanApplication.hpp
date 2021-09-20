@@ -17,6 +17,7 @@
 #include "render/SwapChain.hpp"
 
 #include "render/Vertex.hpp"
+#include "render/World.hpp"
 #include "render/IApplication.hpp"
 
 class VulkanApplication 
@@ -30,6 +31,7 @@ private:
     std::shared_ptr<PhysicalDevice> m_physicalDevice;
     std::shared_ptr<LogicalDevice>  m_logicalDevice ;
     std::shared_ptr<CommandPool>    m_commandPool   ;
+    std::shared_ptr<World>          m_world         ;
     std::shared_ptr<SwapChain>      m_swapChain     ;
 
     std::vector<VkSemaphore> m_imageAvailableSemaphores;
@@ -37,6 +39,8 @@ private:
     std::vector<VkFence> m_inFlightFences;
     std::vector<VkFence> m_imagesInFlight;
     size_t m_currentFrame = 0;
+
+    std::vector<bool> m_needRecord;
 
     std::shared_ptr<IApplication> m_application;
 
