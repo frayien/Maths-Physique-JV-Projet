@@ -10,6 +10,7 @@
 #include "render/FrameBuffer.hpp"
 #include "render/GraphicsPipeline.hpp"
 
+#include "render/World.hpp"
 #include "render/Entity.hpp"
 
 class CommandBuffer
@@ -21,7 +22,7 @@ public:
     CommandBuffer(VkCommandBuffer commandBuffer);
     virtual ~CommandBuffer();
 
-    void record(RenderPass & renderPass, FrameBuffer & frameBuffer, GraphicsPipeline & graphicsPipeline, VkExtent2D extent, VkDescriptorSet descriptorSet, std::vector<Entity> & entities);
+    void record(RenderPass & renderPass, FrameBuffer & frameBuffer, GraphicsPipeline & graphicsPipeline, VkExtent2D extent, VkDescriptorSet descriptorSet, const World & world);
 
     inline VkCommandBuffer & raw() { return m_commandBuffer; }
 };

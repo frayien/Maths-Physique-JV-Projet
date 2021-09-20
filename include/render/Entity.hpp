@@ -22,9 +22,9 @@ public:
 
     Entity(Entity&&) = default;
 
-    inline std::unique_ptr<Buffer> & getVertexBuffer() { return m_vertexBuffer; }
-    inline std::unique_ptr<Buffer> & getIndexBuffer()  { return m_indexBuffer;  }
-    inline size_t getIndexBufferSize()  { return m_indexSize;  }
+    inline const std::unique_ptr<Buffer> & getVertexBuffer() const { return m_vertexBuffer; }
+    inline const std::unique_ptr<Buffer> & getIndexBuffer() const { return m_indexBuffer;  }
+    inline size_t getIndexBufferSize() const { return m_indexSize;  }
 };
 
 #endif // FNES_ENTITY

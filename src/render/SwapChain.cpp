@@ -1,11 +1,12 @@
 #include "render/SwapChain.hpp"
 
-SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_ptr<Surface> & surface, const std::shared_ptr<PhysicalDevice> & physicalDevice, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool) :
+SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_ptr<Surface> & surface, const std::shared_ptr<PhysicalDevice> & physicalDevice, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool, const std::shared_ptr<World> & world) :
     m_window{window},
     m_surface{surface},
     m_physicalDevice{physicalDevice},
     m_logicalDevice{logicalDevice},
-    m_commandPool{commandPool}
+    m_commandPool{commandPool},
+    m_world{world}
 {
     create();
     m_renderPass = std::make_shared<RenderPass>(m_logicalDevice, getImageFormat(), m_physicalDevice->findDepthFormat(), m_physicalDevice->getMsaaSampleCount());
@@ -28,27 +29,6 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
         m_frameBuffers.push_back(std::make_shared<FrameBuffer>(m_logicalDevice, m_renderPass, m_colorImageView, m_depthImageView, imageView, getExtent()));
     }
 
-    m_entities.emplace_back(m_logicalDevice, m_commandPool, *m_physicalDevice, 
-    std::vector<Vertex>({
-        {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        {{0.5f , -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-        {{0.5f ,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-        {{-0.5f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-    }),
-    std::vector<uint32_t>({
-        0, 1, 2, 2, 3, 0,
-    }));
-    m_entities.emplace_back(m_logicalDevice, m_commandPool, *m_physicalDevice, 
-    std::vector<Vertex>({
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-        {{0.5f , -0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}},
-        {{0.5f ,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-        {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-    }),
-    std::vector<uint32_t>({
-        0, 1, 2, 2, 3, 0,
-    }));
-
     {
         VkDeviceSize bufferSize = sizeof(UniformBufferObject);
         for (std::shared_ptr<ImageView> & imageView : m_imageViews)
@@ -58,13 +38,12 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
     }
 
     m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, m_imageViews.size());
-
-    std::vector<VkDescriptorSet> descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_descriptorSetLayout->raw());
+    m_descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_descriptorSetLayout->raw());
+    
     m_commandBuffers = std::make_shared<CommandBuffers>(m_logicalDevice, m_commandPool, m_imageViews.size());
     for(size_t i = 0; i < m_commandBuffers->size(); ++i)
     {
-        CommandBuffer commandBuffer = (*m_commandBuffers)[i];
-        commandBuffer.record(*m_renderPass, *(m_frameBuffers[i]), *m_graphicsPipeline, getExtent(), descriptorSets[i], m_entities);
+        recordCommandBuffer(i);
     }
 }
 
@@ -116,14 +95,20 @@ void SwapChain::recreate()
     }
 
     m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, m_imageViews.size());
+    m_descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_descriptorSetLayout->raw());
 
-    std::vector<VkDescriptorSet> descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_descriptorSetLayout->raw());
     m_commandBuffers = std::make_shared<CommandBuffers>(m_logicalDevice, m_commandPool, m_imageViews.size());
     for(size_t i = 0; i < m_commandBuffers->size(); ++i)
     {
-        CommandBuffer commandBuffer = (*m_commandBuffers)[i];
-        commandBuffer.record(*m_renderPass, *(m_frameBuffers[i]), *m_graphicsPipeline, getExtent(), descriptorSets[i], m_entities);
+        recordCommandBuffer(i);
     }
+}
+
+void SwapChain::recordCommandBuffer(size_t i)
+{
+    CommandBuffer commandBuffer = (*m_commandBuffers)[i];
+    std::shared_ptr<FrameBuffer> frameBuffer = m_frameBuffers[i];
+    commandBuffer.record(*m_renderPass, *frameBuffer, *m_graphicsPipeline, getExtent(), m_descriptorSets[i], *m_world);
 }
 
 void SwapChain::create()

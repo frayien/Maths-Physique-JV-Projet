@@ -9,7 +9,7 @@ CommandBuffer::~CommandBuffer()
 {
 }
 
-void CommandBuffer::record(RenderPass & renderPass, FrameBuffer & frameBuffer, GraphicsPipeline & graphicsPipeline, VkExtent2D extent, VkDescriptorSet descriptorSet, std::vector<Entity> & entities)
+void CommandBuffer::record(RenderPass & renderPass, FrameBuffer & frameBuffer, GraphicsPipeline & graphicsPipeline, VkExtent2D extent, VkDescriptorSet descriptorSet, const World & world)
 {    
     // starting command buffer recording
     VkCommandBufferBeginInfo beginInfo{};
@@ -44,7 +44,7 @@ void CommandBuffer::record(RenderPass & renderPass, FrameBuffer & frameBuffer, G
     vkCmdBindDescriptorSets(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.rawLayout(), 0, 1, &descriptorSet, 0, nullptr);
 
 
-    for(Entity & entity : entities)
+    for(const Entity & entity : world.getEntities())
     {
         VkBuffer vertexBuffers[] = {entity.getVertexBuffer()->raw()};
         VkDeviceSize offsets[] = {0};
@@ -57,7 +57,7 @@ void CommandBuffer::record(RenderPass & renderPass, FrameBuffer & frameBuffer, G
 
         vkCmdDrawIndexed(m_commandBuffer, static_cast<uint32_t>(entity.getIndexBufferSize()), 1, 0, 0, 0);
     }
-
+    
 
     vkCmdEndRenderPass(m_commandBuffer);
 

@@ -3,17 +3,35 @@
 #include "render/VulkanApplication.hpp"
 #include "render/IApplication.hpp"
 
-
 class Application : public IApplication
 {
-    virtual void init() override
+    virtual void init(World & world) override
     {
-        
+        world.addEntity(
+        std::vector<Vertex>({
+            {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+            {{0.5f , -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+            {{0.5f ,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+            {{-0.5f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+        }),
+        std::vector<uint32_t>({
+            0, 1, 2, 2, 3, 0,
+        }));
+        world.addEntity(
+        std::vector<Vertex>({
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{0.5f , -0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}},
+            {{0.5f ,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+        }),
+        std::vector<uint32_t>({
+            0, 1, 2, 2, 3, 0,
+        }));
     }
 
-    virtual void update() override
+    virtual void update(World & world) override
     {
-
+        
     }
 };
 
