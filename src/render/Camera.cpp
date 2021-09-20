@@ -14,7 +14,7 @@ Camera::~Camera()
 void Camera::rotateYaw(float yaw)
 {
     m_yaw += yaw;
-    
+    m_yaw = glm::mod(m_yaw, 2.0f * glm::pi<float>());
 }
 void Camera::rotatePitch(float pitch)
 {
