@@ -1,9 +1,27 @@
 #include "render/GraphicsPipeline.hpp"
 
-GraphicsPipeline::GraphicsPipeline(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<RenderPass> & renderPass, const std::shared_ptr<DescriptorSetLayout> & descriptorSetLayout, VkExtent2D extent, VkSampleCountFlagBits msaaSampleCount) :
-    m_logicalDevice{logicalDevice},
-    m_renderPass{renderPass},
-    m_descriptorSetLayout{descriptorSetLayout}
+GraphicsPipeline::GraphicsPipeline(const std::shared_ptr<LogicalDevice> & logicalDevice, VkFormat imageFormat, VkFormat depthFormat, VkExtent2D extent, VkSampleCountFlagBits msaaSampleCount) :
+    m_logicalDevice{logicalDevice}
+{
+    m_renderPass = std::make_shared<RenderPass>(m_logicalDevice, imageFormat, depthFormat, msaaSampleCount);
+    m_descriptorSetLayout = std::make_shared<DescriptorSetLayout>(m_logicalDevice);
+    create(extent, msaaSampleCount);
+}
+
+GraphicsPipeline::~GraphicsPipeline()
+{
+    cleanup();
+}
+
+void GraphicsPipeline::recreate(VkFormat imageFormat, VkFormat depthFormat, VkExtent2D extent, VkSampleCountFlagBits msaaSampleCount)
+{
+    cleanup();
+
+    m_renderPass = std::make_shared<RenderPass>(m_logicalDevice, imageFormat, depthFormat, msaaSampleCount);
+    create(extent, msaaSampleCount);
+}
+
+void GraphicsPipeline::create(VkExtent2D extent, VkSampleCountFlagBits msaaSampleCount)
 {
     auto vertShaderCode = readFile("shaders/vert.spv");
     auto fragShaderCode = readFile("shaders/frag.spv");
@@ -158,13 +176,11 @@ GraphicsPipeline::GraphicsPipeline(const std::shared_ptr<LogicalDevice> & logica
     vkDestroyShaderModule(m_logicalDevice->raw(), vertShaderModule, nullptr);
 }
 
-GraphicsPipeline::~GraphicsPipeline()
+void GraphicsPipeline::cleanup()
 {
     vkDestroyPipeline(m_logicalDevice->raw(), m_pipeline, nullptr);
     vkDestroyPipelineLayout(m_logicalDevice->raw(), m_pipelineLayout, nullptr);
 }
-
-
 
 std::vector<char> GraphicsPipeline::readFile(const std::string& filename)
 {

@@ -1,8 +1,10 @@
 #include "render/CommandPool.hpp"
 
-CommandPool::CommandPool(const std::shared_ptr<LogicalDevice> & logicalDevice, QueueFamilyIndices queueFamilyIndices) :
+CommandPool::CommandPool(const std::shared_ptr<LogicalDevice> & logicalDevice) :
     m_logicalDevice{logicalDevice}
 {
+    QueueFamilyIndices queueFamilyIndices = m_logicalDevice->getPhysicalDevice()->getQueueFamilies();
+
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();

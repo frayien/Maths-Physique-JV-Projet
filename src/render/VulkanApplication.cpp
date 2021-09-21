@@ -8,7 +8,7 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     m_surface        = std::make_shared<Surface>       (m_window, m_instance);
     m_physicalDevice = std::make_shared<PhysicalDevice>(m_instance, m_surface);
     m_logicalDevice  = std::make_shared<LogicalDevice> (m_physicalDevice);
-    m_commandPool    = std::make_shared<CommandPool>   (m_logicalDevice, m_physicalDevice->getQueueFamilies());
+    m_commandPool    = std::make_shared<CommandPool>   (m_logicalDevice);
     m_world          = std::make_shared<World>         (m_window, m_physicalDevice, m_logicalDevice, m_commandPool);
 
     m_application->init(*m_world);

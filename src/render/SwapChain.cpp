@@ -9,9 +9,7 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
     m_world{world}
 {
     create();
-    m_renderPass = std::make_shared<RenderPass>(m_logicalDevice, getImageFormat(), m_physicalDevice->findDepthFormat(), m_physicalDevice->getMsaaSampleCount());
-    m_descriptorSetLayout = std::make_shared<DescriptorSetLayout>(m_logicalDevice);
-    m_graphicsPipeline = std::make_shared<GraphicsPipeline>(m_logicalDevice, m_renderPass, m_descriptorSetLayout, getExtent(), m_physicalDevice->getMsaaSampleCount());
+    m_graphicsPipeline = std::make_shared<GraphicsPipeline>(m_logicalDevice, getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
 
     {
         VkFormat colorFormat = getImageFormat();
@@ -26,7 +24,7 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
 
     for (std::shared_ptr<ImageView> & imageView : m_imageViews)
     {
-        m_frameBuffers.push_back(std::make_shared<FrameBuffer>(m_logicalDevice, m_renderPass, m_colorImageView, m_depthImageView, imageView, getExtent()));
+        m_frameBuffers.push_back(std::make_shared<FrameBuffer>(m_logicalDevice, m_graphicsPipeline->getRenderPass(), m_colorImageView, m_depthImageView, imageView, getExtent()));
     }
 
     {
@@ -38,7 +36,7 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
     }
 
     m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, m_imageViews.size());
-    m_descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_descriptorSetLayout->raw());
+    m_descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_graphicsPipeline->getDescriptorSetLayout()->raw());
     
     m_commandBuffers = std::make_shared<CommandBuffers>(m_logicalDevice, m_commandPool, m_imageViews.size());
     for(size_t i = 0; i < m_commandBuffers->size(); ++i)
@@ -67,8 +65,7 @@ void SwapChain::recreate()
     cleanup();
     
     create();
-    m_renderPass = std::make_shared<RenderPass>(m_logicalDevice, getImageFormat(), m_physicalDevice->findDepthFormat(), m_physicalDevice->getMsaaSampleCount());
-    m_graphicsPipeline = std::make_shared<GraphicsPipeline>(m_logicalDevice, m_renderPass, m_descriptorSetLayout, getExtent(), m_physicalDevice->getMsaaSampleCount());
+    m_graphicsPipeline->recreate(getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
 
     {
         VkFormat colorFormat = getImageFormat();
@@ -83,7 +80,7 @@ void SwapChain::recreate()
 
     for (std::shared_ptr<ImageView> & imageView : m_imageViews)
     {
-        m_frameBuffers.push_back(std::make_shared<FrameBuffer>(m_logicalDevice, m_renderPass, m_colorImageView, m_depthImageView, imageView, getExtent()));
+        m_frameBuffers.push_back(std::make_shared<FrameBuffer>(m_logicalDevice, m_graphicsPipeline->getRenderPass(), m_colorImageView, m_depthImageView, imageView, getExtent()));
     }
 
     {
@@ -95,7 +92,7 @@ void SwapChain::recreate()
     }
 
     m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, m_imageViews.size());
-    m_descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_descriptorSetLayout->raw());
+    m_descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_graphicsPipeline->getDescriptorSetLayout()->raw());
 
     m_commandBuffers = std::make_shared<CommandBuffers>(m_logicalDevice, m_commandPool, m_imageViews.size());
     for(size_t i = 0; i < m_commandBuffers->size(); ++i)
@@ -108,7 +105,7 @@ void SwapChain::recordCommandBuffer(size_t i)
 {
     CommandBuffer commandBuffer = (*m_commandBuffers)[i];
     std::shared_ptr<FrameBuffer> frameBuffer = m_frameBuffers[i];
-    commandBuffer.record(*m_renderPass, *frameBuffer, *m_graphicsPipeline, getExtent(), m_descriptorSets[i], *m_world);
+    commandBuffer.record(*m_graphicsPipeline->getRenderPass(), *frameBuffer, *m_graphicsPipeline, getExtent(), m_descriptorSets[i], *m_world);
 }
 
 void SwapChain::create()
@@ -191,8 +188,6 @@ void SwapChain::cleanup()
     m_colorImageView.reset();
     m_colorImage.reset();
 
-    m_graphicsPipeline.reset();
-    m_renderPass.reset();
     m_imageViews.clear();
 
     vkDestroySwapchainKHR(m_logicalDevice->raw(), m_swapChain, nullptr);

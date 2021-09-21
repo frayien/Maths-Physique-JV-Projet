@@ -11,8 +11,6 @@
 #include "render/Surface.hpp"
 #include "render/PhysicalDevice.hpp"
 #include "render/LogicalDevice.hpp"
-#include "render/RenderPass.hpp"
-#include "render/DescriptorSetLayout.hpp"
 #include "render/GraphicsPipeline.hpp"
 #include "render/CommandPool.hpp"
 #include "render/Image.hpp"
@@ -38,8 +36,6 @@ private:
     VkSwapchainKHR m_swapChain;
 
     std::vector<std::shared_ptr<ImageView> > m_imageViews;
-    std::shared_ptr<RenderPass> m_renderPass;
-    std::shared_ptr<DescriptorSetLayout> m_descriptorSetLayout;
     std::shared_ptr<GraphicsPipeline> m_graphicsPipeline;
     std::shared_ptr<Image> m_colorImage;
     std::shared_ptr<ImageView> m_colorImageView;

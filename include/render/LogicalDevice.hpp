@@ -32,6 +32,8 @@ public:
     inline GraphicsQueue & getGraphicsQueue() { return m_graphicsQueue; }
     inline PresentQueue &  getPresentQueue()  { return m_presentQueue;  }
 
+    inline std::shared_ptr<PhysicalDevice> & getPhysicalDevice() { return m_physicalDevice; }
+
     inline VkDevice & raw() { return m_device; }
 };
 

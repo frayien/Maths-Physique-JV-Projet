@@ -14,7 +14,7 @@ private:
     VkCommandPool m_commandPool;
     
 public:
-    CommandPool(const std::shared_ptr<LogicalDevice> & logicalDevice, QueueFamilyIndices queueFamilyIndices);
+    CommandPool(const std::shared_ptr<LogicalDevice> & logicalDevice);
     virtual ~CommandPool();
 
     inline VkCommandPool & raw() { return m_commandPool; }
