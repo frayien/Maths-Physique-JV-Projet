@@ -19,7 +19,7 @@ private:
     std::shared_ptr<LogicalDevice> m_logicalDevice;
     std::shared_ptr<CommandPool> m_commandPool;
 
-    std::vector<Entity> m_entities;
+    std::vector<std::unique_ptr<Entity> > m_entities;
     bool m_changed = false;
 
     Camera m_camera;
@@ -31,7 +31,7 @@ public:
     void addEntity(const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);
 
     inline const Window & getWindow() const { return *m_window; }
-    inline const std::vector<Entity> & getEntities() const { return m_entities; }
+    inline const std::vector<std::unique_ptr<Entity> > & getEntities() const { return m_entities; }
     inline bool hasChanged() const { return m_changed; }
     inline void setChanged(bool val) { m_changed = val; }
     inline Camera & getCamera() { return m_camera; }

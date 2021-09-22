@@ -14,6 +14,6 @@ World::~World()
 
 void World::addEntity(const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices)
 {
-    m_entities.emplace_back(m_logicalDevice, m_commandPool, *m_physicalDevice, vertices, indices);
+    m_entities.push_back(std::make_unique<Entity>(m_logicalDevice, m_commandPool, *m_physicalDevice, vertices, indices));
     m_changed = true;
 }

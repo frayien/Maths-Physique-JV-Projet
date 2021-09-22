@@ -20,9 +20,8 @@ private:
 
 public:
     CommandBuffer(VkCommandBuffer commandBuffer);
-    virtual ~CommandBuffer();
 
-    void record(RenderPass & renderPass, FrameBuffer & frameBuffer, GraphicsPipeline & graphicsPipeline, VkExtent2D extent, VkDescriptorSet descriptorSet, const World & world);
+    void record(const FrameBuffer & frameBuffer, VkDescriptorSet descriptorSet, const World & world);
 
     inline VkCommandBuffer & raw() { return m_commandBuffer; }
 };

@@ -22,8 +22,3 @@ CommandBuffers::~CommandBuffers()
 {
     vkFreeCommandBuffers(m_logicalDevice->raw(), m_commandPool->raw(), static_cast<uint32_t>(m_commandBuffers.size()), m_commandBuffers.data());
 }
-
-CommandBuffer CommandBuffers::operator[](size_t i)
-{
-    return CommandBuffer(m_commandBuffers[i]);
-}

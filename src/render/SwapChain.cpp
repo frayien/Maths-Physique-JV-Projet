@@ -10,22 +10,7 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
 {
     create();
     m_graphicsPipeline = std::make_shared<GraphicsPipeline>(m_logicalDevice, getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
-
-    {
-        VkFormat colorFormat = getImageFormat();
-        m_colorImage = std::make_shared<Image>(m_logicalDevice, *m_physicalDevice, getExtent().width, getExtent().height, m_physicalDevice->getMsaaSampleCount(), colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        m_colorImageView = std::make_shared<ImageView>(m_logicalDevice, m_colorImage->raw(), colorFormat, VK_IMAGE_ASPECT_COLOR_BIT);
-    }
-    {
-        VkFormat depthFormat = m_physicalDevice->findDepthFormat();
-        m_depthImage = std::make_shared<Image>(m_logicalDevice, *m_physicalDevice, getExtent().width, getExtent().height, m_physicalDevice->getMsaaSampleCount(), depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        m_depthImageView = std::make_shared<ImageView>(m_logicalDevice, m_depthImage->raw(), depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-    }
-
-    for (std::shared_ptr<ImageView> & imageView : m_imageViews)
-    {
-        m_frameBuffers.push_back(std::make_shared<FrameBuffer>(m_logicalDevice, m_graphicsPipeline->getRenderPass(), m_colorImageView, m_depthImageView, imageView, getExtent()));
-    }
+    m_frameBuffers = std::make_shared<FrameBuffers>(m_logicalDevice, m_graphicsPipeline, m_imageViews, getExtent(), getImageFormat(), m_physicalDevice->findDepthFormat());
 
     {
         VkDeviceSize bufferSize = sizeof(UniformBufferObject);
@@ -66,22 +51,7 @@ void SwapChain::recreate()
     
     create();
     m_graphicsPipeline->recreate(getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
-
-    {
-        VkFormat colorFormat = getImageFormat();
-        m_colorImage = std::make_shared<Image>(m_logicalDevice, *m_physicalDevice, getExtent().width, getExtent().height, m_physicalDevice->getMsaaSampleCount(), colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        m_colorImageView = std::make_shared<ImageView>(m_logicalDevice, m_colorImage->raw(), colorFormat, VK_IMAGE_ASPECT_COLOR_BIT);
-    }
-    {
-        VkFormat depthFormat = m_physicalDevice->findDepthFormat();
-        m_depthImage = std::make_shared<Image>(m_logicalDevice, *m_physicalDevice, getExtent().width, getExtent().height, m_physicalDevice->getMsaaSampleCount(), depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        m_depthImageView = std::make_shared<ImageView>(m_logicalDevice, m_depthImage->raw(), depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-    }
-
-    for (std::shared_ptr<ImageView> & imageView : m_imageViews)
-    {
-        m_frameBuffers.push_back(std::make_shared<FrameBuffer>(m_logicalDevice, m_graphicsPipeline->getRenderPass(), m_colorImageView, m_depthImageView, imageView, getExtent()));
-    }
+    m_frameBuffers->recreate(m_graphicsPipeline, m_imageViews, getExtent(), getImageFormat(), m_physicalDevice->findDepthFormat());
 
     {
         VkDeviceSize bufferSize = sizeof(UniformBufferObject);
@@ -104,8 +74,8 @@ void SwapChain::recreate()
 void SwapChain::recordCommandBuffer(size_t i)
 {
     CommandBuffer commandBuffer = (*m_commandBuffers)[i];
-    std::shared_ptr<FrameBuffer> frameBuffer = m_frameBuffers[i];
-    commandBuffer.record(*m_graphicsPipeline->getRenderPass(), *frameBuffer, *m_graphicsPipeline, getExtent(), m_descriptorSets[i], *m_world);
+    const FrameBuffer & frameBuffer = (*m_frameBuffers)[i];
+    commandBuffer.record(frameBuffer, m_descriptorSets[i], *m_world);
 }
 
 void SwapChain::create()
@@ -180,13 +150,6 @@ void SwapChain::cleanup()
     m_descriptorPool.reset();
 
     m_uniformBuffers.clear();
-    m_frameBuffers.clear();
-
-    m_depthImageView.reset();
-    m_depthImage.reset();
-
-    m_colorImageView.reset();
-    m_colorImage.reset();
 
     m_imageViews.clear();
 

@@ -5,11 +5,7 @@ CommandBuffer::CommandBuffer(VkCommandBuffer commandBuffer) :
 {
 }
 
-CommandBuffer::~CommandBuffer()
-{
-}
-
-void CommandBuffer::record(RenderPass & renderPass, FrameBuffer & frameBuffer, GraphicsPipeline & graphicsPipeline, VkExtent2D extent, VkDescriptorSet descriptorSet, const World & world)
+void CommandBuffer::record(const FrameBuffer & frameBuffer, VkDescriptorSet descriptorSet, const World & world)
 {    
     // starting command buffer recording
     VkCommandBufferBeginInfo beginInfo{};
@@ -25,10 +21,10 @@ void CommandBuffer::record(RenderPass & renderPass, FrameBuffer & frameBuffer, G
     // starting a render pass
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = renderPass.raw();
+    renderPassInfo.renderPass = frameBuffer.getGraphicsPipeline()->getRenderPass()->raw();
     renderPassInfo.framebuffer = frameBuffer.raw();
     renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = extent;
+    renderPassInfo.renderArea.extent = frameBuffer.getExtent();
 
     std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -39,23 +35,23 @@ void CommandBuffer::record(RenderPass & renderPass, FrameBuffer & frameBuffer, G
 
     vkCmdBeginRenderPass(m_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.raw());
+    vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBuffer.getGraphicsPipeline()->raw());
 
-    vkCmdBindDescriptorSets(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.rawLayout(), 0, 1, &descriptorSet, 0, nullptr);
+    vkCmdBindDescriptorSets(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBuffer.getGraphicsPipeline()->rawLayout(), 0, 1, &descriptorSet, 0, nullptr);
 
 
-    for(const Entity & entity : world.getEntities())
+    for(const std::unique_ptr<Entity> & entity : world.getEntities())
     {
-        VkBuffer vertexBuffers[] = {entity.getVertexBuffer()->raw()};
+        VkBuffer vertexBuffers[] = {entity->getVertexBuffer()->raw()};
         VkDeviceSize offsets[] = {0};
 
         vkCmdBindVertexBuffers(m_commandBuffer, 0, 1, vertexBuffers, offsets);
 
-        VkBuffer indexBuffer  = entity.getIndexBuffer()->raw();
+        VkBuffer indexBuffer  = entity->getIndexBuffer()->raw();
 
         vkCmdBindIndexBuffer(m_commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-        vkCmdDrawIndexed(m_commandBuffer, static_cast<uint32_t>(entity.getIndexBufferSize()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(m_commandBuffer, static_cast<uint32_t>(entity->getIndexBufferSize()), 1, 0, 0, 0);
     }
     
 

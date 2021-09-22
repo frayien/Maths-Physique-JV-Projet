@@ -13,9 +13,7 @@
 #include "render/LogicalDevice.hpp"
 #include "render/GraphicsPipeline.hpp"
 #include "render/CommandPool.hpp"
-#include "render/Image.hpp"
-#include "render/ImageView.hpp"
-#include "render/FrameBuffer.hpp"
+#include "render/FrameBuffers.hpp"
 #include "render/DescriptorPool.hpp"
 #include "render/CommandBuffers.hpp"
 
@@ -37,11 +35,7 @@ private:
 
     std::vector<std::shared_ptr<ImageView> > m_imageViews;
     std::shared_ptr<GraphicsPipeline> m_graphicsPipeline;
-    std::shared_ptr<Image> m_colorImage;
-    std::shared_ptr<ImageView> m_colorImageView;
-    std::shared_ptr<Image> m_depthImage;
-    std::shared_ptr<ImageView> m_depthImageView;
-    std::vector<std::shared_ptr<FrameBuffer> > m_frameBuffers;
+    std::shared_ptr<FrameBuffers> m_frameBuffers;
 
     std::vector<std::shared_ptr<Buffer> > m_uniformBuffers;
     std::shared_ptr<DescriptorPool> m_descriptorPool;
