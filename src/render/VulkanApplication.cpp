@@ -3,6 +3,9 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_vulkan.h"
 
+#include <chrono>
+#include <thread>
+
 VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & application) :
     m_application{application}
 {
@@ -60,6 +63,9 @@ void VulkanApplication::run()
 {
     while (!m_window->shouldClose()) 
     {
+        using namespace std::chrono;
+        high_resolution_clock::time_point frameStart = high_resolution_clock::now();
+
         Window::pollEvents();
 
         if (m_swapChainRebuild)
@@ -75,6 +81,15 @@ void VulkanApplication::run()
         ImGui::Render();
 
         drawFrame();
+
+        high_resolution_clock::time_point frameEnd = high_resolution_clock::now();
+        duration<double> frameTime = duration_cast<duration<double>>(frameEnd - frameStart);
+
+        double waitTime = 0.016667 - frameTime.count();
+        if (waitTime > 0)
+        {
+            std::this_thread::sleep_for(std::chrono::duration<double>(waitTime));
+        }
     }
 
     m_logicalDevice->waitIdle();
