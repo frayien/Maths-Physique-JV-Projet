@@ -1,26 +1,29 @@
 #include "Particle.hpp"
 
-Particle::Particle() {
-	position = Vector3f::Vector3f();
-	velocity = Vector3f::Vector3f();
-	acceleration = Vector3f::Vector3f();
-	inverseMass = 0.001;
-	damping = 0;
+Particle::Particle()
+{
+	m_inverseMass = 1.0f;
+	m_damping = 0.001f;
 }
 
-Particle::Particle(Vector3f position, float mass, float damping) : damping(damping), position(position){
-	inverseMass = 1 / mass;
+Particle::Particle(Vector3f position, float mass, float damping) : 
+	m_damping(damping), 
+	m_position(position)
+{
+	m_inverseMass = 1.0f / mass;
 }
 
-Particle::~Particle() {
+Particle::~Particle()
+{
 }
 
-void Particle::setInverseMass(float mass) {
-	inverseMass = 1 / mass;
+void Particle::setMass(float mass)
+{
+	m_inverseMass = 1.0f / mass;
 }
 
-void Particle::integrate() {
-
+void Particle::integrate()
+{
 	using namespace std::chrono_literals;
 
 	const std::chrono::nanoseconds TIMESTEP(1s);
@@ -31,39 +34,47 @@ void Particle::integrate() {
 	std::chrono::nanoseconds lag(0ns);
 	auto base_time = clock::now();
 
-	std::vector<Vector3f> forceList({ Vector3f(0, -9.81, 0) });
+	std::vector<Vector3f> forceList = { Vector3f(0, -9.81, 0) };
 
-	while (true) {
+	while (true)
+	{
 		auto current_time = clock::now();
 		auto frame_time = current_time - base_time;
 		base_time = current_time;
 		lag += std::chrono::duration_cast<std::chrono::nanoseconds>(frame_time);
 
-		while (lag >= TIMESTEP) {
+		while (lag >= TIMESTEP)
+		{
 			lag -= TIMESTEP;
 
 			calculAcceleration(forceList);
-			position += velocity * DELTA_TIME + (DELTA_TIME * DELTA_TIME * acceleration / 2);
-			velocity = velocity * damping + acceleration * DELTA_TIME;
+			m_position += m_velocity * DELTA_TIME + (DELTA_TIME * DELTA_TIME * m_acceleration / 2);
+			m_velocity = m_velocity * (1.0f - m_damping) + m_acceleration * DELTA_TIME;
 			
 			std::cout << "================" << std::endl;
-			std::cout << "acceleration = " << acceleration << std::endl;
-			std::cout << "velocity = " << velocity << std::endl;
-			std::cout << "position = " << position << std::endl;
+			std::cout << "acceleration = " << m_acceleration << std::endl;
+			std::cout << "velocity = " << m_velocity << std::endl;
+			std::cout << "position = " << m_position << std::endl;
 			std::cout << "================" << std::endl << std::endl;
 		}
 	}
 }
 
-void Particle::calculAcceleration(const std::vector<Vector3f> & forceList) {
+void Particle::calculAcceleration(const std::vector<Vector3f> & forceList)
+{
 	Vector3f totalForce{ 0, 0, 0 };
-	for (int i = 0; i < forceList.size(); i++) {
+	for (int i = 0; i < forceList.size(); i++)
+	{
 		totalForce += forceList[i];
 	}
-	acceleration = inverseMass * totalForce;
+	m_acceleration = m_inverseMass * totalForce;
 }
 
 std::ostream& operator<<(std::ostream& out, const Particle& a)
 {
-	return out << "position : " << a.position << std::endl << "velocity : " << a.velocity << std::endl << "acceleration : " << a.acceleration << std::endl << "inverseMass : " << a.inverseMass << std::endl << "damping : " << a.damping << std::endl << std::endl;
+	return out << "position : "     << a.m_position     << std::endl 
+	           << "velocity : "     << a.m_velocity     << std::endl 
+			   << "acceleration : " << a.m_acceleration << std::endl 
+			   << "inverseMass : "  << a.m_inverseMass  << std::endl 
+			   << "damping : "      << a.m_damping      << std::endl << std::endl;
 }
