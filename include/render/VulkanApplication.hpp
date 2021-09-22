@@ -68,6 +68,7 @@ private:
     void imGuiRender();
     void createImGuiCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateFlags flags);
     void createImGuiCommandBuffers(VkCommandBuffer* commandBuffer, uint32_t commandBufferCount, VkCommandPool &commandPool);
+    void imGuiCleanUp();
 };
 
 #endif // FNES_VULKANAPPLICATION

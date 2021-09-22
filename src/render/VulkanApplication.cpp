@@ -51,6 +51,8 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
 
 VulkanApplication::~VulkanApplication()
 {
+    imGuiCleanUp();
+
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
         vkDestroySemaphore(m_logicalDevice->raw(), m_renderFinishedSemaphores[i], nullptr);
@@ -429,4 +431,20 @@ void VulkanApplication::createImGuiCommandBuffers(VkCommandBuffer* commandBuffer
     commandBufferAllocateInfo.commandPool = commandPool;
     commandBufferAllocateInfo.commandBufferCount = commandBufferCount;
     vkAllocateCommandBuffers(m_logicalDevice->raw(), &commandBufferAllocateInfo, commandBuffer);
+}
+
+void VulkanApplication::imGuiCleanUp()
+{
+    for (auto framebuffer : m_imGuiFrameBuffers)
+    {
+        vkDestroyFramebuffer(m_logicalDevice->raw(), framebuffer, nullptr);
+    }
+    vkDestroyRenderPass(m_logicalDevice->raw(), m_imGuiRenderPass, nullptr);
+    vkFreeCommandBuffers(m_logicalDevice->raw(), m_imGuiCommandPool, static_cast<uint32_t>(m_imGuiCommandBuffers.size()), m_imGuiCommandBuffers.data());
+    vkDestroyCommandPool(m_logicalDevice->raw(), m_imGuiCommandPool, nullptr);
+
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+    vkDestroyDescriptorPool(m_logicalDevice->raw(), m_imguiDescriptorPool, nullptr);
 }
