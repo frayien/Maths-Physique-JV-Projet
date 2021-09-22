@@ -45,6 +45,14 @@ private:
 
     std::shared_ptr<IApplication> m_application;
 
+    VkDescriptorPool m_imguiDescriptorPool;
+    VkRenderPass m_imGuiRenderPass;
+    bool m_swapChainRebuild = false;
+    VkCommandPool m_imGuiCommandPool;
+    std::vector<VkCommandBuffer> m_imGuiCommandBuffers;
+    uint32_t m_imageIndex;
+    std::vector<VkFramebuffer> m_imGuiFrameBuffers;
+
 public:
     VulkanApplication(const std::shared_ptr<IApplication> & application);
     virtual ~VulkanApplication();
@@ -54,6 +62,12 @@ public:
 private:
     void update(uint32_t currentImage);
     void drawFrame();
+    VkCommandBuffer beginSingleTimeCommands();
+    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+    void initImGui();
+    void imGuiRender();
+    void createImGuiCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateFlags flags);
+    void createImGuiCommandBuffers(VkCommandBuffer* commandBuffer, uint32_t commandBufferCount, VkCommandPool &commandPool);
 };
 
 #endif // FNES_VULKANAPPLICATION

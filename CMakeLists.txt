@@ -25,6 +25,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../")
 
 ### Project headers ###
 include_directories(include)
+include_directories(include/imgui)
 
 ### Dependencies ###
 include_directories(./lib/vulkan/Include)
