@@ -74,6 +74,7 @@ void VulkanApplication::run()
         {
             m_swapChainRebuild = false;
             ImGui_ImplVulkan_SetMinImageCount(m_swapChain->size()); // Not sure
+            imGuiRecreate();
         }
 
         ImGui_ImplVulkan_NewFrame();
@@ -447,4 +448,76 @@ void VulkanApplication::imGuiCleanUp()
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     vkDestroyDescriptorPool(m_logicalDevice->raw(), m_imguiDescriptorPool, nullptr);
+}
+
+void VulkanApplication::imGuiRecreate()
+{
+    for (auto framebuffer : m_imGuiFrameBuffers)
+    {
+        vkDestroyFramebuffer(m_logicalDevice->raw(), framebuffer, nullptr);
+    }
+    vkDestroyRenderPass(m_logicalDevice->raw(), m_imGuiRenderPass, nullptr);
+    vkFreeCommandBuffers(m_logicalDevice->raw(), m_imGuiCommandPool, static_cast<uint32_t>(m_imGuiCommandBuffers.size()), m_imGuiCommandBuffers.data());
+    vkDestroyCommandPool(m_logicalDevice->raw(), m_imGuiCommandPool, nullptr);
+
+    VkAttachmentDescription attachmentDescription = {};
+    attachmentDescription.format = m_swapChain->getImageFormat();
+    attachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
+    attachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    attachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    attachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachmentDescription.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    attachmentDescription.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    VkAttachmentReference color_attachment = {};
+    color_attachment.attachment = 0;
+    color_attachment.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &color_attachment;
+
+    // Create Subpass Dependency to synchronize the render passes
+    VkSubpassDependency dependency = {};
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcAccessMask = 0;  // or VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+    VkRenderPassCreateInfo renderPassCreateInfo = {};
+    renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassCreateInfo.attachmentCount = 1;
+    renderPassCreateInfo.pAttachments = &attachmentDescription;
+    renderPassCreateInfo.subpassCount = 1;
+    renderPassCreateInfo.pSubpasses = &subpass;
+    renderPassCreateInfo.dependencyCount = 1;
+    renderPassCreateInfo.pDependencies = &dependency;
+    if (vkCreateRenderPass(m_logicalDevice->raw(), &renderPassCreateInfo, nullptr, &m_imGuiRenderPass) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Could not create Dear ImGui's render pass");
+    }
+
+    createImGuiCommandPool(&m_imGuiCommandPool, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+    m_imGuiCommandBuffers.resize(m_swapChain->size());
+    createImGuiCommandBuffers(m_imGuiCommandBuffers.data(), static_cast<uint32_t>(m_imGuiCommandBuffers.size()), m_imGuiCommandPool);
+
+    VkImageView attachment[1];
+    VkFramebufferCreateInfo info = {};
+    info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    info.renderPass = m_imGuiRenderPass;
+    info.attachmentCount = 1;
+    info.pAttachments = attachment;
+    info.width = m_swapChain->getExtent().width;
+    info.height = m_swapChain->getExtent().height;
+    info.layers = 1;
+    m_imGuiFrameBuffers.resize(m_swapChain->size());
+    for (uint32_t i = 0; i < m_swapChain->size(); i++)
+    {
+        attachment[0] = m_swapChain->getImageViews()[i]->raw();
+        vkCreateFramebuffer(m_logicalDevice->raw(), &info, nullptr, &m_imGuiFrameBuffers[i]);
+    }
 }
