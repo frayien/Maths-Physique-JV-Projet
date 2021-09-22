@@ -1,5 +1,5 @@
-#ifndef FNES_GRAPHICSQUEUE
-#define FNES_GRAPHICSQUEUE
+#ifndef MPJVP_GRAPHICSQUEUE
+#define MPJVP_GRAPHICSQUEUE
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -20,4 +20,4 @@ public:
 
 
 
-#endif // FNES_GRAPHICSQUEUE
+#endif // MPJVP_GRAPHICSQUEUE

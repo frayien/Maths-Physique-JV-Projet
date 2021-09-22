@@ -1,5 +1,5 @@
-#ifndef FNES_IMAGE
-#define FNES_IMAGE
+#ifndef MPJVP_IMAGE
+#define MPJVP_IMAGE
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -22,4 +22,4 @@ public:
     inline VkImage & raw() { return m_image; }
 };
 
-#endif // FNES_IMAGE
+#endif // MPJVP_IMAGE

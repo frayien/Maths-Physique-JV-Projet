@@ -1,5 +1,5 @@
-#ifndef FNES_WORLD
-#define FNES_WORLD
+#ifndef MPJVP_WORLD
+#define MPJVP_WORLD
 
 #include <vector>
 
@@ -37,4 +37,4 @@ public:
     inline Camera & getCamera() { return m_camera; }
 };
 
-#endif // FNES_WORLD
+#endif // MPJVP_WORLD

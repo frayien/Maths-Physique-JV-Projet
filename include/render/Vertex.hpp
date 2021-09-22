@@ -1,5 +1,5 @@
-#ifndef FNES_VERTEX
-#define FNES_VERTEX
+#ifndef MPJVP_VERTEX
+#define MPJVP_VERTEX
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -19,4 +19,4 @@ struct Vertex
     static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions();
 };
 
-#endif // FNES_VERTEX
+#endif // MPJVP_VERTEX

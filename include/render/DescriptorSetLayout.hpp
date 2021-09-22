@@ -1,5 +1,5 @@
-#ifndef FNES_DESCRIPTORSETLAYOUT
-#define FNES_DESCRIPTORSETLAYOUT
+#ifndef MPJVP_DESCRIPTORSETLAYOUT
+#define MPJVP_DESCRIPTORSETLAYOUT
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -22,4 +22,4 @@ public:
     inline VkDescriptorSetLayout & raw() { return m_descriptorSetLayout; }
 };
 
-#endif // FNES_DESCRIPTORSETLAYOUT
+#endif // MPJVP_DESCRIPTORSETLAYOUT

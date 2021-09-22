@@ -1,5 +1,5 @@
-#ifndef FNES_INSTANCE
-#define FNES_INSTANCE
+#ifndef MPJVP_INSTANCE
+#define MPJVP_INSTANCE
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -37,4 +37,4 @@ private:
     bool checkValidationLayerSupport();
 };
 
-#endif // FNES_INSTANCE
+#endif // MPJVP_INSTANCE

@@ -1,5 +1,5 @@
-#ifndef FNES_BUFFER
-#define FNES_BUFFER
+#ifndef MPJVP_BUFFER
+#define MPJVP_BUFFER
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -28,4 +28,4 @@ public:
 };
 
 
-#endif // FNES_BUFFER
+#endif // MPJVP_BUFFER

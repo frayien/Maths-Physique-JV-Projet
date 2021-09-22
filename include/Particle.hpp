@@ -1,5 +1,5 @@
-#ifndef FNES_PARTICLE
-#define FNES_PARTICLE
+#ifndef MPJVP_PARTICLE
+#define MPJVP_PARTICLE
 
 #include <iostream>
 #include <cmath>
@@ -35,4 +35,4 @@ private :
 	float damping;
 };
 
-#endif // FNES_PARTICLE
+#endif // MPJVP_PARTICLE

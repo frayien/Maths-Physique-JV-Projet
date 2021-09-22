@@ -1,5 +1,5 @@
-#ifndef FNES_PRESENTQUEUE
-#define FNES_PRESENTQUEUE
+#ifndef MPJVP_PRESENTQUEUE
+#define MPJVP_PRESENTQUEUE
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -16,4 +16,4 @@ public:
     inline VkQueue & raw() { return m_presentQueue; }
 };
 
-#endif // FNES_PRESENTQUEUE
+#endif // MPJVP_PRESENTQUEUE

@@ -1,5 +1,5 @@
-#ifndef FNES_IMAGEVIEW
-#define FNES_IMAGEVIEW
+#ifndef MPJVP_IMAGEVIEW
+#define MPJVP_IMAGEVIEW
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -22,4 +22,4 @@ public:
     inline VkImageView & raw() { return m_imageView; }
 };
 
-#endif // FNES_IMAGEVIEW
+#endif // MPJVP_IMAGEVIEW

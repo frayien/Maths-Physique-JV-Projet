@@ -1,5 +1,5 @@
-#ifndef FNES_PHYSICALDEVICE
-#define FNES_PHYSICALDEVICE
+#ifndef MPJVP_PHYSICALDEVICE
+#define MPJVP_PHYSICALDEVICE
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -67,4 +67,4 @@ private:
 
 
 
-#endif // FNES_PHYSICALDEVICE
+#endif // MPJVP_PHYSICALDEVICE

@@ -1,5 +1,5 @@
-#ifndef FNES_WINDOW
-#define FNES_WINDOW
+#ifndef MPJVP_WINDOW
+#define MPJVP_WINDOW
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -42,4 +42,4 @@ private:
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 };
 
-#endif // FNES_WINDOW
+#endif // MPJVP_WINDOW

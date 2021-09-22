@@ -1,5 +1,5 @@
-#ifndef FNES_COMMANDBUFFER
-#define FNES_COMMANDBUFFER
+#ifndef MPJVP_COMMANDBUFFER
+#define MPJVP_COMMANDBUFFER
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -27,4 +27,4 @@ public:
     inline VkCommandBuffer & raw() { return m_commandBuffer; }
 };
 
-#endif // FNES_COMMANDBUFFER
+#endif // MPJVP_COMMANDBUFFER

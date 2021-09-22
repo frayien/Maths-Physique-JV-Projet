@@ -1,5 +1,5 @@
-#ifndef FNES_SURFACE
-#define FNES_SURFACE
+#ifndef MPJVP_SURFACE
+#define MPJVP_SURFACE
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -38,4 +38,4 @@ public:
     inline VkSurfaceKHR & raw() { return m_surface; }
 };
 
-#endif // FNES_SURFACE
+#endif // MPJVP_SURFACE

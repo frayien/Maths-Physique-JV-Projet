@@ -1,5 +1,5 @@
-#ifndef FNES_FRAMEBUFFERS
-#define FNES_FRAMEBUFFERS
+#ifndef MPJVP_FRAMEBUFFERS
+#define MPJVP_FRAMEBUFFERS
 
 #include "render/Image.hpp"
 #include "render/ImageView.hpp"
@@ -19,4 +19,4 @@ public:
     virtual ~FrameBuffers();
 };
 
-#endif // FNES_FRAMEBUFFERS
+#endif // MPJVP_FRAMEBUFFERS

@@ -1,5 +1,5 @@
-#ifndef FNES_CAMERA
-#define FNES_CAMERA
+#ifndef MPJVP_CAMERA
+#define MPJVP_CAMERA
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -32,4 +32,4 @@ public:
     inline void setRotation(float yaw, float pitch) { m_yaw = yaw; m_pitch = pitch; }
 };
 
-#endif // FNES_CAMERA
+#endif // MPJVP_CAMERA

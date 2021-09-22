@@ -1,5 +1,5 @@
-#ifndef FNES_IAPPLICATION
-#define FNES_IAPPLICATION
+#ifndef MPJVP_IAPPLICATION
+#define MPJVP_IAPPLICATION
 
 #include "render/World.hpp"
 
@@ -13,4 +13,4 @@ public:
     virtual void update(World & world, float deltaTime) = 0;
 };
 
-#endif // FNES_IAPPLICATION
+#endif // MPJVP_IAPPLICATION

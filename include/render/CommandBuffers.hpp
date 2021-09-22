@@ -1,5 +1,5 @@
-#ifndef FNES_COMMANDBUFFERS
-#define FNES_COMMANDBUFFERS
+#ifndef MPJVP_COMMANDBUFFERS
+#define MPJVP_COMMANDBUFFERS
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -25,4 +25,4 @@ public:
     inline size_t size() const { return m_commandBuffers.size(); }
 };
 
-#endif // FNES_COMMANDBUFFERS
+#endif // MPJVP_COMMANDBUFFERS

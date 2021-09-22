@@ -1,5 +1,5 @@
-#ifndef FNES_ENTITY
-#define FNES_ENTITY
+#ifndef MPJVP_ENTITY
+#define MPJVP_ENTITY
 
 #include "render/PhysicalDevice.hpp"
 #include "render/LogicalDevice.hpp"
@@ -27,4 +27,4 @@ public:
     inline size_t getIndexBufferSize() const { return m_indexSize;  }
 };
 
-#endif // FNES_ENTITY
+#endif // MPJVP_ENTITY

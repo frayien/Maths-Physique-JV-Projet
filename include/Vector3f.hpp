@@ -1,5 +1,5 @@
-#ifndef FNES_VECTOR3F
-#define FNES_VECTOR3F
+#ifndef MPJVP_VECTOR3F
+#define MPJVP_VECTOR3F
 
 #include <iostream>
 #include <cmath>
@@ -45,4 +45,4 @@ private:
     float m_z;
 };
 
-#endif // FNES_VECTOR3F
+#endif // MPJVP_VECTOR3F

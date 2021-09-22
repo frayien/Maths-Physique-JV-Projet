@@ -1,5 +1,5 @@
-#ifndef FNES_SWAPCHAIN
-#define FNES_SWAPCHAIN
+#ifndef MPJVP_SWAPCHAIN
+#define MPJVP_SWAPCHAIN
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -76,4 +76,4 @@ private:
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 };
 
-#endif // FNES_SWAPCHAIN
+#endif // MPJVP_SWAPCHAIN

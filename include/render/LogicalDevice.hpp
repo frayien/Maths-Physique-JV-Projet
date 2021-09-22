@@ -1,5 +1,5 @@
-#ifndef FNES_LOGICALDEVICE
-#define FNES_LOGICALDEVICE
+#ifndef MPJVP_LOGICALDEVICE
+#define MPJVP_LOGICALDEVICE
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -37,4 +37,4 @@ public:
     inline VkDevice & raw() { return m_device; }
 };
 
-#endif // FNES_LOGICALDEVICE
+#endif // MPJVP_LOGICALDEVICE

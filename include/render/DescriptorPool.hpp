@@ -1,5 +1,5 @@
-#ifndef FNES_DESCRIPTORPOOL
-#define FNES_DESCRIPTORPOOL
+#ifndef MPJVP_DESCRIPTORPOOL
+#define MPJVP_DESCRIPTORPOOL
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -26,4 +26,4 @@ public:
     std::vector<VkDescriptorSet> createDescriptorSets(std::vector<std::shared_ptr<Buffer> > & uniformBuffers, VkDescriptorSetLayout descriptorSetLayout);
 };
 
-#endif // FNES_DESCRIPTORPOOL
+#endif // MPJVP_DESCRIPTORPOOL

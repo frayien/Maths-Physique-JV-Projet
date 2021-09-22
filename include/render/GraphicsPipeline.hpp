@@ -1,5 +1,5 @@
-#ifndef FNES_GRAPHICSPIPELINE
-#define FNES_GRAPHICSPIPELINE
+#ifndef MPJVP_GRAPHICSPIPELINE
+#define MPJVP_GRAPHICSPIPELINE
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -44,4 +44,4 @@ private:
     VkShaderModule createShaderModule(const std::vector<char>& code);
 };
 
-#endif // FNES_GRAPHICSPIPELINE
+#endif // MPJVP_GRAPHICSPIPELINE

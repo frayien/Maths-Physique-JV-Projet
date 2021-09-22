@@ -1,5 +1,5 @@
-#ifndef FNES_RENDERPASS
-#define FNES_RENDERPASS
+#ifndef MPJVP_RENDERPASS
+#define MPJVP_RENDERPASS
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -24,4 +24,4 @@ public:
     inline VkRenderPass & raw() { return m_renderPass; }
 };
 
-#endif // FNES_RENDERPASS
+#endif // MPJVP_RENDERPASS

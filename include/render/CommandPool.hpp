@@ -1,5 +1,5 @@
-#ifndef FNES_COMMANDPOOL
-#define FNES_COMMANDPOOL
+#ifndef MPJVP_COMMANDPOOL
+#define MPJVP_COMMANDPOOL
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -20,4 +20,4 @@ public:
     inline VkCommandPool & raw() { return m_commandPool; }
 };
 
-#endif // FNES_COMMANDPOOL
+#endif // MPJVP_COMMANDPOOL
