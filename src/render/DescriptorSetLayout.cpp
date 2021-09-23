@@ -3,17 +3,24 @@
 DescriptorSetLayout::DescriptorSetLayout(const std::shared_ptr<LogicalDevice> & logicalDevice) :
     m_logicalDevice{logicalDevice}
 {
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
+    std::array<VkDescriptorSetLayoutBinding, 2> uboLayoutBindings;
+
+    uboLayoutBindings[0].binding = 0;
+    uboLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; 
+    uboLayoutBindings[0].descriptorCount = 1;
+    uboLayoutBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    uboLayoutBindings[0].pImmutableSamplers = nullptr;
+
+    uboLayoutBindings[1].binding = 1;
+    uboLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC; 
+    uboLayoutBindings[1].descriptorCount = 1;
+    uboLayoutBindings[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    uboLayoutBindings[1].pImmutableSamplers = nullptr;
 
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 1;
-    layoutInfo.pBindings = &uboLayoutBinding;
+    layoutInfo.bindingCount = uboLayoutBindings.size();
+    layoutInfo.pBindings = uboLayoutBindings.data();
 
     if (vkCreateDescriptorSetLayout(m_logicalDevice->raw(), &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
     {

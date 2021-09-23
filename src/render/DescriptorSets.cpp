@@ -1,25 +1,64 @@
 #include "render/DescriptorSets.hpp"
 
 
-DescriptorSets::DescriptorSets(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<DescriptorPool> & descriptorPool, const DescriptorSetLayout & descriptorSetLayout, VkDeviceSize bufferSize, size_t size) :
+DescriptorSets::DescriptorSets(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<DescriptorPool> & descriptorPool, const DescriptorSetLayout & descriptorSetLayout, size_t dynamicBufferSize, size_t size) :
     m_logicalDevice{logicalDevice},
     m_descriptorPool{descriptorPool}
-{   
-    create(descriptorSetLayout, bufferSize, size);
+{
+    create(descriptorSetLayout, dynamicBufferSize, size);
 }
 
 DescriptorSets::~DescriptorSets()
 {
 }
 
-void DescriptorSets::recreate(const DescriptorSetLayout & descriptorSetLayout, VkDeviceSize bufferSize, size_t size)
+void DescriptorSets::resizeDynamicBuffer(size_t bufferIndex, size_t dynamicBufferSize)
+{
+    m_uniformBufferDynamics[bufferIndex] = std::make_unique<Buffer>(m_logicalDevice, dynamicBufferSize * sizeof(UniformBufferObjectTransform), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    VkDescriptorBufferInfo bufferInfo{};
+    bufferInfo.buffer = m_uniformBuffers[bufferIndex]->raw();
+    bufferInfo.offset = 0;
+    bufferInfo.range = sizeof(UniformBufferObjectCamera);
+
+    std::array<VkWriteDescriptorSet, 2> descriptorWrites;
+    descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrites[0].dstSet = m_descriptorSets[bufferIndex];
+    descriptorWrites[0].dstBinding = 0;
+    descriptorWrites[0].dstArrayElement = 0;
+    descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrites[0].descriptorCount = 1;
+    descriptorWrites[0].pBufferInfo = &bufferInfo;
+    descriptorWrites[0].pNext = nullptr;
+
+    VkDescriptorBufferInfo bufferInfoDynamic{};
+    bufferInfoDynamic.buffer = m_uniformBufferDynamics[bufferIndex]->raw();
+    bufferInfoDynamic.offset = 0;
+    bufferInfoDynamic.range = sizeof(UniformBufferObjectTransform);
+
+    descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrites[1].dstSet = m_descriptorSets[bufferIndex];
+    descriptorWrites[1].dstBinding = 1;
+    descriptorWrites[1].dstArrayElement = 0;
+    descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+    descriptorWrites[1].descriptorCount = 1;
+    descriptorWrites[1].pBufferInfo = &bufferInfoDynamic;
+    descriptorWrites[1].pNext = nullptr;
+
+    vkUpdateDescriptorSets(m_logicalDevice->raw(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+}
+
+void DescriptorSets::recreate(const DescriptorSetLayout & descriptorSetLayout, VkDeviceSize dynamicBufferSize, size_t size)
 {
     m_descriptorSets.clear();
     m_uniformBuffers.clear();
-    create(descriptorSetLayout, bufferSize, size);
+    m_uniformBufferDynamics.clear();
+    create(descriptorSetLayout, dynamicBufferSize, size);
 }
 
-void DescriptorSets::create(const DescriptorSetLayout & descriptorSetLayout, VkDeviceSize bufferSize, size_t size)
+#include <iostream>
+
+void DescriptorSets::create(const DescriptorSetLayout & descriptorSetLayout, size_t dynamicBufferSize, size_t size)
 {
     std::vector<VkDescriptorSetLayout> layouts(size, descriptorSetLayout.raw());
     VkDescriptorSetAllocateInfo allocInfo{};
@@ -35,27 +74,12 @@ void DescriptorSets::create(const DescriptorSetLayout & descriptorSetLayout, VkD
     }
 
     m_uniformBuffers.resize(size);
+    m_uniformBufferDynamics.resize(size);
 
     for (size_t i = 0; i < size; i++)
     {
-        m_uniformBuffers[i] = std::make_unique<Buffer>(m_logicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        m_uniformBuffers[i] = std::make_unique<Buffer>(m_logicalDevice, sizeof(UniformBufferObjectCamera), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-        VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = m_uniformBuffers[i]->raw();
-        bufferInfo.offset = 0;
-        bufferInfo.range = bufferSize;
-
-        VkWriteDescriptorSet descriptorWrite{};
-        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrite.dstSet = m_descriptorSets[i];
-        descriptorWrite.dstBinding = 0;
-        descriptorWrite.dstArrayElement = 0;
-        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrite.descriptorCount = 1;
-        descriptorWrite.pBufferInfo = &bufferInfo;
-        descriptorWrite.pImageInfo = nullptr; // Optional
-        descriptorWrite.pTexelBufferView = nullptr; // Optional
-
-        vkUpdateDescriptorSets(m_logicalDevice->raw(), 1, &descriptorWrite, 0, nullptr);
+        resizeDynamicBuffer(i, dynamicBufferSize);
     }
 }

@@ -87,16 +87,29 @@ void VulkanApplication::update(uint32_t currentImage)
         m_swapChain->recordCommandBuffer(currentImage);
         m_needRecord[currentImage] = false;
     }
+    {
+        UniformBufferObjectCamera ubo{};
+        ubo.model = glm::mat4(1.0f);
+        ubo.view = glm::lookAt(m_world->getCamera().getPosition(), m_world->getCamera().getPosition() + m_world->getCamera().getDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.proj = glm::perspective(glm::radians(45.0f), m_swapChain->getExtent().width / (float) m_swapChain->getExtent().height, 0.1f, 10.0f);
+        ubo.proj[1][1] *= -1;
 
-    UniformBufferObject ubo{};
-    ubo.model = glm::mat4(1.0f);
-    ubo.view = glm::lookAt(m_world->getCamera().getPosition(), m_world->getCamera().getPosition() + m_world->getCamera().getDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj = glm::perspective(glm::radians(45.0f), m_swapChain->getExtent().width / (float) m_swapChain->getExtent().height, 0.1f, 10.0f);
-    ubo.proj[1][1] *= -1;
+        Buffer & uniformBuffer = *(m_swapChain->getCameraUniformBuffer(currentImage));
 
-    Buffer & uniformBuffer = *(m_swapChain->getUniformBuffer(currentImage));
+        uniformBuffer.loadData(&ubo, sizeof(UniformBufferObjectCamera));
+    }
+    {
+        const auto & entities = m_world->getEntities();
+        std::vector<UniformBufferObjectTransform> ubos(entities.size());
+        for(size_t i = 0; i < entities.size(); ++i)
+        {
+            ubos[i].transform = entities[i]->getTransform();
+        }
 
-    uniformBuffer.loadData(&ubo, sizeof(ubo));
+        Buffer & uniformBuffer = *(m_swapChain->getTransformsUniformBuffer(currentImage));
+
+        uniformBuffer.loadData(ubos.data(), entities.size() * sizeof(UniformBufferObjectTransform));
+    }
 }
 
 void VulkanApplication::drawFrame()

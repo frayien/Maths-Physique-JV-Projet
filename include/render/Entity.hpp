@@ -1,6 +1,10 @@
 #ifndef MPJVP_ENTITY
 #define MPJVP_ENTITY
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+
 #include "render/LogicalDevice.hpp"
 #include "render/CommandPool.hpp"
 
@@ -13,6 +17,8 @@ private:
     std::unique_ptr<Buffer> m_vertexBuffer;
     std::unique_ptr<Buffer> m_indexBuffer;
 
+    glm::mat4 m_transform;
+
     size_t m_indexSize;
     
 public:
@@ -22,6 +28,7 @@ public:
     inline const std::unique_ptr<Buffer> & getVertexBuffer() const { return m_vertexBuffer; }
     inline const std::unique_ptr<Buffer> & getIndexBuffer() const { return m_indexBuffer;  }
     inline size_t getIndexBufferSize() const { return m_indexSize;  }
+    inline const glm::mat4 & getTransform() const { return m_transform; }
 };
 
 #endif // MPJVP_ENTITY

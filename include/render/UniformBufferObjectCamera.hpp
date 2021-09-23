@@ -1,15 +1,15 @@
-#ifndef MPJVP_UNIFORMBUFFEROBJECT
-#define MPJVP_UNIFORMBUFFEROBJECT
+#ifndef MPJVP_UNIFORMBUFFEROBJECTCAMERA
+#define MPJVP_UNIFORMBUFFEROBJECTCAMERA
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 
-struct UniformBufferObject
+struct UniformBufferObjectCamera
 {
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
 };
 
-#endif // MPJVP_UNIFORMBUFFEROBJECT
+#endif // MPJVP_UNIFORMBUFFEROBJECTCAMERA

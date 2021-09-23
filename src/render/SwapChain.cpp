@@ -9,17 +9,14 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
     m_world{world}
 {
     create();
-    m_graphicsPipeline = std::make_shared<GraphicsPipeline>(m_logicalDevice, getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
+    m_descriptorSetLayout = std::make_shared<DescriptorSetLayout>(m_logicalDevice);
+
+    m_graphicsPipeline = std::make_shared<GraphicsPipeline>(m_logicalDevice, *m_descriptorSetLayout, getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
     m_frameBuffers = std::make_shared<FrameBuffers>(m_logicalDevice, m_graphicsPipeline, m_imageViews, getExtent(), getImageFormat(), m_physicalDevice->findDepthFormat());
 
-    std::vector<std::shared_ptr<DescriptorSetLayout> > descriptorSetLayouts = 
-    {
-        m_graphicsPipeline->getDescriptorSetLayout(),
-    };
+    m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, size());
+    m_descriptorSets = std::make_shared<DescriptorSets>(m_logicalDevice, m_descriptorPool, *m_descriptorSetLayout, m_world->getEntities().size(), size());
 
-    m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, descriptorSetLayouts, size());
-    m_descriptorSets = std::make_shared<DescriptorSets>(m_logicalDevice, m_descriptorPool, *descriptorSetLayouts[0], sizeof(UniformBufferObject), size());
-    
     m_commandBuffers = std::make_shared<CommandBuffers>(m_logicalDevice, m_commandPool, size());
     for(size_t i = 0; i < size(); ++i)
     {
@@ -47,16 +44,14 @@ void SwapChain::recreate()
     cleanup();
     
     create();
-    m_graphicsPipeline->recreate(getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
+    std::shared_ptr<DescriptorSetLayout> m_descriptorSetLayout = std::make_shared<DescriptorSetLayout>(m_logicalDevice);
+
+    m_graphicsPipeline->recreate(*m_descriptorSetLayout, getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
     m_frameBuffers->recreate(m_graphicsPipeline, m_imageViews, getExtent(), getImageFormat(), m_physicalDevice->findDepthFormat());
 
-    std::vector<std::shared_ptr<DescriptorSetLayout> > descriptorSetLayouts = 
-    {
-        m_graphicsPipeline->getDescriptorSetLayout(),
-    };
+    m_descriptorPool->recreate(size());
+    m_descriptorSets->recreate(*m_descriptorSetLayout, m_world->getEntities().size(), size());
 
-    m_descriptorPool->recreate(descriptorSetLayouts, size());
-    m_descriptorSets->recreate(*descriptorSetLayouts[0], sizeof(UniformBufferObject), size());
 
     m_commandBuffers->recreate(size());
     for(size_t i = 0; i < size(); ++i)
@@ -67,6 +62,8 @@ void SwapChain::recreate()
 
 void SwapChain::recordCommandBuffer(size_t i)
 {
+    m_descriptorSets->resizeDynamicBuffer(i, m_world->getEntities().size() * sizeof(UniformBufferObjectTransform));
+
     CommandBuffer commandBuffer = (*m_commandBuffers)[i];
     const FrameBuffer & frameBuffer = (*m_frameBuffers)[i];
     commandBuffer.record(frameBuffer, m_descriptorSets->getRaw(i), *m_world);

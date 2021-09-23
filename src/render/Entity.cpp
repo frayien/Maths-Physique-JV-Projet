@@ -1,7 +1,8 @@
 #include "render/Entity.hpp"
 
 Entity::Entity(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices) :
-    m_indexSize{indices.size()}
+    m_indexSize{indices.size()},
+    m_transform{1.0f}
 {
     {
         VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();

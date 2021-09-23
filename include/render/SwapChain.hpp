@@ -18,7 +18,8 @@
 #include "render/DescriptorSets.hpp"
 #include "render/CommandBuffers.hpp"
 
-#include "render/UniformBufferObject.hpp"
+#include "render/UniformBufferObjectCamera.hpp"
+#include "render/UniformBufferObjectTransform.hpp"
 #include "render/World.hpp"
 #include "render/Entity.hpp"
 
@@ -35,10 +36,14 @@ private:
     VkSwapchainKHR m_swapChain;
 
     std::vector<std::shared_ptr<ImageView> > m_imageViews;
+    
+    std::shared_ptr<DescriptorSetLayout> m_descriptorSetLayout;
+
     std::shared_ptr<GraphicsPipeline> m_graphicsPipeline;
     std::shared_ptr<FrameBuffers> m_frameBuffers;
 
     std::shared_ptr<DescriptorPool> m_descriptorPool;
+
     std::shared_ptr<DescriptorSets> m_descriptorSets;
 
     std::shared_ptr<CommandBuffers> m_commandBuffers;
@@ -53,7 +58,8 @@ public:
     void recreate();
     void recordCommandBuffer(size_t i);
 
-    inline const std::unique_ptr<Buffer> & getUniformBuffer(size_t i) const { return m_descriptorSets->getUniformBuffer(i); }
+    inline const std::unique_ptr<Buffer> & getCameraUniformBuffer(size_t i) const { return m_descriptorSets->getUniformBuffer(i); }
+    inline const std::unique_ptr<Buffer> & getTransformsUniformBuffer(size_t i) const { return m_descriptorSets->getUniformBufferDynamic(i); }
     inline CommandBuffer getCommandBuffer(size_t i) { return (*m_commandBuffers)[i]; }
 
     inline VkFormat getImageFormat() const { return m_imageFormat; }

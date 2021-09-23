@@ -1,11 +1,10 @@
 #include "render/GraphicsPipeline.hpp"
 
-GraphicsPipeline::GraphicsPipeline(const std::shared_ptr<LogicalDevice> & logicalDevice, VkFormat imageFormat, VkFormat depthFormat, VkExtent2D extent, VkSampleCountFlagBits msaaSampleCount) :
+GraphicsPipeline::GraphicsPipeline(const std::shared_ptr<LogicalDevice> & logicalDevice, const DescriptorSetLayout & descriptorSetLayout, VkFormat imageFormat, VkFormat depthFormat, VkExtent2D extent, VkSampleCountFlagBits msaaSampleCount) :
     m_logicalDevice{logicalDevice}
 {
     m_renderPass = std::make_shared<RenderPass>(m_logicalDevice, imageFormat, depthFormat, msaaSampleCount);
-    m_descriptorSetLayout = std::make_shared<DescriptorSetLayout>(m_logicalDevice);
-    create(extent, msaaSampleCount);
+    create(descriptorSetLayout, extent, msaaSampleCount);
 }
 
 GraphicsPipeline::~GraphicsPipeline()
@@ -13,15 +12,15 @@ GraphicsPipeline::~GraphicsPipeline()
     cleanup();
 }
 
-void GraphicsPipeline::recreate(VkFormat imageFormat, VkFormat depthFormat, VkExtent2D extent, VkSampleCountFlagBits msaaSampleCount)
+void GraphicsPipeline::recreate(const DescriptorSetLayout & descriptorSetLayout, VkFormat imageFormat, VkFormat depthFormat, VkExtent2D extent, VkSampleCountFlagBits msaaSampleCount)
 {
     cleanup();
 
     m_renderPass = std::make_shared<RenderPass>(m_logicalDevice, imageFormat, depthFormat, msaaSampleCount);
-    create(extent, msaaSampleCount);
+    create(descriptorSetLayout, extent, msaaSampleCount);
 }
 
-void GraphicsPipeline::create(VkExtent2D extent, VkSampleCountFlagBits msaaSampleCount)
+void GraphicsPipeline::create(const DescriptorSetLayout & descriptorSetLayout, VkExtent2D extent, VkSampleCountFlagBits msaaSampleCount)
 {
     auto vertShaderCode = readFile("shaders/vert.spv");
     auto fragShaderCode = readFile("shaders/frag.spv");
@@ -126,7 +125,7 @@ void GraphicsPipeline::create(VkExtent2D extent, VkSampleCountFlagBits msaaSampl
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &(m_descriptorSetLayout->raw());
+    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout.raw();
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
 

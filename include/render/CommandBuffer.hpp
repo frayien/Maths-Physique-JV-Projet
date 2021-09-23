@@ -10,6 +10,8 @@
 #include "render/FrameBuffer.hpp"
 #include "render/GraphicsPipeline.hpp"
 
+#include "render/UniformBufferObjectTransform.hpp"
+
 #include "render/World.hpp"
 #include "render/Entity.hpp"
 
