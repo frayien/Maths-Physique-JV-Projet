@@ -39,3 +39,8 @@ Entity::Entity(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::
 Entity::~Entity()
 {
 }
+
+void Entity::rotate(float angle, const glm::vec3 & axis)
+{
+    m_transform = glm::rotate(m_transform, angle, axis);
+}

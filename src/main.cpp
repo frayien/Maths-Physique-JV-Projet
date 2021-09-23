@@ -38,6 +38,8 @@ class Application : public IApplication
         const float rotationSpeed = 1.0f * glm::pi<float>(); // rad/s
         const float moveSpeed     = 0.1f; // unit/s
 
+        world.getEntities()[0]->rotate(deltaTime * rotationSpeed / 3.0f, glm::vec3{0.0f, 0.0f, 1.0f});
+
         if(world.getWindow().isKeyPressed(GLFW_KEY_A))
         {
             world.getCamera().rotateYaw(deltaTime * rotationSpeed);

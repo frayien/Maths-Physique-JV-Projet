@@ -4,6 +4,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "render/LogicalDevice.hpp"
 #include "render/CommandPool.hpp"
@@ -24,6 +25,8 @@ private:
 public:
     Entity(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);
     virtual ~Entity();
+
+    void rotate(float angle, const glm::vec3 & axis);
 
     inline const std::unique_ptr<Buffer> & getVertexBuffer() const { return m_vertexBuffer; }
     inline const std::unique_ptr<Buffer> & getIndexBuffer() const { return m_indexBuffer;  }
