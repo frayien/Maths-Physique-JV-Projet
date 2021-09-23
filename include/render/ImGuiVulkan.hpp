@@ -1,5 +1,5 @@
-#ifndef FNES_IMGUIVULKAN
-#define FNES_IMGUIVULKAN
+#ifndef MPJVP_IMGUIVULKAN
+#define MPJVP_IMGUIVULKAN
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -43,4 +43,4 @@ private:
     void createImGuiCommandBuffers(VkCommandBuffer* commandBuffer, uint32_t commandBufferCount, VkCommandPool &commandPool);
 };
 
-#endif // FNES_IMGUIVULKAN
+#endif // MPJVP_IMGUIVULKAN
