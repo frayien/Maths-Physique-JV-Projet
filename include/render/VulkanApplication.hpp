@@ -21,6 +21,8 @@
 #include "render/World.hpp"
 #include "render/IApplication.hpp"
 
+#include "render/ImGuiVulkan.hpp"
+
 class VulkanApplication 
 {
 private:
@@ -34,6 +36,7 @@ private:
     std::shared_ptr<CommandPool>    m_commandPool   ;
     std::shared_ptr<World>          m_world         ;
     std::shared_ptr<SwapChain>      m_swapChain     ;
+    std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
 
     std::vector<VkSemaphore> m_imageAvailableSemaphores;
     std::vector<VkSemaphore> m_renderFinishedSemaphores;
@@ -45,14 +48,6 @@ private:
 
     std::shared_ptr<IApplication> m_application;
 
-    VkDescriptorPool m_imguiDescriptorPool;
-    VkRenderPass m_imGuiRenderPass;
-    bool m_swapChainRebuild = false;
-    VkCommandPool m_imGuiCommandPool;
-    std::vector<VkCommandBuffer> m_imGuiCommandBuffers;
-    uint32_t m_imageIndex;
-    std::vector<VkFramebuffer> m_imGuiFrameBuffers;
-
 public:
     VulkanApplication(const std::shared_ptr<IApplication> & application);
     virtual ~VulkanApplication();
@@ -62,14 +57,6 @@ public:
 private:
     void update(uint32_t currentImage);
     void drawFrame();
-    VkCommandBuffer beginSingleTimeCommands();
-    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-    void initImGui();
-    void imGuiRender();
-    void createImGuiCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateFlags flags);
-    void createImGuiCommandBuffers(VkCommandBuffer* commandBuffer, uint32_t commandBufferCount, VkCommandPool &commandPool);
-    void imGuiCleanUp();
-    void imGuiRecreate();
 };
 
 #endif // FNES_VULKANAPPLICATION
