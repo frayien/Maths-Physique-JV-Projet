@@ -21,6 +21,8 @@
 #include "render/World.hpp"
 #include "render/IApplication.hpp"
 
+#include "render/ImGuiVulkan.hpp"
+
 class VulkanApplication 
 {
 private:
@@ -34,6 +36,7 @@ private:
     std::shared_ptr<CommandPool>    m_commandPool   ;
     std::shared_ptr<World>          m_world         ;
     std::shared_ptr<SwapChain>      m_swapChain     ;
+    std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
 
     std::vector<VkSemaphore> m_imageAvailableSemaphores;
     std::vector<VkSemaphore> m_renderFinishedSemaphores;

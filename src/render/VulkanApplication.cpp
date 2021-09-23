@@ -1,5 +1,8 @@
 #include "render/VulkanApplication.hpp"
 
+#include <chrono>
+#include <thread>
+
 VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & application) :
     m_application{application}
 {
@@ -14,6 +17,8 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     m_application->init(*m_world);
 
     m_swapChain      = std::make_shared<SwapChain>     (m_window, m_surface, m_physicalDevice, m_logicalDevice, m_commandPool, m_world);
+
+    m_imGuiVulkan    = std::make_shared<ImGuiVulkan>   (m_window, m_instance, m_physicalDevice, m_logicalDevice, m_swapChain);
 
     m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -55,8 +60,23 @@ void VulkanApplication::run()
 {
     while (!m_window->shouldClose()) 
     {
+        using namespace std::chrono;
+        high_resolution_clock::time_point frameStart = high_resolution_clock::now();
+
         Window::pollEvents();
+
+        m_imGuiVulkan->createFrame();
+
         drawFrame();
+
+        high_resolution_clock::time_point frameEnd = high_resolution_clock::now();
+        duration<double> frameTime = duration_cast<duration<double>>(frameEnd - frameStart);
+
+        double waitTime = 0.016667 - frameTime.count();
+        if (waitTime > 0)
+        {
+            std::this_thread::sleep_for(std::chrono::duration<double>(waitTime));
+        }
     }
 
     m_logicalDevice->waitIdle();
@@ -123,6 +143,7 @@ void VulkanApplication::drawFrame()
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
         m_swapChain->recreate();
+        m_imGuiVulkan->recreate();
         return;
     } 
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
@@ -142,16 +163,20 @@ void VulkanApplication::drawFrame()
 
     update(imageIndex);
 
+    m_imGuiVulkan->render(imageIndex);
+
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    std::array<VkCommandBuffer, 2> submitCommandBuffers = { m_swapChain->getCommandBuffer(imageIndex).raw(), m_imGuiVulkan->getCommandBuffer(imageIndex) };
 
     VkSemaphore waitSemaphores[] = {m_imageAvailableSemaphores[m_currentFrame]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &(m_swapChain->getCommandBuffer(imageIndex).raw());
+    submitInfo.commandBufferCount = static_cast<uint32_t>(submitCommandBuffers.size());;
+    submitInfo.pCommandBuffers = submitCommandBuffers.data();
 
     VkSemaphore signalSemaphores[] = {m_renderFinishedSemaphores[m_currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
@@ -184,6 +209,7 @@ void VulkanApplication::drawFrame()
     {
         m_window->setFramebufferResized(false);
         m_swapChain->recreate();
+        m_imGuiVulkan->recreate();
     }
     else if (result != VK_SUCCESS)
     {

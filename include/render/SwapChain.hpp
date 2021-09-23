@@ -68,6 +68,8 @@ public:
 
     inline VkSwapchainKHR & raw() { return m_swapChain; }
 
+    inline std::vector<std::shared_ptr<ImageView> > getImageViews () const { return m_imageViews; }
+
 private:
     void create();
     void cleanup();
