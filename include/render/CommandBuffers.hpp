@@ -21,8 +21,14 @@ public:
     CommandBuffers(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool, size_t size);
     virtual ~CommandBuffers();
 
+    void recreate(size_t size);
+
     inline CommandBuffer operator[](size_t i) { return CommandBuffer(m_commandBuffers[i]); }
     inline size_t size() const { return m_commandBuffers.size(); }
+
+private:
+    void cleanup();
+    void create(size_t size);
 };
 
 #endif // MPJVP_COMMANDBUFFERS

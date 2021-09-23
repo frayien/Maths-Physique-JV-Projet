@@ -4,6 +4,28 @@ CommandBuffers::CommandBuffers(const std::shared_ptr<LogicalDevice> & logicalDev
     m_logicalDevice{logicalDevice},
     m_commandPool{commandPool}
 {
+    create(size);
+}
+
+CommandBuffers::~CommandBuffers()
+{
+    cleanup();
+}
+
+void CommandBuffers::recreate(size_t size)
+{
+    cleanup();
+    m_commandBuffers.clear();
+    create(size);
+}
+
+void CommandBuffers::cleanup()
+{
+    vkFreeCommandBuffers(m_logicalDevice->raw(), m_commandPool->raw(), static_cast<uint32_t>(m_commandBuffers.size()), m_commandBuffers.data());
+}
+
+void CommandBuffers::create(size_t size)
+{
     m_commandBuffers.resize(size);
 
     VkCommandBufferAllocateInfo allocInfo{};
@@ -16,9 +38,4 @@ CommandBuffers::CommandBuffers(const std::shared_ptr<LogicalDevice> & logicalDev
     {
         throw std::runtime_error("failed to allocate command buffers!");
     }
-}
-
-CommandBuffers::~CommandBuffers()
-{
-    vkFreeCommandBuffers(m_logicalDevice->raw(), m_commandPool->raw(), static_cast<uint32_t>(m_commandBuffers.size()), m_commandBuffers.data());
 }
