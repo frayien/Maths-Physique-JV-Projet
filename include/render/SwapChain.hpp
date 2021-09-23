@@ -15,6 +15,7 @@
 #include "render/CommandPool.hpp"
 #include "render/FrameBuffers.hpp"
 #include "render/DescriptorPool.hpp"
+#include "render/DescriptorSets.hpp"
 #include "render/CommandBuffers.hpp"
 
 #include "render/UniformBufferObject.hpp"
@@ -37,9 +38,9 @@ private:
     std::shared_ptr<GraphicsPipeline> m_graphicsPipeline;
     std::shared_ptr<FrameBuffers> m_frameBuffers;
 
-    std::vector<std::shared_ptr<Buffer> > m_uniformBuffers;
     std::shared_ptr<DescriptorPool> m_descriptorPool;
-    std::vector<VkDescriptorSet> m_descriptorSets;
+    std::shared_ptr<DescriptorSets> m_descriptorSets;
+
     std::shared_ptr<CommandBuffers> m_commandBuffers;
 
     VkFormat m_imageFormat;
@@ -52,7 +53,7 @@ public:
     void recreate();
     void recordCommandBuffer(size_t i);
 
-    inline std::shared_ptr<Buffer> & getUniformBuffer(size_t i) { return m_uniformBuffers[i]; }
+    inline const std::unique_ptr<Buffer> & getUniformBuffer(size_t i) const { return m_descriptorSets->getUniformBuffer(i); }
     inline CommandBuffer getCommandBuffer(size_t i) { return (*m_commandBuffers)[i]; }
 
     inline VkFormat getImageFormat() const { return m_imageFormat; }

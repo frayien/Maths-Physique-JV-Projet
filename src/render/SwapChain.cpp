@@ -12,16 +12,13 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
     m_graphicsPipeline = std::make_shared<GraphicsPipeline>(m_logicalDevice, getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
     m_frameBuffers = std::make_shared<FrameBuffers>(m_logicalDevice, m_graphicsPipeline, m_imageViews, getExtent(), getImageFormat(), m_physicalDevice->findDepthFormat());
 
+    std::vector<std::shared_ptr<DescriptorSetLayout> > descriptorSetLayouts = 
     {
-        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-        for (std::shared_ptr<ImageView> & imageView : m_imageViews)
-        {
-            m_uniformBuffers.push_back(std::make_shared<Buffer>(m_logicalDevice, m_commandPool, *m_physicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
-        }
-    }
+        m_graphicsPipeline->getDescriptorSetLayout(),
+    };
 
-    m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, m_imageViews.size());
-    m_descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_graphicsPipeline->getDescriptorSetLayout()->raw());
+    m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, descriptorSetLayouts, m_imageViews.size());
+    m_descriptorSets = std::make_shared<DescriptorSets>(m_logicalDevice, m_descriptorPool, *descriptorSetLayouts[0], sizeof(UniformBufferObject), m_imageViews.size());
     
     m_commandBuffers = std::make_shared<CommandBuffers>(m_logicalDevice, m_commandPool, m_imageViews.size());
     for(size_t i = 0; i < m_commandBuffers->size(); ++i)
@@ -53,16 +50,13 @@ void SwapChain::recreate()
     m_graphicsPipeline->recreate(getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
     m_frameBuffers->recreate(m_graphicsPipeline, m_imageViews, getExtent(), getImageFormat(), m_physicalDevice->findDepthFormat());
 
+    std::vector<std::shared_ptr<DescriptorSetLayout> > descriptorSetLayouts = 
     {
-        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-        for (std::shared_ptr<ImageView> & imageView : m_imageViews)
-        {
-            m_uniformBuffers.push_back(std::make_shared<Buffer>(m_logicalDevice, m_commandPool, *m_physicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
-        }
-    }
+        m_graphicsPipeline->getDescriptorSetLayout(),
+    };
 
-    m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, m_imageViews.size());
-    m_descriptorSets = m_descriptorPool->createDescriptorSets(m_uniformBuffers, m_graphicsPipeline->getDescriptorSetLayout()->raw());
+    m_descriptorPool->recreate(descriptorSetLayouts, m_imageViews.size());
+    m_descriptorSets->recreate(*descriptorSetLayouts[0], sizeof(UniformBufferObject), m_imageViews.size());
 
     m_commandBuffers = std::make_shared<CommandBuffers>(m_logicalDevice, m_commandPool, m_imageViews.size());
     for(size_t i = 0; i < m_commandBuffers->size(); ++i)
@@ -75,7 +69,7 @@ void SwapChain::recordCommandBuffer(size_t i)
 {
     CommandBuffer commandBuffer = (*m_commandBuffers)[i];
     const FrameBuffer & frameBuffer = (*m_frameBuffers)[i];
-    commandBuffer.record(frameBuffer, m_descriptorSets[i], *m_world);
+    commandBuffer.record(frameBuffer, m_descriptorSets->getRaw(i), *m_world);
 }
 
 void SwapChain::create()
@@ -147,10 +141,6 @@ void SwapChain::create()
 
 void SwapChain::cleanup()
 {
-    m_descriptorPool.reset();
-
-    m_uniformBuffers.clear();
-
     m_imageViews.clear();
 
     vkDestroySwapchainKHR(m_logicalDevice->raw(), m_swapChain, nullptr);

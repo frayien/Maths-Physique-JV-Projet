@@ -4,12 +4,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include <stdexcept>
-
-#include "render/Buffer.hpp"
-#include "render/UniformBufferObject.hpp"
 
 #include "render/LogicalDevice.hpp"
+#include "render/DescriptorSetLayout.hpp"
 
 class DescriptorPool
 {
@@ -17,13 +14,18 @@ private:
     std::shared_ptr<LogicalDevice> m_logicalDevice;
 
     VkDescriptorPool m_descriptorPool;
-    size_t m_size;
     
 public:
-    DescriptorPool(const std::shared_ptr<LogicalDevice> & logicalDevice, size_t size);
+    DescriptorPool(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::vector<std::shared_ptr<DescriptorSetLayout> > & descriptorSetLayouts, size_t size);
     virtual ~DescriptorPool();
 
-    std::vector<VkDescriptorSet> createDescriptorSets(std::vector<std::shared_ptr<Buffer> > & uniformBuffers, VkDescriptorSetLayout descriptorSetLayout);
+    void recreate(const std::vector<std::shared_ptr<DescriptorSetLayout> > & descriptorSetLayouts, size_t size);
+
+    inline VkDescriptorPool raw() const { return m_descriptorPool; }
+
+private:
+    void cleanup();
+    void createPool(size_t size);
 };
 
 #endif // MPJVP_DESCRIPTORPOOL

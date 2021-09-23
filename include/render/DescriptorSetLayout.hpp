@@ -19,7 +19,7 @@ public:
     DescriptorSetLayout(const std::shared_ptr<LogicalDevice> & logicalDevice);
     virtual ~DescriptorSetLayout();
 
-    inline VkDescriptorSetLayout & raw() { return m_descriptorSetLayout; }
+    inline const VkDescriptorSetLayout & raw() const { return m_descriptorSetLayout; }
 };
 
 #endif // MPJVP_DESCRIPTORSETLAYOUT

@@ -1,7 +1,6 @@
 #ifndef MPJVP_ENTITY
 #define MPJVP_ENTITY
 
-#include "render/PhysicalDevice.hpp"
 #include "render/LogicalDevice.hpp"
 #include "render/CommandPool.hpp"
 
@@ -17,7 +16,7 @@ private:
     size_t m_indexSize;
     
 public:
-    Entity(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool, PhysicalDevice & physicalDevice, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);
+    Entity(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);
     virtual ~Entity();
 
     inline const std::unique_ptr<Buffer> & getVertexBuffer() const { return m_vertexBuffer; }

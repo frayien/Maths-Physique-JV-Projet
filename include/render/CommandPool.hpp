@@ -6,6 +6,8 @@
 
 #include "render/LogicalDevice.hpp"
 
+#include "render/Buffer.hpp"
+
 class CommandPool
 {
 private:
@@ -16,6 +18,8 @@ private:
 public:
     CommandPool(const std::shared_ptr<LogicalDevice> & logicalDevice);
     virtual ~CommandPool();
+
+    void copyBuffer(Buffer & src, Buffer & dest, VkDeviceSize size);
 
     inline VkCommandPool & raw() { return m_commandPool; }
 };
