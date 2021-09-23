@@ -139,8 +139,6 @@ ImGuiVulkan::~ImGuiVulkan()
 
 void ImGuiVulkan::render(uint32_t m_imageIndex)
 {
-    vkResetCommandPool(m_logicalDevice->raw(), m_imGuiCommandPool, 0);
-
     VkCommandBufferBeginInfo commandBufferInfo = {};
     commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     commandBufferInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
