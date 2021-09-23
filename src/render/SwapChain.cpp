@@ -158,14 +158,17 @@ VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
 
 VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 {
+    /* uncomment to enable tripe buffering if available
+    
     for (const auto& availablePresentMode : availablePresentModes)
     {
         if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
         {
             return availablePresentMode;
         }
-    }
+    }*/
 
+    // V-sync
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
