@@ -26,6 +26,7 @@ public:
     Entity(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);
     virtual ~Entity();
 
+    void translate(const glm::vec3 & vect);
     void rotate(float angle, const glm::vec3 & axis);
 
     inline const std::unique_ptr<Buffer> & getVertexBuffer() const { return m_vertexBuffer; }

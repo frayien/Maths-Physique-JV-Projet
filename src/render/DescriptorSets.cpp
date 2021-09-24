@@ -56,8 +56,6 @@ void DescriptorSets::recreate(const DescriptorSetLayout & descriptorSetLayout, V
     create(descriptorSetLayout, dynamicBufferSize, size);
 }
 
-#include <iostream>
-
 void DescriptorSets::create(const DescriptorSetLayout & descriptorSetLayout, size_t dynamicBufferSize, size_t size)
 {
     std::vector<VkDescriptorSetLayout> layouts(size, descriptorSetLayout.raw());

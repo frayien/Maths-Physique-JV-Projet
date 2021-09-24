@@ -1,88 +1,83 @@
 #include <iostream>
+#include <map>
+#include <functional>
 
 #include "render/VulkanApplication.hpp"
 #include "render/IApplication.hpp"
 
 class Application : public IApplication
 {
+    static constexpr float PI = glm::pi<float>();
+
+    std::shared_ptr<Entity> platform;
+
     virtual void init(World & world) override
     {
-        world.getCamera().setPosition(glm::vec3{2.0f, 2.0f, 2.0f});
-        world.getCamera().setRotation(-3.0f * glm::pi<float>()/4.0f, -glm::pi<float>()/4.0f);
+        Camera & cam = world.getCamera();
 
-        world.addEntity(
-        std::vector<Vertex>({
+        cam.setPosition({2.0f, 2.0f, 3.0f});
+        cam.setRotation(-3.0f * PI/4.0f, -PI/4.0f);
+
+        world.makeEntity(
+        {
             {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
             {{0.5f , -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
             {{0.5f ,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
             {{-0.5f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        }),
-        std::vector<uint32_t>({
+        },
+        {
             0, 1, 2, 2, 3, 0,
-        }));
+        });
 
-        world.addEntity(
-        std::vector<Vertex>({
-            {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-            {{0.5f , -0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}},
-            {{0.5f ,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-            {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-        }),
-        std::vector<uint32_t>({
+        platform = world.makeEntity(
+        {
+            {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+            {{0.5f , -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+            {{0.5f ,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+            {{-0.5f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+        },
+        {
             0, 1, 2, 2, 3, 0,
-        }));
+        });
+
+        platform->translate({0.0f, 0.0f, 0.5f});
     }
 
     virtual void update(World & world, float deltaTime) override
     {
-        const float rotationSpeed = 1.0f * glm::pi<float>(); // rad/s
+        const float rotationSpeed = 1.0f / 3.0f * PI; // rad/s
+
+        platform->rotate(deltaTime * rotationSpeed, {0.0f, 0.0f, 1.0f});
+
+        updateCamera(world, deltaTime);
+    }
+
+    void updateCamera(World & world, float deltaTime)
+    {
+        const Window & win = world.getWindow();
+              Camera & cam = world.getCamera();
+
+        const float rotationSpeed = 1.0f * PI; // rad/s
         const float moveSpeed     = 0.1f; // unit/s
 
-        world.getEntities()[0]->rotate(deltaTime * rotationSpeed / 3.0f, glm::vec3{0.0f, 0.0f, 1.0f});
+        static std::vector<std::tuple<int, std::function<void ()>>> keymap = 
+        {
+            { GLFW_KEY_A, [&](){ cam.rotateYaw(   deltaTime * rotationSpeed); } },
+            { GLFW_KEY_D, [&](){ cam.rotateYaw(  -deltaTime * rotationSpeed); } },
+            { GLFW_KEY_W, [&](){ cam.rotatePitch( deltaTime * rotationSpeed); } },
+            { GLFW_KEY_S, [&](){ cam.rotatePitch(-deltaTime * rotationSpeed); } },
 
-        if(world.getWindow().isKeyPressed(GLFW_KEY_A))
-        {
-            world.getCamera().rotateYaw(deltaTime * rotationSpeed);
-        }
-        else if(world.getWindow().isKeyPressed(GLFW_KEY_D))
-        {
-            world.getCamera().rotateYaw(-deltaTime * rotationSpeed);
-        }
+            { GLFW_KEY_LEFT , [&](){ cam.move( moveSpeed * glm::vec3{0.0f, 1.0f, 0.0f}); } },
+            { GLFW_KEY_RIGHT, [&](){ cam.move(-moveSpeed * glm::vec3{0.0f, 1.0f, 0.0f}); } },
+            { GLFW_KEY_UP   , [&](){ cam.move( moveSpeed * glm::vec3{1.0f, 0.0f, 0.0f}); } },
+            { GLFW_KEY_DOWN , [&](){ cam.move(-moveSpeed * glm::vec3{1.0f, 0.0f, 0.0f}); } },
+            { GLFW_KEY_O    , [&](){ cam.move( moveSpeed * glm::vec3{0.0f, 0.0f, 1.0f}); } },
+            { GLFW_KEY_L    , [&](){ cam.move(-moveSpeed * glm::vec3{0.0f, 0.0f, 1.0f}); } },
+        };
 
-        if(world.getWindow().isKeyPressed(GLFW_KEY_W))
+        for(const auto & [key, fun] : keymap)
         {
-            world.getCamera().rotatePitch(deltaTime * rotationSpeed);
-        }
-        else if(world.getWindow().isKeyPressed(GLFW_KEY_S))
-        {
-            world.getCamera().rotatePitch(-deltaTime * rotationSpeed);
-        }
-
-        if(world.getWindow().isKeyPressed(GLFW_KEY_LEFT))
-        {
-            world.getCamera().move(moveSpeed * glm::vec3{0.0f, 1.0f, 0.0f});
-        }
-        else if(world.getWindow().isKeyPressed(GLFW_KEY_RIGHT))
-        {
-            world.getCamera().move(moveSpeed * glm::vec3{0.0f, -1.0f, 0.0f});
-        }
-
-        if(world.getWindow().isKeyPressed(GLFW_KEY_UP))
-        {
-            world.getCamera().move(moveSpeed * glm::vec3{1.0f, 0.0f, 0.0f});
-        }
-        else if(world.getWindow().isKeyPressed(GLFW_KEY_DOWN))
-        {
-            world.getCamera().move(moveSpeed * glm::vec3{-1.0f, 0.0f, 0.0f});
-        }
-
-        if(world.getWindow().isKeyPressed(GLFW_KEY_O))
-        {
-            world.getCamera().move(moveSpeed * glm::vec3{0.0f, 0.0f, 1.0f});
-        }
-        else if(world.getWindow().isKeyPressed(GLFW_KEY_L))
-        {
-            world.getCamera().move(moveSpeed * glm::vec3{0.0f, 0.0f, -1.0f});
+            if(win.isKeyPressed(key)) fun();
         }
     }
 };

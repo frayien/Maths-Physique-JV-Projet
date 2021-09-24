@@ -1,7 +1,5 @@
 #include "render/FrameBuffers.hpp"
 
-#include <iostream>
-
 FrameBuffers::FrameBuffers(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<GraphicsPipeline> & graphicsPipeline, const std::vector<std::shared_ptr<ImageView> > & imageViews, VkExtent2D extent, VkFormat colorFormat, VkFormat depthFormat) :
     m_logicalDevice{logicalDevice}
 {

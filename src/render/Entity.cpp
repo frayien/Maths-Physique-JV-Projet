@@ -40,6 +40,11 @@ Entity::~Entity()
 {
 }
 
+void Entity::translate(const glm::vec3 & vect)
+{
+    m_transform = glm::translate(m_transform, vect);
+}
+
 void Entity::rotate(float angle, const glm::vec3 & axis)
 {
     m_transform = glm::rotate(m_transform, angle, axis);

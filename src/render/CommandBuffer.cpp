@@ -37,23 +37,25 @@ void CommandBuffer::record(const FrameBuffer & frameBuffer, VkDescriptorSet desc
 
     vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBuffer.getGraphicsPipeline()->raw());
 
-    const auto & entities = world.getEntities();
-    for(size_t i = 0; i < entities.size(); ++i)
+    size_t i = 0;
+    for(const auto & entity : world.getEntities())
     {
         std::array<uint32_t, 1> dynamicOffsets = {sizeof(UniformBufferObjectTransform) * static_cast<uint32_t>(i)};
 
         vkCmdBindDescriptorSets(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBuffer.getGraphicsPipeline()->rawLayout(), 0, 1, &descriptorSet, dynamicOffsets.size(), dynamicOffsets.data());
 
-        VkBuffer vertexBuffers[] = {entities[i]->getVertexBuffer()->raw()};
+        VkBuffer vertexBuffers[] = {entity->getVertexBuffer()->raw()};
         VkDeviceSize offsets[] = {0};
 
         vkCmdBindVertexBuffers(m_commandBuffer, 0, 1, vertexBuffers, offsets);
 
-        VkBuffer indexBuffer  = entities[i]->getIndexBuffer()->raw();
+        VkBuffer indexBuffer  = entity->getIndexBuffer()->raw();
 
         vkCmdBindIndexBuffer(m_commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-        vkCmdDrawIndexed(m_commandBuffer, static_cast<uint32_t>(entities[i]->getIndexBufferSize()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(m_commandBuffer, static_cast<uint32_t>(entity->getIndexBufferSize()), 1, 0, 0, 0);
+
+        ++i;
     }
     
 

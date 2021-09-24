@@ -106,9 +106,12 @@ void VulkanApplication::update(uint32_t currentImage)
     {
         const auto & entities = m_world->getEntities();
         std::vector<UniformBufferObjectTransform> ubos(entities.size());
-        for(size_t i = 0; i < entities.size(); ++i)
+        size_t i = 0;
+        for(const auto & entity : entities)
         {
-            ubos[i].transform = entities[i]->getTransform();
+            ubos[i].transform = entity->getTransform();
+
+            ++i;
         }
 
         Buffer & uniformBuffer = *(m_swapChain->getTransformsUniformBuffer(currentImage));
