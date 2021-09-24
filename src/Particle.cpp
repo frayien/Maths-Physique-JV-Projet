@@ -47,9 +47,20 @@ void Particle::integrate()
 		{
 			lag -= TIMESTEP;
 
+			//Code pour print les coordonnées Y et X d'une particule
+
+			/*std::string coordYString = std::to_string(m_position.getY());
+			std::string coordXString = std::to_string(m_position.getX());
+			std::replace(coordYString.begin(), coordYString.end(), '.', ',');
+			std::replace(coordXString.begin(), coordXString.end(), '.', ',');
+
+			myFile << coordYString << ";" << coordXString << "\n";*/
+
 			calculAcceleration(forceList);
 			m_position += m_velocity * DELTA_TIME + (DELTA_TIME * DELTA_TIME * m_acceleration / 2);
-			m_velocity = m_velocity * (1.0f - m_damping) + m_acceleration * DELTA_TIME;
+			m_velocity = m_velocity * m_damping + m_acceleration * DELTA_TIME;
+
+			
 			
 			std::cout << "================" << std::endl;
 			std::cout << "acceleration = " << m_acceleration << std::endl;

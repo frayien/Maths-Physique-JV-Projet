@@ -82,7 +82,7 @@ class Application : public IApplication
     }
 };
 
-int main() 
+int _main() 
 {
     VulkanApplication app{std::make_shared<Application>()};
 
@@ -104,12 +104,14 @@ int main()
 #include "Particle.hpp"
 
 
-int _main()
+int main()
 {
     Vector3f position{ 0, 0, 0 };
-    Particle particle{ position, 50, 0.95 };
+    Particle particle{ position, 50, 1 };
     Vector3f initialVelocity{ 5, 5, 5 };
     particle.setInitialVelocity(initialVelocity);
     particle.integrate();
+
+
     return 0;
 }

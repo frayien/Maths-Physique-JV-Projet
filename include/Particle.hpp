@@ -5,7 +5,6 @@
 #include <cmath>
 #include <chrono>
 #include <vector>
-
 #include "Vector3f.hpp"
 
 class Particle
