@@ -18,29 +18,28 @@ class Application : public IApplication
         cam.setPosition({2.0f, 2.0f, 3.0f});
         cam.setRotation(-3.0f * PI/4.0f, -PI/4.0f);
 
-        world.makeEntity(
-        {
-            {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-            {{0.5f , -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-            {{0.5f ,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-            {{-0.5f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        },
-        {
-            0, 1, 2, 2, 3, 0,
-        });
-
         platform = world.makeEntity(
         {
-            {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-            {{0.5f , -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-            {{0.5f ,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-            {{-0.5f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+            {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+            {{0.5f , -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+            {{0.5f ,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+            {{-0.5f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
         },
         {
             0, 1, 2, 2, 3, 0,
         });
 
-        platform->translate({0.0f, 0.0f, 0.5f});
+        auto cube = world.makeCube();
+        cube->scale(0.5f);
+        cube->translate({0.0f, 0.0f, -2.0f});
+
+        auto square = world.makeSquare();
+        square->scale(2.0f);
+        square->translate({0.0f, 0.0f, -5.0f});
+
+        auto disk = world.makeDisk();
+        disk->scale(0.5f);
+        disk->translate({3.0f, 0.0f, 0.3f});
     }
 
     virtual void update(World & world, float deltaTime) override

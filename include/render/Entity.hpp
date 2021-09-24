@@ -28,6 +28,8 @@ public:
 
     void translate(const glm::vec3 & vect);
     void rotate(float angle, const glm::vec3 & axis);
+    void scale(const glm::vec3 & vect);
+    void scale(float factor);
 
     inline const std::unique_ptr<Buffer> & getVertexBuffer() const { return m_vertexBuffer; }
     inline const std::unique_ptr<Buffer> & getIndexBuffer() const { return m_indexBuffer;  }

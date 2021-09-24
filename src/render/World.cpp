@@ -31,3 +31,68 @@ void World::removeEntity(const std::shared_ptr<Entity> & entity)
     m_entities.remove(entity);
     m_changed = true;
 }
+
+std::shared_ptr<Entity> World::makeSquare(glm::vec3 color)
+{
+    std::vector<Vertex> vertices = 
+    {
+        {{-1.0f, -1.0f, 0.0f}, color, {0.0f, 0.0f, 1.0f}},
+        {{ 1.0f, -1.0f, 0.0f}, color, {0.0f, 0.0f, 1.0f}},
+        {{ 1.0f,  1.0f, 0.0f}, color, {0.0f, 0.0f, 1.0f}},
+        {{-1.0f,  1.0f, 0.0f}, color, {0.0f, 0.0f, 1.0f}},
+    };
+    std::vector<uint32_t> indices = 
+    {
+        0,1,2,2,3,0,
+    };
+
+    return makeEntity(vertices, indices);
+}
+
+std::shared_ptr<Entity> World::makeDisk(glm::vec3 color)
+{
+    const size_t VERTEX_N = 50;
+    std::vector<Vertex> vertices = { {{0.0f, 0.0f, 0.0f}, color, {0.0f, 0.0f, 1.0f}} };
+    std::vector<uint32_t> indices;
+
+    for(size_t i = 0; i<VERTEX_N; ++i)
+    {
+        float angle = static_cast<float>(i) / static_cast<float>(VERTEX_N) * 2.0f * glm::pi<float>();
+
+        vertices.push_back({{ glm::cos(angle), glm::sin(angle), 0.0f}, color, {0.0f, 0.0f, 1.0f}});
+        indices.push_back(0);
+        indices.push_back(i+1);
+        indices.push_back(i+2);
+    }
+    indices.back() = 1;
+
+    return makeEntity(vertices, indices);
+}
+
+std::shared_ptr<Entity> World::makeCube(glm::vec3 color)
+{
+    std::vector<Vertex> vertices = 
+    {
+        {{-1.0f, -1.0f, 1.0f}, color, {0.0f, 0.0f, 1.0f}}, // haut
+        {{ 1.0f, -1.0f, 1.0f}, color, {0.0f, 0.0f, 1.0f}},
+        {{ 1.0f,  1.0f, 1.0f}, color, {0.0f, 0.0f, 1.0f}},
+        {{-1.0f,  1.0f, 1.0f}, color, {0.0f, 0.0f, 1.0f}},
+
+        {{-1.0f, -1.0f, -1.0f}, color, {0.0f, 0.0f, -1.0f}}, // bas
+        {{-1.0f,  1.0f, -1.0f}, color, {0.0f, 0.0f, -1.0f}},
+        {{ 1.0f,  1.0f, -1.0f}, color, {0.0f, 0.0f, -1.0f}},
+        {{ 1.0f, -1.0f, -1.0f}, color, {0.0f, 0.0f, -1.0f}},
+
+        {{-1.0f, -1.0f, -1.0f}, color, {0.0f, 0.0f, -1.0f}}, // bas
+        {{ 1.0f, -1.0f, -1.0f}, color, {0.0f, 0.0f, -1.0f}},
+        {{ 1.0f,  1.0f, -1.0f}, color, {0.0f, 0.0f, -1.0f}},
+        {{-1.0f,  1.0f, -1.0f}, color, {0.0f, 0.0f, -1.0f}},
+    };
+    std::vector<uint32_t> indices = 
+    {
+        0,1,2,2,3,0,
+        4,5,6,6,7,4,
+    };
+
+    return makeEntity(vertices, indices);
+}

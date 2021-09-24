@@ -36,6 +36,11 @@ public:
     inline bool hasChanged() const { return m_changed; }
     inline void setChanged(bool val) { m_changed = val; }
     inline Camera & getCamera() { return m_camera; }
+
+    std::shared_ptr<Entity> makeSquare(glm::vec3 color = {0.5f, 0.5f, 0.5f});
+    std::shared_ptr<Entity> makeDisk(glm::vec3 color = {0.5f, 0.5f, 0.5f});
+
+    std::shared_ptr<Entity> makeCube(glm::vec3 color = {0.5f, 0.5f, 0.5f});
 };
 
 #endif // MPJVP_WORLD

@@ -49,3 +49,13 @@ void Entity::rotate(float angle, const glm::vec3 & axis)
 {
     m_transform = glm::rotate(m_transform, angle, axis);
 }
+
+void Entity::scale(const glm::vec3 & vect)
+{
+    m_transform = glm::scale(m_transform, vect);
+}
+
+void Entity::scale(float factor)
+{
+    m_transform = glm::scale(m_transform, {factor, factor, factor});
+}
