@@ -5,6 +5,7 @@
 #include <list>
 
 #include "render/Camera.hpp"
+#include "render/LightSource.hpp"
 #include "render/Entity.hpp"
 
 #include "render/Window.hpp"
@@ -22,6 +23,7 @@ private:
     bool m_changed = false;
 
     Camera m_camera;
+    LightSource m_lightSource;
 
 public:
     World(const std::shared_ptr<Window> & window, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool);
@@ -36,7 +38,8 @@ public:
     inline bool hasChanged() const { return m_changed; }
     inline void setChanged(bool val) { m_changed = val; }
     inline Camera & getCamera() { return m_camera; }
-
+    inline LightSource & getLightSource() { return m_lightSource; }
+    
     std::shared_ptr<Entity> makeSquare(glm::vec3 color = {0.5f, 0.5f, 0.5f});
     std::shared_ptr<Entity> makeDisk(glm::vec3 color = {0.5f, 0.5f, 0.5f});
 

@@ -2,7 +2,9 @@
 
 Entity::Entity(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices) :
     m_indexSize{indices.size()},
-    m_transform{1.0f}
+    m_position{0.0f, 0.0f, 0.0f},
+    m_rotation{1.0f},
+    m_scale{1.0f, 1.0f, 1.0f}
 {
     {
         VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
@@ -42,20 +44,31 @@ Entity::~Entity()
 
 void Entity::translate(const glm::vec3 & vect)
 {
-    m_transform = glm::translate(m_transform, vect);
+    m_position += vect;
 }
 
 void Entity::rotate(float angle, const glm::vec3 & axis)
 {
-    m_transform = glm::rotate(m_transform, angle, axis);
+    m_rotation = glm::rotate(m_rotation, angle, glm::normalize(axis));
 }
 
 void Entity::scale(const glm::vec3 & vect)
 {
-    m_transform = glm::scale(m_transform, vect);
+    m_scale.x *= vect.x;
+    m_scale.y *= vect.y;
+    m_scale.z *= vect.z;
 }
 
 void Entity::scale(float factor)
 {
-    m_transform = glm::scale(m_transform, {factor, factor, factor});
+    m_scale *= factor;
+}
+
+glm::mat4 Entity::getTransform() const
+{
+    glm::mat4 transform{1.0f};
+    transform = glm::translate(transform, m_position);
+    transform *= m_rotation;
+    transform = glm::scale(transform, m_scale);
+    return transform;
 }

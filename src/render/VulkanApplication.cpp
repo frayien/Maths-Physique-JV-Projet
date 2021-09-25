@@ -98,6 +98,9 @@ void VulkanApplication::update(uint32_t currentImage)
         ubo.view = glm::lookAt(m_world->getCamera().getPosition(), m_world->getCamera().getPosition() + m_world->getCamera().getDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.proj = glm::perspective(glm::radians(45.0f), m_swapChain->getExtent().width / (float) m_swapChain->getExtent().height, 0.1f, m_world->getCamera().getViewDistance());
         ubo.proj[1][1] *= -1;
+        ubo.lightPos = m_world->getLightSource().getPosition();
+        ubo.lightColor = m_world->getLightSource().getColor();
+        ubo.ambientLightStrength = m_world->getLightSource().getAmbient();
 
         Buffer & uniformBuffer = *(m_swapChain->getCameraUniformBuffer(currentImage));
 

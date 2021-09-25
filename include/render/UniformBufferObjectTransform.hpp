@@ -7,7 +7,7 @@
 
 struct UniformBufferObjectTransform
 {
-    alignas(0x10) glm::mat4 transform;
+    alignas(16) glm::mat4 transform;
 };
 
 #endif // MPJVP_UNIFORMBUFFEROBJECTTRANSFORM

@@ -10,13 +10,23 @@ class Application : public IApplication
     static constexpr float PI = glm::pi<float>();
 
     std::shared_ptr<Entity> platform;
+    std::shared_ptr<Entity> cube;
+    std::shared_ptr<Entity> sunShape;
 
     virtual void init(World & world) override
     {
         Camera & cam = world.getCamera();
+        LightSource & sun = world.getLightSource();
 
         cam.setPosition({2.0f, 2.0f, 3.0f});
         cam.setRotation(-3.0f * PI/4.0f, -PI/4.0f);
+
+        //sun.setPosition({10.0f, 6.0f, 14.0f});
+        sun.setPosition({2.0f, 0.0f, 6.0f});
+
+        sunShape = world.makeCube({1.0f, 1.0f, 1.0f});
+        sunShape->translate(sun.getPosition());
+        sunShape->scale(0.1f);
 
         platform = world.makeEntity(
         {
@@ -29,9 +39,9 @@ class Application : public IApplication
             0, 1, 2, 2, 3, 0,
         });
 
-        auto cube = world.makeCube();
+        cube = world.makeCube();
         cube->scale(0.5f);
-        cube->translate({0.0f, 0.0f, -2.0f});
+        cube->translate({0.0f, 0.0f, 5.0f});
 
         auto square = world.makeSquare();
         square->scale(2.0f);
@@ -44,10 +54,22 @@ class Application : public IApplication
 
     virtual void update(World & world, float deltaTime) override
     {
+        static float totalTime = 0.0f;
+        totalTime += deltaTime;
         const float rotationSpeed = 1.0f / 3.0f * PI; // rad/s
 
         platform->rotate(deltaTime * rotationSpeed, {0.0f, 0.0f, 1.0f});
 
+        cube->rotate(rotationSpeed * 0.7f * deltaTime, {1.0f,-1.0f, 0.0f});
+
+        // rotate the sun
+        float angle = rotationSpeed * totalTime;
+        glm::vec3 pos = { 2.0f * glm::cos(angle), 2.0f * glm::sin(angle), 6.0f };
+
+        world.getLightSource().setPosition(pos);
+        sunShape->setPosition(pos);
+
+        // update camera mouvement
         updateCamera(world, deltaTime);
     }
 
