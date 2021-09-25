@@ -34,7 +34,10 @@ void Particle::integrate()
 	std::chrono::nanoseconds lag(0ns);
 	auto base_time = clock::now();
 
-	std::vector<Vector3f> forceList = { Vector3f(0, -9.81, 0) };
+	Vector3f g(0, -9.81, 0);
+	float mass = 1.0f / m_inverseMass;
+
+	std::vector<Vector3f> forceList = { mass*g };
 
 	while (true)
 	{
@@ -47,7 +50,7 @@ void Particle::integrate()
 		{
 			lag -= TIMESTEP;
 
-			//Code pour print les coordonnées Y et X d'une particule
+			//Code pour print les coordonnÃ©es Y et X d'une particule
 
 			/*std::string coordYString = std::to_string(m_position.getY());
 			std::string coordXString = std::to_string(m_position.getX());
@@ -57,7 +60,7 @@ void Particle::integrate()
 			myFile << coordYString << ";" << coordXString << "\n";*/
 
 			calculAcceleration(forceList);
-			m_position += m_velocity * DELTA_TIME + (DELTA_TIME * DELTA_TIME * m_acceleration / 2);
+			m_position += m_velocity * DELTA_TIME + (DELTA_TIME * DELTA_TIME * m_acceleration / 2.0f);
 			m_velocity = m_velocity * m_damping + m_acceleration * DELTA_TIME;
 
 			
