@@ -26,6 +26,7 @@ public:
     void rotatePitch(float pitch);
 
     void move(glm::vec3 dir);
+    void translate(glm::vec3 vect);
 
     inline glm::vec3 getPosition() const { return m_position; }
     glm::vec3 getDirection() const;

@@ -28,6 +28,11 @@ void Camera::move(glm::vec3 dir)
     m_position += glm::rotate(dir, m_yaw, glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
+void Camera::translate(glm::vec3 vect)
+{
+    m_position += vect;
+}
+
 glm::vec3 Camera::getDirection() const
 { 
     glm::vec3 direction{1.0f, 0.0f, 0.0f};
