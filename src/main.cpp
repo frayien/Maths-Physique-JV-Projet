@@ -33,8 +33,6 @@ int _main()
     Particle particle{ position, 50, 1 };
     Vector3f initialVelocity{ 5, 5, 5 };
     particle.setInitialVelocity(initialVelocity);
-    particle.integrate();
-
 
     return 0;
 }

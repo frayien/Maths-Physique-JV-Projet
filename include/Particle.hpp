@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <cmath>
-#include <chrono>
 #include <vector>
 #include "Vector3f.hpp"
 
@@ -16,7 +15,7 @@ public:
 	~Particle();
 
 	void setMass(float mass);
-	void integrate();
+	void integrate(std::vector<Vector3f> forceList, float DELTA_TIME);
 	void calculAcceleration(const std::vector<Vector3f>& forceList);
 
 	inline Vector3f getPosition() const { return m_position; }
