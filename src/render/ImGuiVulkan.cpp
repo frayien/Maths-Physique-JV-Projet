@@ -3,6 +3,9 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_vulkan.h"
 
+#include <iomanip>
+#include <sstream>
+
 ImGuiVulkan::ImGuiVulkan(const std::shared_ptr<Window> & window, const std::shared_ptr<Instance> & instance, const std::shared_ptr<PhysicalDevice> & physicalDevice, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<SwapChain> & swapChain) :
     m_logicalDevice{logicalDevice},
     m_swapChain{swapChain}
@@ -137,6 +140,8 @@ ImGuiVulkan::~ImGuiVulkan()
 
 void ImGuiVulkan::render(uint32_t m_imageIndex)
 {
+    ImGui::Render();
+
     VkCommandBufferBeginInfo commandBufferInfo = {};
     commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     commandBufferInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -248,8 +253,129 @@ void ImGuiVulkan::createFrame()
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
-    ImGui::Render();
+
+    // Frame to select the projectile, see its properties and set initial position, initial acceleration and damping
+    ImGui::Begin("Projectile selection");
+
+    // Default size
+    float imGuiWidth = 330.0f;
+    float imGuiHeight = 380.0f;
+    ImGui::SetWindowSize(ImVec2(imGuiWidth, imGuiHeight));
+
+    ImGui::Text("Choose the projectile :");
+
+    // Add a combo box to select the projectile
+    if (ImGui::BeginCombo("##combo", currentProjectile))
+    {
+        for (int n = 0; n < IM_ARRAYSIZE(projectiles); n++)
+        {
+            bool isSelected = (currentProjectile == projectiles[n]);
+            if (ImGui::Selectable(projectiles[n], isSelected))
+            {
+                currentProjectile = projectiles[n];
+                currentIndex = n;
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+
+        }
+        ImGui::EndCombo();
+    }
+
+    ImGui::NewLine();
+
+    ImGui::Text("Projectile's properties : ");
+
+    // Add a table to display projectile's properties (initial velocity and mass)
+    if (ImGui::BeginTable("informationTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        std::stringstream ss;
+        for (int row = 0; row < 2; row++)
+        {
+            ImGui::TableNextRow();
+            for (int column = 0; column < 2; column++)
+            {
+                ImGui::TableSetColumnIndex(column);
+
+                if (column == 0)
+                {
+                    // First column : display properties' name
+                    if (row == 0)
+                    {
+                        // First row : initial velocity
+                        ImGui::Text("Initial velocity");
+                    }
+                    else
+                    {
+                        // Second row : mass
+                        ImGui::Text("Mass");
+                    }
+                }
+                else
+                {
+                    // Second column : display properties' value
+                    if (row == 0)
+                    {
+                        // First row : initial velocity
+                        std::stringstream().swap(ss); // clear ss
+                        ss << "{";
+                        ss << std::fixed << std::setprecision(2) << projectilesInitialVelocity[currentIndex][0];
+                        ss << " ; ";
+                        ss << std::fixed << std::setprecision(2) << projectilesInitialVelocity[currentIndex][1];
+                        ss << " ; ";
+                        ss << std::fixed << std::setprecision(2) << projectilesInitialVelocity[currentIndex][2];
+                        ss << "}";
+                        ImGui::Text(ss.str().c_str());
+                    }
+                    else
+                    {
+                        // Second row : mass
+                        std::stringstream().swap(ss); // clear ss
+                        ss << std::fixed << std::setprecision(2) << projectilesMass[currentIndex];
+                        ImGui::Text(ss.str().c_str());
+                    }
+                }
+            }
+        }
+        ImGui::EndTable();
+    }
+
+    ImGui::NewLine();
+
+    ImGui::Text("Adjustable settings :");
+
+    ImGui::Indent(10.0f);
+
+    // Input for the initial position
+    ImGui::Text("Initial position (X ; Y ; Z) :");
+    ImGui::InputFloat3("", initialPosition.data());
+
+    ImGui::NewLine();
+
+    // Input for the initial acceleration
+    ImGui::Text("Initial acceleration (X ; Y ; Z) :");
+    ImGui::InputFloat3("", initialAcceleration.data());
+
+    ImGui::NewLine();
+
+    // Input for the damping
+    ImGui::Text("Damping : ");
+    ImGui::InputFloat("", &damping);
+
+    ImGui::Unindent();
+
+    // Button to confirm selection
+    ImGui::NewLine();
+    ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.4f);
+    if (ImGui::Button("Select"))
+    {
+        // TODO: change particule
+    }
+
+    ImGui::End();
 }
 
 VkCommandBuffer ImGuiVulkan::beginSingleTimeCommands()
