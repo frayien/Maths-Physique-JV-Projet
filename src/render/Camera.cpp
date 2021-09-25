@@ -3,7 +3,8 @@
 Camera::Camera() :
     m_position{0.0f, 0.0f, 0.0f},
     m_yaw{0.0f},
-    m_pitch{0.0f}
+    m_pitch{0.0f},
+    m_viewDistance{1000.0f}
 {
 }
 
@@ -27,7 +28,7 @@ void Camera::move(glm::vec3 dir)
     m_position += glm::rotate(dir, m_yaw, glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
-glm::vec3 Camera::getDirection()
+glm::vec3 Camera::getDirection() const
 { 
     glm::vec3 direction{1.0f, 0.0f, 0.0f};
     direction = glm::rotate(direction, m_yaw, glm::vec3(0.0f, 0.0f, 1.0f));

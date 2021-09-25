@@ -81,7 +81,7 @@ class Application : public IApplication
     }
 };
 
-int _main() 
+int main() 
 {
     VulkanApplication app{std::make_shared<Application>()};
 
@@ -103,7 +103,7 @@ int _main()
 #include "Particle.hpp"
 
 
-int main()
+int _main()
 {
     Vector3f position{ 0, 0, 0 };
     Particle particle{ position, 50, 1 };

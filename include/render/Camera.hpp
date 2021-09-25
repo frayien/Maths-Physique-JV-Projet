@@ -16,6 +16,8 @@ private:
     float m_yaw;
     float m_pitch;
 
+    float m_viewDistance;
+
 public:
     Camera();
     virtual ~Camera();
@@ -25,11 +27,13 @@ public:
 
     void move(glm::vec3 dir);
 
-    inline glm::vec3 getPosition() { return m_position; }
-    glm::vec3 getDirection();
+    inline glm::vec3 getPosition() const { return m_position; }
+    glm::vec3 getDirection() const;
+    inline float getViewDistance() const { return m_viewDistance; }
 
     inline void setPosition(glm::vec3 pos) { m_position = pos; }
     inline void setRotation(float yaw, float pitch) { m_yaw = yaw; m_pitch = pitch; }
+    inline void setViewDistance(float viewDistance) { m_viewDistance = viewDistance; }
 };
 
 #endif // MPJVP_CAMERA
