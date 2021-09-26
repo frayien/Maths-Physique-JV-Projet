@@ -8,6 +8,10 @@ Vector3f::Vector3f(float x, float y, float z) : m_x{x}, m_y{y}, m_z{z}
 {
 }
 
+Vector3f::Vector3f(const std::array<float, 3> & arr) : m_x{arr[0]}, m_y{arr[1]}, m_z{arr[2]}
+{
+}
+
 Vector3f::~Vector3f()
 {
 }

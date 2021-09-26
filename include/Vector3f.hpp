@@ -7,12 +7,14 @@
 
 #include <iostream>
 #include <cmath>
-
+#include <array>
 class Vector3f
 {
 public:
     Vector3f();
     Vector3f(float x, float y, float z);
+    // Implicit conversion from std::array<float, 3>
+    Vector3f(const std::array<float, 3> & arr);
     ~Vector3f();
 
     float norm() const;
@@ -26,6 +28,7 @@ public:
     Vector3f & operator*=(float b);
     Vector3f & operator/=(float b);
 
+    // Implicit conversion to glm::vec3
     inline operator glm::vec3() { return {m_x, m_y, m_z}; }
 
     friend Vector3f operator+(Vector3f a, const Vector3f & b);
