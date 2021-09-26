@@ -2,6 +2,9 @@
 #define MPJVP_APPLICATION
 
 #include <vector>
+#include <map>
+#include <functional>
+
 #include "render/IApplication.hpp"
 #include "Particle.hpp"
 
@@ -20,6 +23,8 @@ private:
 public:
     virtual void init(World & world) override;
     virtual void update(World & world, float deltaTime) override;
+
+    void updateCamera(World & world, float deltaTime);
 };
 
 #endif // MPJVP_APPLICATION
