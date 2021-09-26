@@ -12,10 +12,12 @@
 #include "render/PhysicalDevice.hpp"
 #include "render/SwapChain.hpp"
 #include "render/Window.hpp"
+#include "Application.hpp"
 
 class ImGuiVulkan
 {
 private:
+    std::shared_ptr<Application>    m_application   ;
     std::shared_ptr<LogicalDevice>  m_logicalDevice ;
     std::shared_ptr<SwapChain>      m_swapChain     ;
 
@@ -26,18 +28,23 @@ private:
     std::vector<VkFramebuffer> m_imGuiFrameBuffers;
 
     char * projectiles[4] = { "Ball", "Heavy ball", "Laser", "Fireball" };
-    std::vector<std::vector<float>> projectilesInitialVelocity = {{1.0f, 1.0f, 1.0f}, {2.0f, 2.0f, 2.0f}, {3.0f, 3.0f, 3.0f}, {4.0f, 4.0f, 4.0f}};
+    std::vector<std::vector<float>> projectilesInitialVelocity =
+    {
+        {1.0f, 1.0f, 1.0f},
+        {2.0f, 2.0f, 2.0f},
+        {3.0f, 3.0f, 3.0f},
+        {4.0f, 4.0f, 4.0f}
+    };
     std::vector<float> projectilesMass = {2.0f, 12.0f, 0.2f, 0.5f};
 
     int currentIndex = 0;
     char* currentProjectile = projectiles[currentIndex];
 
     std::vector<float> initialPosition = {0.0f, 0.0f, 0.0f};
-    std::vector<float> initialAcceleration = {0.0f, 0.0f, 0.0f};
     float damping = 0.999f;
 
 public:
-    ImGuiVulkan(const std::shared_ptr<Window> & window, const std::shared_ptr<Instance> & instance, const std::shared_ptr<PhysicalDevice> & physicalDevice, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<SwapChain> & swapChain);
+    ImGuiVulkan(const std::shared_ptr<IApplication> & application, const std::shared_ptr<Window> & window, const std::shared_ptr<Instance> & instance, const std::shared_ptr<PhysicalDevice> & physicalDevice, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<SwapChain> & swapChain);
     virtual ~ImGuiVulkan();
 
     void render(uint32_t m_imageIndex);

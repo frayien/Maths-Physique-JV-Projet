@@ -99,3 +99,13 @@ void Application::updateCamera(World & world, float deltaTime)
         if(win.isKeyPressed(key)) fun();
     }
 }
+
+void Application::setPositionInit(Vector3f positionInit)
+{
+    this->positionInit = positionInit;
+}
+
+void Application::setVelocityInit(Vector3f velocityInit)
+{
+    this->velocityInit = velocityInit;
+}

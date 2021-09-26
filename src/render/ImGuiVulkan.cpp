@@ -6,10 +6,12 @@
 #include <iomanip>
 #include <sstream>
 
-ImGuiVulkan::ImGuiVulkan(const std::shared_ptr<Window> & window, const std::shared_ptr<Instance> & instance, const std::shared_ptr<PhysicalDevice> & physicalDevice, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<SwapChain> & swapChain) :
+ImGuiVulkan::ImGuiVulkan(const std::shared_ptr<IApplication> & application, const std::shared_ptr<Window> & window, const std::shared_ptr<Instance> & instance, const std::shared_ptr<PhysicalDevice> & physicalDevice, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<SwapChain> & swapChain) :
     m_logicalDevice{logicalDevice},
     m_swapChain{swapChain}
 {
+    m_application = std::dynamic_pointer_cast<Application>(application);
+
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -355,10 +357,6 @@ void ImGuiVulkan::createFrame()
 
     ImGui::NewLine();
 
-    // Input for the initial acceleration
-    ImGui::Text("Initial acceleration (X ; Y ; Z) :");
-    ImGui::InputFloat3("", initialAcceleration.data());
-
     ImGui::NewLine();
 
     // Input for the damping
@@ -372,7 +370,10 @@ void ImGuiVulkan::createFrame()
     ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.4f);
     if (ImGui::Button("Select"))
     {
-        // TODO: change particule
+        this->m_application->setPositionInit({this->initialPosition[0], this->initialPosition[1], this->initialPosition[2]});
+        this->m_application->setVelocityInit({this->projectilesInitialVelocity[currentIndex][0], this->projectilesInitialVelocity[currentIndex][1], this->projectilesInitialVelocity[currentIndex][2]});
+        this->m_application->getParticle().setDamping(this->damping);
+        this->m_application->getParticle().setMass(this->projectilesMass[currentIndex]);
     }
 
     ImGui::End();

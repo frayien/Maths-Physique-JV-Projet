@@ -25,6 +25,11 @@ public:
     virtual void update(World & world, float deltaTime) override;
 
     void updateCamera(World & world, float deltaTime);
+
+    inline Particle & getParticle() { return particle; }
+
+    void setPositionInit(Vector3f positionInit);
+    void setVelocityInit(Vector3f velocityInit);
 };
 
 #endif // MPJVP_APPLICATION

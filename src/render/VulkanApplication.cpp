@@ -15,7 +15,7 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
 
     m_swapChain      = std::make_shared<SwapChain>     (m_window, m_surface, m_physicalDevice, m_logicalDevice, m_commandPool, m_world);
 
-    m_imGuiVulkan    = std::make_shared<ImGuiVulkan>   (m_window, m_instance, m_physicalDevice, m_logicalDevice, m_swapChain);
+    m_imGuiVulkan    = std::make_shared<ImGuiVulkan>   (m_application, m_window, m_instance, m_physicalDevice, m_logicalDevice, m_swapChain);
 
     m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
