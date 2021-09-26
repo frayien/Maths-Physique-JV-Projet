@@ -1,6 +1,10 @@
 #ifndef MPJVP_VECTOR3F
 #define MPJVP_VECTOR3F
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+
 #include <iostream>
 #include <cmath>
 
@@ -21,6 +25,8 @@ public:
     Vector3f & operator-=(const Vector3f & b);
     Vector3f & operator*=(float b);
     Vector3f & operator/=(float b);
+
+    inline operator glm::vec3() { return {m_x, m_y, m_z}; }
 
     friend Vector3f operator+(Vector3f a, const Vector3f & b);
     friend Vector3f operator-(Vector3f a, const Vector3f & b);
