@@ -15,7 +15,6 @@ private:
     
     Particle particle;
     std::shared_ptr<Entity> particleRendered;
-    std::vector<Vector3f> forceList;
 
     Vector3f positionInit = {-8, -3, 0};
     Vector3f velocityInit = {0, 4, 7};

@@ -39,11 +39,6 @@ void Application::init(World & world)
     particle.setMass(1.0f);
     particle.setPosition(positionInit);
     particle.setVelocity(velocityInit);
-
-    // Initialisation des forces s'appliquant sur le projectile
-    Vector3f g(0, 0, -9.81);
-    float mass = 1.0f / particle.getInverseMass();
-    forceList = { mass * g };
 }
 
 void Application::update(World & world, float deltaTime)
@@ -61,6 +56,13 @@ void Application::update(World & world, float deltaTime)
         // On update la position du projectile ainsi que de son affichage graphique
         if (!pause)
         {
+            // Initialisation des forces s'appliquant sur le projectile
+            // gravité
+            Vector3f g(0, 0, -9.81);
+            float mass = 1.0f / particle.getInverseMass();
+
+            std::vector<Vector3f> forceList = { mass * g };
+
             particle.integrate(forceList, TIMESTEP);
             particleRendered->setPosition(particle.getPosition());
         }
