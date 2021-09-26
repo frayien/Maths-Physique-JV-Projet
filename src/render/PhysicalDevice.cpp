@@ -139,6 +139,14 @@ VkSampleCountFlagBits PhysicalDevice::getMaxUsableSampleCount()
     return VK_SAMPLE_COUNT_1_BIT;
 }
 
+VkDeviceSize PhysicalDevice::getMinUniformBufferOffsetAlignment() const
+{
+    VkPhysicalDeviceProperties physicalDeviceProperties;
+    vkGetPhysicalDeviceProperties(m_physicalDevice, &physicalDeviceProperties);
+
+    return physicalDeviceProperties.limits.minUniformBufferOffsetAlignment;
+}
+
 VkFormat PhysicalDevice::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const
 {
     for (VkFormat format : candidates)

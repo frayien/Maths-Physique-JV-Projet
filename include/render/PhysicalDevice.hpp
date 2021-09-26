@@ -49,6 +49,7 @@ public:
 
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
     VkFormat findDepthFormat() const;
+    VkDeviceSize getMinUniformBufferOffsetAlignment() const;
 
     inline std::vector<const char*> getDeviceExtensions() const { return m_deviceExtensions; }
     inline VkSampleCountFlagBits getMsaaSampleCount() const { return m_msaaSampleCount; }
