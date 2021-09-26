@@ -30,17 +30,17 @@ private:
     char * projectiles[4] = { "Ball", "Heavy ball", "Laser", "Fireball" };
     std::vector<std::vector<float>> projectilesInitialVelocity =
     {
-        {1.0f, 1.0f, 1.0f},
-        {2.0f, 2.0f, 2.0f},
-        {3.0f, 3.0f, 3.0f},
-        {4.0f, 4.0f, 4.0f}
+        {0.0f, 4.0f, 7.0f},
+        {0.0f, 2.0f, 2.0f},
+        {0.0f, 3.0f, 3.0f},
+        {0.0f, 4.0f, 4.0f}
     };
-    std::vector<float> projectilesMass = {2.0f, 12.0f, 0.2f, 0.5f};
+    std::vector<float> projectilesMass = {1.0f, 12.0f, 0.2f, 0.5f};
 
     int currentIndex = 0;
     char* currentProjectile = projectiles[currentIndex];
 
-    std::vector<float> initialPosition = {0.0f, 0.0f, 0.0f};
+    std::vector<float> initialPosition = {-8.0f, -3.0f, 0.0f};
     float damping = 0.999f;
 
 public:

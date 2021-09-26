@@ -37,12 +37,13 @@ void Particle::integrate(std::vector<Vector3f> forceList, float DELTA_TIME)
 			calculAcceleration(forceList);
 			m_position += m_velocity * DELTA_TIME + (DELTA_TIME * DELTA_TIME * m_acceleration / 2.0f);
 			m_velocity = m_velocity * m_damping + m_acceleration * DELTA_TIME;
-			
+			/*
 			std::cout << "================" << std::endl;
 			std::cout << "acceleration = " << m_acceleration << std::endl;
 			std::cout << "velocity = " << m_velocity << std::endl;
 			std::cout << "position = " << m_position << std::endl;
 			std::cout << "================" << std::endl << std::endl;
+			*/
 }
 
 void Particle::calculAcceleration(const std::vector<Vector3f> & forceList)

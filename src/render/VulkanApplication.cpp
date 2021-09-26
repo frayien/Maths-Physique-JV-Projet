@@ -59,8 +59,6 @@ void VulkanApplication::run()
     {
         Window::pollEvents();
 
-        m_imGuiVulkan->createFrame();
-
         drawFrame();
     }
 
@@ -154,6 +152,7 @@ void VulkanApplication::drawFrame()
 
     update(imageIndex);
 
+    m_imGuiVulkan->createFrame();
     m_imGuiVulkan->render(imageIndex);
 
     VkSubmitInfo submitInfo{};

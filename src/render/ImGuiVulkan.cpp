@@ -370,10 +370,11 @@ void ImGuiVulkan::createFrame()
     ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.4f);
     if (ImGui::Button("Select"))
     {
-        this->m_application->setPositionInit({this->initialPosition[0], this->initialPosition[1], this->initialPosition[2]});
-        this->m_application->setVelocityInit({this->projectilesInitialVelocity[currentIndex][0], this->projectilesInitialVelocity[currentIndex][1], this->projectilesInitialVelocity[currentIndex][2]});
-        this->m_application->getParticle().setDamping(this->damping);
-        this->m_application->getParticle().setMass(this->projectilesMass[currentIndex]);
+        Particle & particle = m_application->getParticle();
+        particle.setPosition({this->initialPosition[0], this->initialPosition[1], this->initialPosition[2]});
+        particle.setVelocity({this->projectilesInitialVelocity[currentIndex][0], this->projectilesInitialVelocity[currentIndex][1], this->projectilesInitialVelocity[currentIndex][2]});
+        particle.setDamping(this->damping);
+        particle.setMass(this->projectilesMass[currentIndex]);
     }
 
     ImGui::End();
