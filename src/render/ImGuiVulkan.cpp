@@ -276,6 +276,8 @@ void ImGuiVulkan::createFrame()
             {
                 currentProjectile = projectiles[n];
                 currentIndex = n;
+                currentInitialVelocity = projectilesInitialVelocity[currentIndex];
+                currentMass = projectilesMass[currentIndex];
             }
 
             if (isSelected)
@@ -353,15 +355,19 @@ void ImGuiVulkan::createFrame()
 
     // Input for the initial position
     ImGui::Text("Initial position (X ; Y ; Z) :");
-    ImGui::InputFloat3("", initialPosition.data());
+    ImGui::InputFloat3("##Position", currentInitialPosition.data(), "%.1f");
 
-    ImGui::NewLine();
+    // Input for the initial velocity
+    ImGui::Text("Initial velocity (X ; Y ; Z) :");
+    ImGui::InputFloat3("##Velocity", currentInitialVelocity.data(), "%.1f");
 
-    ImGui::NewLine();
+    // Input for the mass
+    ImGui::Text("Mass : ");
+    ImGui::InputFloat("##Mass", &currentMass, 0.5f, 5.0f, "%.1f");
 
     // Input for the damping
     ImGui::Text("Damping : ");
-    ImGui::InputFloat("", &damping);
+    ImGui::InputFloat("##Damping", &damping, 0.001f, 0.01f, "%.1f");
 
     ImGui::Unindent();
 
@@ -371,10 +377,10 @@ void ImGuiVulkan::createFrame()
     if (ImGui::Button("Select"))
     {
         Particle & particle = m_application->getParticle();
-        particle.setPosition({this->initialPosition[0], this->initialPosition[1], this->initialPosition[2]});
-        particle.setVelocity({this->projectilesInitialVelocity[currentIndex][0], this->projectilesInitialVelocity[currentIndex][1], this->projectilesInitialVelocity[currentIndex][2]});
-        particle.setDamping(this->damping);
-        particle.setMass(this->projectilesMass[currentIndex]);
+        particle.setPosition(currentInitialPosition);
+        particle.setVelocity(currentInitialVelocity);
+        particle.setDamping (damping);
+        particle.setMass    (currentMass);
     }
 
     ImGui::End();

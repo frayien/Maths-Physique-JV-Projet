@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <vector>
+#include <array>
 
 #include "render/Instance.hpp"
 #include "render/LogicalDevice.hpp"
@@ -28,7 +29,7 @@ private:
     std::vector<VkFramebuffer> m_imGuiFrameBuffers;
 
     char * projectiles[4] = { "Ball", "Heavy ball", "Laser", "Fireball" };
-    std::vector<std::vector<float>> projectilesInitialVelocity =
+    std::vector<std::array<float, 3>> projectilesInitialVelocity =
     {
         {0.0f, 4.0f, 7.0f},
         {0.0f, 2.0f, 2.0f},
@@ -40,7 +41,9 @@ private:
     int currentIndex = 0;
     char* currentProjectile = projectiles[currentIndex];
 
-    std::vector<float> initialPosition = {-8.0f, -3.0f, 0.0f};
+    float currentMass = 1.0f;
+    std::array<float, 3> currentInitialVelocity = { 0.0f,  4.0f,  7.0f};
+    std::array<float, 3> currentInitialPosition = {-8.0f, -3.0f,  0.0f};
     float damping = 0.999f;
 
 public:
