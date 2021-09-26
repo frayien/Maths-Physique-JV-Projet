@@ -9,11 +9,13 @@ class Application : public IApplication
 {
 private:
     static constexpr float PI = glm::pi<float>();
-    Particle * particle;
+    
+    Particle particle;
     std::shared_ptr<Entity> particleRendered;
-    const float TIMESTEP = 1.0f;
-    float lag = 0.0f;
     std::vector<Vector3f> forceList;
+
+    Vector3f positionInit = {-8, -3, 0};
+    Vector3f velocityInit = {0, 4, 7};
     
 public:
     virtual void init(World & world) override;

@@ -3,7 +3,7 @@
 Particle::Particle()
 {
 	m_inverseMass = 1.0f;
-	m_damping = 0.001f;
+	m_damping = 0.999f;
 }
 
 Particle::Particle(Vector3f position, float mass, float damping) : 

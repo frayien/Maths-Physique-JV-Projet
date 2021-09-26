@@ -20,7 +20,9 @@ public:
 
 	inline Vector3f getPosition() const { return m_position; }
 	inline Vector3f getVelocity() const { return m_velocity; }
-	inline void setInitialVelocity(Vector3f initialVelocity) { m_velocity = initialVelocity; }
+	inline void setVelocity(Vector3f initialVelocity) { m_velocity = initialVelocity; }
+	inline void setPosition(Vector3f pos) { m_position = pos; }
+	inline void setDamping(float damping) { m_damping = damping; }
 	inline Vector3f getAcceleration() const { return m_acceleration; }
 	inline float getInverseMass() const { return m_inverseMass; }
 	inline float getDamping() const { return m_damping; }

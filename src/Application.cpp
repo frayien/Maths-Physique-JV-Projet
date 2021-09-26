@@ -32,35 +32,38 @@ void Application::init(World & world)
     cube->scale(0.05f);
 
     // Construction du rendu graphique de la particule
-    particleRendered = world.makeCube({ 1.0f, 1.0f, 1.0f });
-    particleRendered->setPosition({ 0.0f, 0.0f, 0.0f });
-    particleRendered->scale(0.05f);
+    particleRendered = world.makeCube({ 0.2f, 0.2f, 0.2f });
+    particleRendered->scale(0.2f);
 
-    // Construction de la particule avec les données spécifiées par l'utilisateur dans ImGUI - A CHANGER
-    Vector3f position{ 0, 0, 0 };
-    particle = new Particle(position, 50, 0.999);
-    Vector3f initialVelocity{ 5, 5, 5 };
-    particle->setInitialVelocity(initialVelocity);
+    // Construction de la particule avec les donnÃ©es spÃ©cifiÃ©es par l'utilisateur dans ImGUI - A CHANGER
+    particle.setMass(1.0f);
+    particle.setPosition(positionInit);
+    particle.setVelocity(velocityInit);
 
     // Initialisation des forces s'appliquant sur le projectile
-    Vector3f g(0, -9.81, 0);
-    float mass = 1.0f / particle->getInverseMass();
+    Vector3f g(0, 0, -9.81);
+    float mass = 1.0f / particle.getInverseMass();
     forceList = { mass * g };
 }
 
 void Application::update(World & world, float deltaTime)
 {
+    static constexpr float TIMESTEP = 1.0f / 60.0f;
+    static float elapsedTime = 0.0f;
+    elapsedTime += deltaTime;
 
-    static float totalTime = 0.0f;
-    totalTime += deltaTime;
-    lag += deltaTime;
-
-    // Si le temps écoulé est supérieur à TIMESTEP, on entre dans la boucle
-    while (lag >= TIMESTEP)
+    // Si le temps Ã©coulÃ© est supÃ©rieur Ã  TIMESTEP, on entre dans la boucle
+    while (elapsedTime >= TIMESTEP)
     {
+        elapsedTime -= TIMESTEP;
         // On update la position du projectile ainsi que de son affichage graphique
-        particleRendered->setPosition({ particle->getPosition().getX(), particle->getPosition().getY(), particle->getPosition().getZ() });
-        lag -= TIMESTEP;
-        particle->integrate(forceList, TIMESTEP);
+        particle.integrate(forceList, TIMESTEP);
+        particleRendered->setPosition(particle.getPosition());
+    }
+
+    if(world.getWindow().isKeyPressed(GLFW_KEY_R))
+    {
+        particle.setPosition(positionInit);
+        particle.setVelocity(velocityInit);
     }
 }

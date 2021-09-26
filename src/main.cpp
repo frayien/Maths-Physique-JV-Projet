@@ -21,18 +21,3 @@ int main()
 
     return EXIT_SUCCESS;
 }
-
-
-#include "Vector3f.hpp"
-#include "Particle.hpp"
-
-
-int _main()
-{
-    Vector3f position{ 0, 0, 0 };
-    Particle particle{ position, 50, 1 };
-    Vector3f initialVelocity{ 5, 5, 5 };
-    particle.setInitialVelocity(initialVelocity);
-
-    return 0;
-}
