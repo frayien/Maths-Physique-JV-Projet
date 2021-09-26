@@ -1,5 +1,5 @@
-#ifndef MPJVP_ENTITY
-#define MPJVP_ENTITY
+#ifndef MPJVP_SHAPE
+#define MPJVP_SHAPE
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -12,7 +12,7 @@
 #include "render/Buffer.hpp"
 #include "render/Vertex.hpp"
 
-class Entity
+class Shape
 {
 private:
     std::unique_ptr<Buffer> m_vertexBuffer;
@@ -25,8 +25,8 @@ private:
     size_t m_indexSize;
     
 public:
-    Entity(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);
-    virtual ~Entity();
+    Shape(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);
+    virtual ~Shape();
 
     inline void setPosition(const glm::vec3 & vect) { m_position = vect; }
     void translate(const glm::vec3 & vect);
@@ -40,4 +40,4 @@ public:
     glm::mat4 getTransform() const;
 };
 
-#endif // MPJVP_ENTITY
+#endif // MPJVP_SHAPE

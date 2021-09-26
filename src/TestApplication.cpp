@@ -15,7 +15,7 @@ void TestApplication::init(World & world)
     sunShape->translate(sun.getPosition());
     sunShape->scale(0.1f);
 
-    platform = world.makeEntity(
+    platform = world.makeShape(
     {
         {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
         {{0.5f , -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},

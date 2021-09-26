@@ -14,7 +14,7 @@ private:
     static constexpr float PI = glm::pi<float>();
     
     Particle particle;
-    std::shared_ptr<Entity> particleRendered;
+    std::shared_ptr<Shape> particleRendered;
 
     Vector3f positionInit = {-8, -3, 0};
     Vector3f velocityInit = {0, 4, 7};

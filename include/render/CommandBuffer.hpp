@@ -13,7 +13,7 @@
 #include "render/UniformBufferObjectTransform.hpp"
 
 #include "render/World.hpp"
-#include "render/Entity.hpp"
+#include "render/Shape.hpp"
 
 class CommandBuffer
 {
