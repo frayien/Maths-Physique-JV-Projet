@@ -53,7 +53,7 @@ void Application::update(World & world, float deltaTime)
     {
         while (!marks.empty())
         {
-            world.removeShape(marks.back());
+            world.removeBufferedShape(marks.back());
             marks.pop_back();
         }
 
@@ -72,7 +72,7 @@ void Application::update(World & world, float deltaTime)
             if (countTimeStepMarks >= countTimeStepMarksMax)
             {
                 countTimeStepMarks = 0;
-                std::shared_ptr<Shape> tmpCube = world.makeCube({1.0f, 0.0f, 0.0f});
+                std::shared_ptr<BufferedShape> tmpCube = world.makeCube({1.0f, 0.0f, 0.0f});
                 tmpCube->setPosition(particle.getPosition());
                 tmpCube->scale(0.03f);
 

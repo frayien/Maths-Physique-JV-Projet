@@ -11,9 +11,9 @@ class TestApplication : public IApplication
 private:
     static constexpr float PI = glm::pi<float>();
 
-    std::shared_ptr<Shape> platform;
-    std::shared_ptr<Shape> cube;
-    std::shared_ptr<Shape> sunShape;
+    std::shared_ptr<BufferedShape> platform;
+    std::shared_ptr<BufferedShape> cube;
+    std::shared_ptr<BufferedShape> sunBufferedShape;
 
 public:
     virtual void init(World & world) override;

@@ -14,14 +14,14 @@ private:
     static constexpr float PI = glm::pi<float>();
     
     Particle particle;
-    std::shared_ptr<Shape> particleRendered;
+    std::shared_ptr<BufferedShape> particleRendered;
 
     Vector3f positionInit = {-8, -3, 0};
     Vector3f velocityInit = {0, 4, 7};
 
     int countTimeStepMarks = 0;
     int countTimeStepMarksMax = 15;
-    std::vector<std::shared_ptr<Shape>> marks{};
+    std::vector<std::shared_ptr<BufferedShape>> marks{};
     bool resetMarks = false;
     
 public:

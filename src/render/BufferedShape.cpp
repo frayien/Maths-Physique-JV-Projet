@@ -1,6 +1,6 @@
-#include "render/Shape.hpp"
+#include "render/BufferedShape.hpp"
 
-Shape::Shape(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices) :
+BufferedShape::BufferedShape(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices) :
     m_indexSize{indices.size()},
     m_position{0.0f, 0.0f, 0.0f},
     m_rotation{1.0f},
@@ -38,33 +38,33 @@ Shape::Shape(const std::shared_ptr<LogicalDevice> & logicalDevice, const std::sh
     }
 }
 
-Shape::~Shape()
+BufferedShape::~BufferedShape()
 {
 }
 
-void Shape::translate(const glm::vec3 & vect)
+void BufferedShape::translate(const glm::vec3 & vect)
 {
     m_position += vect;
 }
 
-void Shape::rotate(float angle, const glm::vec3 & axis)
+void BufferedShape::rotate(float angle, const glm::vec3 & axis)
 {
     m_rotation = glm::rotate(m_rotation, angle, glm::normalize(axis));
 }
 
-void Shape::scale(const glm::vec3 & vect)
+void BufferedShape::scale(const glm::vec3 & vect)
 {
     m_scale.x *= vect.x;
     m_scale.y *= vect.y;
     m_scale.z *= vect.z;
 }
 
-void Shape::scale(float factor)
+void BufferedShape::scale(float factor)
 {
     m_scale *= factor;
 }
 
-glm::mat4 Shape::getTransform() const
+glm::mat4 BufferedShape::getTransform() const
 {
     glm::mat4 transform{1.0f};
     transform = glm::translate(transform, m_position);
