@@ -48,6 +48,8 @@ void Application::init(World & world)
 
 void Application::update(World & world, float deltaTime)
 {
+    static bool canPressPause = true;
+    static bool pause = false;
     static constexpr float TIMESTEP = 1.0f / 60.0f;
     static float elapsedTime = 0.0f;
     elapsedTime += deltaTime;
@@ -57,8 +59,11 @@ void Application::update(World & world, float deltaTime)
     {
         elapsedTime -= TIMESTEP;
         // On update la position du projectile ainsi que de son affichage graphique
-        particle.integrate(forceList, TIMESTEP);
-        particleRendered->setPosition(particle.getPosition());
+        if (!pause)
+        {
+            particle.integrate(forceList, TIMESTEP);
+            particleRendered->setPosition(particle.getPosition());
+        }
     }
 
     // Reset
@@ -66,6 +71,17 @@ void Application::update(World & world, float deltaTime)
     {
         particle.setPosition(positionInit);
         particle.setVelocity(velocityInit);
+    }
+
+    // Pause
+    if(world.getWindow().isKeyPressed(GLFW_KEY_P) && canPressPause)
+    {
+        canPressPause = false;
+        pause = !pause;
+    }
+    else if(!world.getWindow().isKeyPressed(GLFW_KEY_P))
+    {
+        canPressPause = true;
     }
 
     updateCamera(world, deltaTime);
