@@ -21,7 +21,7 @@
 #include "render/UniformBufferObjectCamera.hpp"
 #include "render/UniformBufferObjectTransform.hpp"
 #include "render/World.hpp"
-#include "render/Shape.hpp"
+#include "render/BufferedShape.hpp"
 
 class SwapChain
 {

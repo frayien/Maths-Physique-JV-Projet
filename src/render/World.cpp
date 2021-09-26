@@ -11,28 +11,28 @@ World::~World()
 {
 }
 
-std::shared_ptr<Shape> World::makeShape(const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices)
+std::shared_ptr<BufferedShape> World::makeBufferedShape(const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices)
 {
-    std::shared_ptr<Shape> entity = std::make_shared<Shape>(m_logicalDevice, m_commandPool, vertices, indices);
+    std::shared_ptr<BufferedShape> entity = std::make_shared<BufferedShape>(m_logicalDevice, m_commandPool, vertices, indices);
     m_entities.push_back(entity);
     m_changed = true;
 
     return entity;
 }
 
-void World::addShape(const std::shared_ptr<Shape> & entity)
+void World::addBufferedShape(const std::shared_ptr<BufferedShape> & entity)
 {
     m_entities.push_back(entity);
     m_changed = true;
 }
 
-void World::removeShape(const std::shared_ptr<Shape> & entity)
+void World::removeBufferedShape(const std::shared_ptr<BufferedShape> & entity)
 {
     m_entities.remove(entity);
     m_changed = true;
 }
 
-std::shared_ptr<Shape> World::makeSquare(glm::vec3 color)
+std::shared_ptr<BufferedShape> World::makeSquare(glm::vec3 color)
 {
     std::vector<Vertex> vertices = 
     {
@@ -46,10 +46,10 @@ std::shared_ptr<Shape> World::makeSquare(glm::vec3 color)
         0,1,2,2,3,0,
     };
 
-    return makeShape(vertices, indices);
+    return makeBufferedShape(vertices, indices);
 }
 
-std::shared_ptr<Shape> World::makeDisk(glm::vec3 color)
+std::shared_ptr<BufferedShape> World::makeDisk(glm::vec3 color)
 {
     const size_t VERTEX_N = 50;
     std::vector<Vertex> vertices = { {{0.0f, 0.0f, 0.0f}, color, {0.0f, 0.0f, 1.0f}} };
@@ -66,10 +66,10 @@ std::shared_ptr<Shape> World::makeDisk(glm::vec3 color)
     }
     indices.back() = 1;
 
-    return makeShape(vertices, indices);
+    return makeBufferedShape(vertices, indices);
 }
 
-std::shared_ptr<Shape> World::makeCube(glm::vec3 color)
+std::shared_ptr<BufferedShape> World::makeCube(glm::vec3 color)
 {
     std::vector<Vertex> vertices = 
     {
@@ -113,10 +113,10 @@ std::shared_ptr<Shape> World::makeCube(glm::vec3 color)
         20,21,22,22,23,20,
     };
 
-    return makeShape(vertices, indices);
+    return makeBufferedShape(vertices, indices);
 }
 
-std::shared_ptr<Shape> World::makeSphere(glm::vec3 color)
+std::shared_ptr<BufferedShape> World::makeSphere(glm::vec3 color)
 {
     const size_t VERTEX_N = 50;
     std::vector<Vertex> vertices = { {{0.0f, 0.0f, 0.0f}, color, {0.0f, 0.0f, 1.0f}} };
@@ -133,5 +133,5 @@ std::shared_ptr<Shape> World::makeSphere(glm::vec3 color)
     }
     indices.back() = 1;
 
-    return makeShape(vertices, indices);
+    return makeBufferedShape(vertices, indices);
 }

@@ -11,11 +11,11 @@ void TestApplication::init(World & world)
     //sun.setPosition({10.0f, 6.0f, 14.0f});
     sun.setPosition({2.0f, 0.0f, 6.0f});
 
-    sunShape = world.makeCube({1.0f, 1.0f, 1.0f});
-    sunShape->translate(sun.getPosition());
-    sunShape->scale(0.1f);
+    sunBufferedShape = world.makeCube({1.0f, 1.0f, 1.0f});
+    sunBufferedShape->translate(sun.getPosition());
+    sunBufferedShape->scale(0.1f);
 
-    platform = world.makeShape(
+    platform = world.makeBufferedShape(
     {
         {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
         {{0.5f , -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
@@ -54,7 +54,7 @@ void TestApplication::update(World & world, float deltaTime)
     glm::vec3 pos = { 2.0f * glm::cos(angle), 2.0f * glm::sin(angle), 6.0f };
 
     world.getLightSource().setPosition(pos);
-    sunShape->setPosition(pos);
+    sunBufferedShape->setPosition(pos);
 
     // update camera mouvement
     updateCamera(world, deltaTime);
