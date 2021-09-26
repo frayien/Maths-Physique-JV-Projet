@@ -381,6 +381,8 @@ void ImGuiVulkan::createFrame()
         particle.setVelocity(currentInitialVelocity);
         particle.setDamping (damping);
         particle.setMass    (currentMass);
+
+        m_application->setResetMarks(true);
     }
 
     ImGui::End();

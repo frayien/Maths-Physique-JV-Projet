@@ -18,6 +18,11 @@ private:
 
     Vector3f positionInit = {-8, -3, 0};
     Vector3f velocityInit = {0, 4, 7};
+
+    int countTimeStepMarks = 0;
+    int countTimeStepMarksMax = 15;
+    std::vector<std::shared_ptr<Shape>> marks{};
+    bool resetMarks = false;
     
 public:
     virtual void init(World & world) override;
@@ -29,6 +34,8 @@ public:
 
     void setPositionInit(Vector3f positionInit);
     void setVelocityInit(Vector3f velocityInit);
+
+    void setResetMarks(bool resetMarks);
 };
 
 #endif // MPJVP_APPLICATION

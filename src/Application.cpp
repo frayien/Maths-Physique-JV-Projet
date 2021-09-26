@@ -49,6 +49,17 @@ void Application::update(World & world, float deltaTime)
     static float elapsedTime = 0.0f;
     elapsedTime += deltaTime;
 
+    if (resetMarks && !pause)
+    {
+        while (!marks.empty())
+        {
+            world.removeShape(marks.back());
+            marks.pop_back();
+        }
+
+        resetMarks = false;
+    }
+
     // Si le temps écoulé est supérieur à TIMESTEP, on entre dans la boucle
     while (elapsedTime >= TIMESTEP)
     {
@@ -56,6 +67,18 @@ void Application::update(World & world, float deltaTime)
         // On update la position du projectile ainsi que de son affichage graphique
         if (!pause)
         {
+            countTimeStepMarks++;
+
+            if (countTimeStepMarks >= countTimeStepMarksMax)
+            {
+                countTimeStepMarks = 0;
+                std::shared_ptr<Shape> tmpCube = world.makeCube({1.0f, 0.0f, 0.0f});
+                tmpCube->setPosition(particle.getPosition());
+                tmpCube->scale(0.03f);
+
+                marks.push_back(tmpCube);
+            }
+
             // Initialisation des forces s'appliquant sur le projectile
             // gravité
             Vector3f g(0, 0, -9.81);
@@ -73,6 +96,7 @@ void Application::update(World & world, float deltaTime)
     {
         particle.setPosition(positionInit);
         particle.setVelocity(velocityInit);
+        resetMarks = true;
     }
 
     // Pause
@@ -126,4 +150,9 @@ void Application::setPositionInit(Vector3f positionInit)
 void Application::setVelocityInit(Vector3f velocityInit)
 {
     this->velocityInit = velocityInit;
+}
+
+void Application::setResetMarks(bool resetMarks)
+{
+    this->resetMarks = resetMarks;
 }
