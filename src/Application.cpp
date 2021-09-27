@@ -11,31 +11,31 @@ void Application::init(World & world)
 
     sun.setPosition({0.0f, 0.0f, 0.0f});
 
-    // background
+    // Creation of the background
     auto cube = world.makeCube({0.9f, 0.9f, 0.9f});
     cube->setPosition({-10.0f, 0.0f, 0.0f});
     cube->scale({0.1f, 10.0f, 10.0f});
 
-    // center
+    // We mark the center
     cube = world.makeCube({0.0f, 0.0f, 0.0f});
     cube->setPosition({-9.0f, 0.0f, 0.0f});
     cube->scale(0.05f);
 
-    // axe Y+
+    // Y+ axis
     cube = world.makeCube({1.0f, 0.0f, 0.0f});
     cube->setPosition({-9.0f, 1.0f, 0.0f});
     cube->scale(0.05f);
 
-    // axe Z+
+    // Z+ axis
     cube = world.makeCube({0.0f, 1.0f, 0.0f});
     cube->setPosition({-9.0f, 0.0f, 1.0f});
     cube->scale(0.05f);
 
-    // Construction du rendu graphique de la particule
+    // Initialisation of the graphic rendering of the particle
     particleRendered = world.makeSphere({ 0.2f, 0.2f, 0.2f });
     particleRendered->scale(0.2f);
 
-    // Construction de la particule avec les données spécifiées par l'utilisateur dans ImGUI - A CHANGER
+    // Initialisation of the particle based on the data specified by the user in ImGui
     particle.setMass(1.0f);
     particle.setPosition(positionInit);
     particle.setVelocity(velocityInit);
@@ -49,6 +49,7 @@ void Application::update(World & world, float deltaTime)
     static float elapsedTime = 0.0f;
     elapsedTime += deltaTime;
 
+    // If we want to reset the world and the pause isn't active
     if (resetMarks && !pause)
     {
         while (!marks.empty())
@@ -60,13 +61,14 @@ void Application::update(World & world, float deltaTime)
         resetMarks = false;
     }
 
-    // Si le temps écoulé est supérieur à TIMESTEP, on entre dans la boucle
+    // If the elapsed time is greater than TIMESTEP, we enter the loop
     while (elapsedTime >= TIMESTEP)
     {
         elapsedTime -= TIMESTEP;
-        // On update la position du projectile ainsi que de son affichage graphique
+        
         if (!pause)
         {
+            // Creation of multiple little spheres to symbolize the path taken by the particle
             countTimeStepMarks++;
 
             if (countTimeStepMarks >= countTimeStepMarksMax)
@@ -79,19 +81,20 @@ void Application::update(World & world, float deltaTime)
                 marks.push_back(tmpSphere);
             }
 
-            // Initialisation des forces s'appliquant sur le projectile
-            // gravité
+            // Initialisation of the different forces that apply to the particle - TEMPORARY
+            // For the moment, there is only gravity
             Vector3f g(0, 0, -9.81);
             float mass = 1.0f / particle.getInverseMass();
 
             std::vector<Vector3f> forceList = { mass * g };
 
+            // We update the position of the particle and its graphical rendering
             particle.integrate(forceList, TIMESTEP);
             particleRendered->setPosition(particle.getPosition());
         }
     }
 
-    // Reset
+    // If we click on the reset button
     if(world.getWindow().isKeyPressed(GLFW_KEY_R))
     {
         particle.setPosition(positionInit);
@@ -99,7 +102,7 @@ void Application::update(World & world, float deltaTime)
         resetMarks = true;
     }
 
-    // Pause
+    // If we click on the pause button
     if(world.getWindow().isKeyPressed(GLFW_KEY_P) && canPressPause)
     {
         canPressPause = false;
@@ -113,6 +116,7 @@ void Application::update(World & world, float deltaTime)
     updateCamera(world, deltaTime);
 }
 
+// Function used to translate and rotate the camera
 void Application::updateCamera(World & world, float deltaTime)
 {
     const Window & win = world.getWindow();
@@ -142,11 +146,13 @@ void Application::updateCamera(World & world, float deltaTime)
     }
 }
 
+// Function used to set the initial position of the particle as defined in ImGui
 void Application::setPositionInit(Vector3f positionInit)
 {
     this->positionInit = positionInit;
 }
 
+// Function used to set the initial velocity of the particle as defined in ImGui
 void Application::setVelocityInit(Vector3f velocityInit)
 {
     this->velocityInit = velocityInit;

@@ -16,7 +16,7 @@ public:
 
 	void setMass(float mass);
 	void integrate(std::vector<Vector3f> forceList, float DELTA_TIME);
-	void calculAcceleration(const std::vector<Vector3f>& forceList);
+	void calculateAcceleration(const std::vector<Vector3f>& forceList);
 
 	inline Vector3f getPosition() const { return m_position; }
 	inline Vector3f getVelocity() const { return m_velocity; }

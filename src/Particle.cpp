@@ -24,7 +24,7 @@ void Particle::setMass(float mass)
 
 void Particle::integrate(std::vector<Vector3f> forceList, float DELTA_TIME)
 {
-			//Code pour print les coordonnées Y et X d'une particule
+			// Code for debugging (we print the coordinates of the particle)
 			/*std::string coordYString = std::to_string(m_position.getY());
 			std::string coordXString = std::to_string(m_position.getX());
 			std::replace(coordYString.begin(), coordYString.end(), '.', ',');
@@ -33,8 +33,8 @@ void Particle::integrate(std::vector<Vector3f> forceList, float DELTA_TIME)
 			myFile << coordYString << ";" << coordXString << "\n";*/
 
 
-			// On calcule l'accélération en fonction de la liste des forces, puis on update la vitesse et la position du projectile
-			calculAcceleration(forceList);
+			// We update the acceleration according to the forces' list, then we update the position and the velocity
+			calculateAcceleration(forceList);
 			m_position += m_velocity * DELTA_TIME + (DELTA_TIME * DELTA_TIME * m_acceleration / 2.0f);
 			m_velocity = m_velocity * m_damping + m_acceleration * DELTA_TIME;
 			/*
@@ -46,7 +46,7 @@ void Particle::integrate(std::vector<Vector3f> forceList, float DELTA_TIME)
 			*/
 }
 
-void Particle::calculAcceleration(const std::vector<Vector3f> & forceList)
+void Particle::calculateAcceleration(const std::vector<Vector3f> & forceList)
 {
 	Vector3f totalForce{ 0, 0, 0 };
 	for (int i = 0; i < forceList.size(); i++)
