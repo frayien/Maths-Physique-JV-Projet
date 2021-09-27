@@ -72,11 +72,11 @@ void Application::update(World & world, float deltaTime)
             if (countTimeStepMarks >= countTimeStepMarksMax)
             {
                 countTimeStepMarks = 0;
-                std::shared_ptr<BufferedShape> tmpCube = world.makeCube({1.0f, 0.0f, 0.0f});
-                tmpCube->setPosition(particle.getPosition());
-                tmpCube->scale(0.03f);
+                std::shared_ptr<BufferedShape> tmpSphere = world.makeSphere({1.0f, 0.0f, 0.0f});
+                tmpSphere->setPosition(particle.getPosition());
+                tmpSphere->scale(0.03f);
 
-                marks.push_back(tmpCube);
+                marks.push_back(tmpSphere);
             }
 
             // Initialisation des forces s'appliquant sur le projectile
