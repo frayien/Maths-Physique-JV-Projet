@@ -32,11 +32,11 @@ private:
     std::vector<std::array<float, 3>> projectilesInitialVelocity =
     {
         {0.0f, 4.0f, 7.0f},
-        {0.0f, 2.0f, 2.0f},
-        {0.0f, 3.0f, 3.0f},
+        {0.0f, 2.0f, 6.0f},
+        {0.0f, 16.0f, 6.0f},
         {0.0f, 4.0f, 4.0f}
     };
-    std::vector<float> projectilesMass = {1.0f, 12.0f, 0.2f, 0.5f};
+    std::vector<float> projectilesMass = {4.0f, 12.0f, 0.2f, 2.0f};
 
     int currentIndex = 0;
     char* currentProjectile = projectiles[currentIndex];
