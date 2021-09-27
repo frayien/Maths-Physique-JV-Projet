@@ -20,7 +20,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 else(CMAKE_COMPILER_IS_GNUCXX)
   message(STATUS "MSVC detected, adding compile flags")
   set(CMAKE_CXX_FLAGS "/EHsc")
-  set(CMAKE_CXX_FLAGS_DEBUG "/Od")
+  set(CMAKE_CXX_FLAGS_DEBUG "/Od /Zi")
   set(CMAKE_CXX_FLAGS_RELEASE "/O2")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
