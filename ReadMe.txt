@@ -8,6 +8,8 @@ Prérequis :
 
 * Pour lancer le projet : .\run_release.bat
 
+(Remarque : En mode Debug, il est nécessaire d'avoir installé le SDK Vulkan, pour que les validation layers soient configurées)
+
 Une fois l'application lancée, différents contrôles sont proposés :
     * Rotation de la caméra :
         - Z (en azerty) ou Q (en qwerty) : rotation vers le haut
