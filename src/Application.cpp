@@ -32,7 +32,7 @@ void Application::init(World & world)
     cube->scale(0.05f);
 
     // Construction du rendu graphique de la particule
-    particleRendered = world.makeCube({ 0.2f, 0.2f, 0.2f });
+    particleRendered = world.makeSphere({ 0.2f, 0.2f, 0.2f });
     particleRendered->scale(0.2f);
 
     // Construction de la particule avec les données spécifiées par l'utilisateur dans ImGUI - A CHANGER
@@ -53,7 +53,7 @@ void Application::update(World & world, float deltaTime)
     {
         while (!marks.empty())
         {
-            world.removeBufferedShape(marks.back());
+            world.removeShape(marks.back());
             marks.pop_back();
         }
 

@@ -103,7 +103,7 @@ void VulkanApplication::update(uint32_t currentImage)
         uniformBuffer.loadData(&ubo, sizeof(UniformBufferObjectCamera));
     }
     {
-        const auto & entities = m_world->getEntities();
+        const auto & entities = m_world->getShapes();
         std::vector<UniformBufferObjectTransform> ubos(entities.size());
         size_t i = 0;
         for(const auto & entity : entities)
@@ -156,7 +156,7 @@ void VulkanApplication::drawFrame()
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    std::array<VkCommandBuffer, 2> submitCommandBuffers = { m_swapChain->getCommandBuffer(imageIndex).raw(), m_imGuiVulkan->getCommandBuffer(imageIndex) };
+    std::array<VkCommandBuffer, 2> submitCommandBuffers = { m_swapChain->getCommandBuffer(imageIndex)->raw(), m_imGuiVulkan->getCommandBuffer(imageIndex) };
 
     VkSemaphore waitSemaphores[] = {m_imageAvailableSemaphores[m_currentFrame]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};

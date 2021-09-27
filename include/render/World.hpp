@@ -20,7 +20,7 @@ private:
     std::shared_ptr<LogicalDevice> m_logicalDevice;
     std::shared_ptr<CommandPool> m_commandPool;
 
-    std::list<std::shared_ptr<BufferedShape> > m_entities;
+    std::list<std::shared_ptr<BufferedShape> > m_shapes;
     bool m_changed = false;
 
     Camera m_camera;
@@ -31,11 +31,11 @@ public:
     virtual ~World();
 
     std::shared_ptr<BufferedShape> makeShape(const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);
-    void addBufferedShape(const std::shared_ptr<BufferedShape> & entity);
-    void removeBufferedShape(const std::shared_ptr<BufferedShape> & entity);
+    void addShape(const std::shared_ptr<BufferedShape> & entity);
+    void removeShape(const std::shared_ptr<BufferedShape> & entity);
 
     inline const Window & getWindow() const { return *m_window; }
-    inline const std::list<std::shared_ptr<BufferedShape> > & getEntities() const { return m_entities; }
+    inline const std::list<std::shared_ptr<BufferedShape> > & getShapes() const { return m_shapes; }
     inline bool hasChanged() const { return m_changed; }
     inline void setChanged(bool val) { m_changed = val; }
     inline Camera & getCamera() { return m_camera; }

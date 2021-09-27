@@ -6,7 +6,12 @@ CommandBuffer::CommandBuffer(VkCommandBuffer commandBuffer) :
 }
 
 void CommandBuffer::record(const FrameBuffer & frameBuffer, VkDescriptorSet descriptorSet, const World & world)
-{    
+{
+    // store internaly a refenrence to the current entites.
+    // This way, when an entity is removed from the world
+    // it is not deleted before this buffer gets re-recorded.
+    m_shapes = world.getShapes();
+
     // starting command buffer recording
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -38,22 +43,22 @@ void CommandBuffer::record(const FrameBuffer & frameBuffer, VkDescriptorSet desc
     vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBuffer.getGraphicsPipeline()->raw());
 
     size_t i = 0;
-    for(const auto & entity : world.getEntities())
+    for(const auto & shape : m_shapes)
     {
         std::array<uint32_t, 1> dynamicOffsets = {sizeof(UniformBufferObjectTransform) * static_cast<uint32_t>(i)};
 
         vkCmdBindDescriptorSets(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBuffer.getGraphicsPipeline()->rawLayout(), 0, 1, &descriptorSet, dynamicOffsets.size(), dynamicOffsets.data());
 
-        VkBuffer vertexBuffers[] = {entity->getVertexBuffer()->raw()};
+        VkBuffer vertexBuffers[] = {shape->getVertexBuffer()->raw()};
         VkDeviceSize offsets[] = {0};
 
         vkCmdBindVertexBuffers(m_commandBuffer, 0, 1, vertexBuffers, offsets);
 
-        VkBuffer indexBuffer  = entity->getIndexBuffer()->raw();
+        VkBuffer indexBuffer  = shape->getIndexBuffer()->raw();
 
         vkCmdBindIndexBuffer(m_commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-        vkCmdDrawIndexed(m_commandBuffer, static_cast<uint32_t>(entity->getIndexBufferSize()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(m_commandBuffer, static_cast<uint32_t>(shape->getIndexBufferSize()), 1, 0, 0, 0);
 
         ++i;
     }

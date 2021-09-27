@@ -14,21 +14,21 @@ World::~World()
 std::shared_ptr<BufferedShape> World::makeShape(const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices)
 {
     std::shared_ptr<BufferedShape> entity = std::make_shared<BufferedShape>(m_logicalDevice, m_commandPool, vertices, indices);
-    m_entities.push_back(entity);
+    m_shapes.push_back(entity);
     m_changed = true;
 
     return entity;
 }
 
-void World::addBufferedShape(const std::shared_ptr<BufferedShape> & entity)
+void World::addShape(const std::shared_ptr<BufferedShape> & entity)
 {
-    m_entities.push_back(entity);
+    m_shapes.push_back(entity);
     m_changed = true;
 }
 
-void World::removeBufferedShape(const std::shared_ptr<BufferedShape> & entity)
+void World::removeShape(const std::shared_ptr<BufferedShape> & entity)
 {
-    m_entities.remove(entity);
+    m_shapes.remove(entity);
     m_changed = true;
 }
 

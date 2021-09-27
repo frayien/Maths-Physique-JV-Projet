@@ -60,7 +60,7 @@ public:
 
     inline const std::unique_ptr<Buffer> & getCameraUniformBuffer(size_t i) const { return m_descriptorSets->getUniformBuffer(i); }
     inline const std::unique_ptr<Buffer> & getTransformsUniformBuffer(size_t i) const { return m_descriptorSets->getUniformBufferDynamic(i); }
-    inline CommandBuffer getCommandBuffer(size_t i) { return (*m_commandBuffers)[i]; }
+    inline const std::unique_ptr<CommandBuffer> & getCommandBuffer(size_t i) const { return (*m_commandBuffers)[i]; }
 
     inline VkFormat getImageFormat() const { return m_imageFormat; }
     inline VkExtent2D getExtent() const { return m_extent; }

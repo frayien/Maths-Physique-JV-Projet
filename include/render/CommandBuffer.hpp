@@ -20,6 +20,8 @@ class CommandBuffer
 private:
     VkCommandBuffer m_commandBuffer;
 
+    std::list<std::shared_ptr<BufferedShape>> m_shapes;
+
 public:
     CommandBuffer(VkCommandBuffer commandBuffer);
 

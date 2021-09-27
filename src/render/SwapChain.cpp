@@ -15,7 +15,7 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
     m_frameBuffers = std::make_shared<FrameBuffers>(m_logicalDevice, m_graphicsPipeline, m_imageViews, getExtent(), getImageFormat(), m_physicalDevice->findDepthFormat());
 
     m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, size());
-    m_descriptorSets = std::make_shared<DescriptorSets>(m_logicalDevice, m_descriptorPool, *m_descriptorSetLayout, m_world->getEntities().size(), size());
+    m_descriptorSets = std::make_shared<DescriptorSets>(m_logicalDevice, m_descriptorPool, *m_descriptorSetLayout, m_world->getShapes().size(), size());
 
     m_commandBuffers = std::make_shared<CommandBuffers>(m_logicalDevice, m_commandPool, size());
     for(size_t i = 0; i < size(); ++i)
@@ -50,7 +50,7 @@ void SwapChain::recreate()
     m_frameBuffers->recreate(m_graphicsPipeline, m_imageViews, getExtent(), getImageFormat(), m_physicalDevice->findDepthFormat());
 
     m_descriptorPool->recreate(size());
-    m_descriptorSets->recreate(*m_descriptorSetLayout, m_world->getEntities().size(), size());
+    m_descriptorSets->recreate(*m_descriptorSetLayout, m_world->getShapes().size(), size());
 
 
     m_commandBuffers->recreate(size());
@@ -62,11 +62,11 @@ void SwapChain::recreate()
 
 void SwapChain::recordCommandBuffer(size_t i)
 {
-    m_descriptorSets->resizeDynamicBuffer(i, m_world->getEntities().size() * sizeof(UniformBufferObjectTransform));
+    m_descriptorSets->resizeDynamicBuffer(i, m_world->getShapes().size() * sizeof(UniformBufferObjectTransform));
 
-    CommandBuffer commandBuffer = (*m_commandBuffers)[i];
+    const auto & commandBuffer = (*m_commandBuffers)[i];
     const FrameBuffer & frameBuffer = (*m_frameBuffers)[i];
-    commandBuffer.record(frameBuffer, m_descriptorSets->getRaw(i), *m_world);
+    commandBuffer->record(frameBuffer, m_descriptorSets->getRaw(i), *m_world);
 }
 
 void SwapChain::create()
