@@ -367,7 +367,7 @@ void ImGuiVulkan::createFrame()
 
     // Input for the damping
     ImGui::Text("Damping : ");
-    ImGui::InputFloat("##Damping", &damping, 0.001f, 0.01f, "%.1f");
+    ImGui::InputFloat("##Damping", &damping, 0.001f, 0.01f, "%.3f");
 
     ImGui::Unindent();
 
