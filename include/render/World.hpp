@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <limits>
 
 #include "render/Camera.hpp"
 #include "render/LightSource.hpp"
