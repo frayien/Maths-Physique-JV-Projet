@@ -4,7 +4,7 @@
 #include "TestApplication.hpp"
 #include "Application.hpp"
 
-int main() 
+int main()
 {
     //VulkanApplication app{std::make_shared<TestApplication>()};
     VulkanApplication app{std::make_shared<Application>()};

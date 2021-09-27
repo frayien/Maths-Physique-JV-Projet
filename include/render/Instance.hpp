@@ -19,10 +19,10 @@ private:
     };
 
     // Validation layers should only be enabled when in debug mode
-    #ifdef NDEBUG
-        const bool m_enableValidationLayers = false;
-    #else
+    #ifdef MPVJP__DEBUG
         const bool m_enableValidationLayers = true;
+    #else
+        const bool m_enableValidationLayers = false;
     #endif
 
 public:
