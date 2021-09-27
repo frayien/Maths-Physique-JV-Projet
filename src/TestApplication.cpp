@@ -15,7 +15,7 @@ void TestApplication::init(World & world)
     sunBufferedShape->translate(sun.getPosition());
     sunBufferedShape->scale(0.1f);
 
-    platform = world.makeBufferedShape(
+    platform = world.makeShape(
     {
         {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
         {{0.5f , -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
@@ -37,6 +37,8 @@ void TestApplication::init(World & world)
     auto disk = world.makeDisk();
     disk->scale(0.5f);
     disk->translate({3.0f, 0.0f, 0.3f});
+
+    world.makeSphere();
 }
 
 void TestApplication::update(World & world, float deltaTime)

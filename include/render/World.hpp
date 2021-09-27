@@ -29,7 +29,7 @@ public:
     World(const std::shared_ptr<Window> & window, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool);
     virtual ~World();
 
-    std::shared_ptr<BufferedShape> makeBufferedShape(const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);
+    std::shared_ptr<BufferedShape> makeShape(const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);
     void addBufferedShape(const std::shared_ptr<BufferedShape> & entity);
     void removeBufferedShape(const std::shared_ptr<BufferedShape> & entity);
 
