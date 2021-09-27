@@ -67,11 +67,9 @@ void VulkanApplication::run()
 
 void VulkanApplication::update(uint32_t currentImage)
 {
-    static auto startTime = std::chrono::high_resolution_clock::now();
     static auto previousTime = std::chrono::high_resolution_clock::now();
 
     auto currentTime = std::chrono::high_resolution_clock::now();
-    float totalTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
     float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - previousTime).count();
     previousTime = currentTime;
 
