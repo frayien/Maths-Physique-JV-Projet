@@ -1,5 +1,9 @@
 (Pour exécuter les commandes indiquées il faut se placer à la racine du projet)
 
+Prérequis :
+    - Avoir MSVC
+    - Avoir CMake
+
 * Pour compiler le projet : .\build_release.bat
 
 * Pour lancer le projet : .\run_release.bat
