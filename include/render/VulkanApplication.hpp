@@ -11,7 +11,7 @@
 #include <chrono>
 
 #include "render/Window.hpp"
-#include "render/Surface.hpp"
+
 #include "render/PhysicalDevice.hpp"
 #include "render/LogicalDevice.hpp"
 #include "render/CommandPool.hpp"
@@ -43,7 +43,7 @@ private:
     std::shared_ptr<Window>                   m_window;
     std::shared_ptr<vk::raii::Context>        m_context;
     std::shared_ptr<vk::raii::Instance>       m_instance;
-    std::shared_ptr<Surface>        m_surface       ;
+    std::shared_ptr<vk::raii::SurfaceKHR>     m_surface;
     std::shared_ptr<PhysicalDevice> m_physicalDevice;
     std::shared_ptr<LogicalDevice>  m_logicalDevice ;
     std::shared_ptr<CommandPool>    m_commandPool   ;
@@ -78,6 +78,8 @@ private:
     // instance initialization
     bool checkValidationLayerSupport();
     void initInstance();
+    // surface initialization
+    void initSurface();
 };
 
 #endif // MPJVP_VULKANAPPLICATION

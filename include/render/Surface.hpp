@@ -20,6 +20,8 @@
     };
 //}
 
+// TODO remove
+
 class Surface
 {
 private:

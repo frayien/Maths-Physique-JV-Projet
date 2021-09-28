@@ -6,8 +6,8 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     initWindow();
     initContext();
     initInstance();
-    
-    m_surface        = std::make_shared<Surface>       (m_window, m_instance);
+    initSurface();
+
     m_physicalDevice = std::make_shared<PhysicalDevice>(m_instance, m_surface);
     m_logicalDevice  = std::make_shared<LogicalDevice> (m_physicalDevice);
     m_commandPool    = std::make_shared<CommandPool>   (m_logicalDevice);
@@ -283,4 +283,18 @@ void VulkanApplication::initInstance()
     }
 
     m_instance = std::make_shared<vk::raii::Instance>(*m_context, createInfo);
+}
+
+void VulkanApplication::initSurface()
+{
+    VkSurfaceKHR surface;
+    VkResult result = glfwCreateWindowSurface(m_instance->raw(), m_window->raw(), nullptr, &surface);
+    if (result != VK_SUCCESS) 
+    {
+        const char* description;
+        glfwGetError(&description);
+        throw std::runtime_error("failed to create window surface! " + std::to_string(result) + " " + description);
+    }
+
+    m_surface = std::make_shared<vk::raii::SurfaceKHR>(*m_instance, surface);
 }
