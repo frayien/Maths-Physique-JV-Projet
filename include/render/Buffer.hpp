@@ -1,8 +1,7 @@
 #ifndef MPJVP_BUFFER
 #define MPJVP_BUFFER
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan_raii.hpp>
 
 #include "render/LogicalDevice.hpp"
 

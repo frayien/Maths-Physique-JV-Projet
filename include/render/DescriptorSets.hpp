@@ -1,8 +1,7 @@
 #ifndef MPJVP_DESCRIPTORSETS
 #define MPJVP_DESCRIPTORSETS
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan_raii.hpp>
 
 #include "render/LogicalDevice.hpp"
 #include "render/DescriptorSetLayout.hpp"

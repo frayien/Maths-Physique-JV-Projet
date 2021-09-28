@@ -1,8 +1,7 @@
 #ifndef MPJVP_SWAPCHAIN
 #define MPJVP_SWAPCHAIN
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan_raii.hpp>
 
 #include <memory>
 #include <algorithm>

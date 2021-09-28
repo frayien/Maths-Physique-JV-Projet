@@ -1,8 +1,7 @@
 #ifndef MPJVP_SURFACE
 #define MPJVP_SURFACE
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan_raii.hpp>
 
 #include <memory>
 #include <string>

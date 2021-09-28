@@ -1,14 +1,12 @@
 #ifndef MPJVP_IMGUIVULKAN
 #define MPJVP_IMGUIVULKAN
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan_raii.hpp>
 
 #include <memory>
 #include <vector>
 #include <array>
 
-#include "render/Instance.hpp"
 #include "render/LogicalDevice.hpp"
 #include "render/PhysicalDevice.hpp"
 #include "render/SwapChain.hpp"

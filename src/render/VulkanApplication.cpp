@@ -7,52 +7,52 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     initContext();
     initInstance();
     initSurface();
+    initPhysicalDevice();
 
-    m_physicalDevice = std::make_shared<PhysicalDevice>(m_instance, m_surface);
-    m_logicalDevice  = std::make_shared<LogicalDevice> (m_physicalDevice);
-    m_commandPool    = std::make_shared<CommandPool>   (m_logicalDevice);
-    m_world          = std::make_shared<World>         (m_window, m_logicalDevice, m_commandPool);
+    //m_logicalDevice  = std::make_shared<LogicalDevice> (m_physicalDevice);
+    //m_commandPool    = std::make_shared<CommandPool>   (m_logicalDevice);
+    //m_world          = std::make_shared<World>         (m_window, m_logicalDevice, m_commandPool);
 
-    m_application->init(*m_world);
+    //m_application->init(*m_world);
 
-    m_swapChain      = std::make_shared<SwapChain>     (m_window, m_surface, m_physicalDevice, m_logicalDevice, m_commandPool, m_world);
+    //m_swapChain      = std::make_shared<SwapChain>     (m_window, m_surface, m_physicalDevice, m_logicalDevice, m_commandPool, m_world);
 
-    m_imGuiVulkan    = std::make_shared<ImGuiVulkan>   (m_application, m_window, m_instance, m_physicalDevice, m_logicalDevice, m_swapChain);
+    //m_imGuiVulkan    = std::make_shared<ImGuiVulkan>   (m_application, m_window, m_instance, m_physicalDevice, m_logicalDevice, m_swapChain);
 
-    m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    m_inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-    m_imagesInFlight.resize(m_swapChain->size(), VK_NULL_HANDLE);
+    //m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    //m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    //m_inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+    //m_imagesInFlight.resize(m_swapChain->size(), VK_NULL_HANDLE);
 
-    VkSemaphoreCreateInfo semaphoreInfo{};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    //VkSemaphoreCreateInfo semaphoreInfo{};
+    //semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    VkFenceCreateInfo fenceInfo{};
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+    //VkFenceCreateInfo fenceInfo{};
+    //fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    //fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        if (vkCreateSemaphore(m_logicalDevice->raw(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(m_logicalDevice->raw(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(m_logicalDevice->raw(), &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS)
-        {
+    //for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    //{
+    //    if (vkCreateSemaphore(m_logicalDevice->raw(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS ||
+    //        vkCreateSemaphore(m_logicalDevice->raw(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS ||
+    //        vkCreateFence(m_logicalDevice->raw(), &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS)
+    //    {
+    //        
+    //        throw std::runtime_error("failed to create synchronization objects for a frame!");
+    //    }
+    //}
 
-            throw std::runtime_error("failed to create synchronization objects for a frame!");
-        }
-    }
-
-    m_needRecord.resize(m_swapChain->size(), false);
+    //m_needRecord.resize(m_swapChain->size(), false);
 }
 
 VulkanApplication::~VulkanApplication()
 {
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        vkDestroySemaphore(m_logicalDevice->raw(), m_renderFinishedSemaphores[i], nullptr);
-        vkDestroySemaphore(m_logicalDevice->raw(), m_imageAvailableSemaphores[i], nullptr);
-        vkDestroyFence(m_logicalDevice->raw(), m_inFlightFences[i], nullptr);
-    }
+    //for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    //{
+    //    vkDestroySemaphore(m_logicalDevice->raw(), m_renderFinishedSemaphores[i], nullptr);
+    //    vkDestroySemaphore(m_logicalDevice->raw(), m_imageAvailableSemaphores[i], nullptr);
+    //    vkDestroyFence(m_logicalDevice->raw(), m_inFlightFences[i], nullptr);
+    //}
 }
 
 void VulkanApplication::run()
@@ -64,18 +64,19 @@ void VulkanApplication::run()
         drawFrame();
     }
 
-    m_logicalDevice->waitIdle();
+    //m_logicalDevice->waitIdle();
 }
 
 void VulkanApplication::update(uint32_t currentImage)
 {
+    /*
     static auto previousTime = std::chrono::high_resolution_clock::now();
 
     auto currentTime = std::chrono::high_resolution_clock::now();
     float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - previousTime).count();
     previousTime = currentTime;
 
-    m_application->update(*m_world, deltaTime);
+    //m_application->update(*m_world, deltaTime);
 
     if(m_world->hasChanged())
     {
@@ -87,44 +88,46 @@ void VulkanApplication::update(uint32_t currentImage)
     }
     if(m_needRecord[currentImage])
     {
-        m_swapChain->recordCommandBuffer(currentImage);
+        //m_swapChain->recordCommandBuffer(currentImage);
         m_needRecord[currentImage] = false;
     }
-    {
-        UniformBufferObjectCamera ubo{};
-        ubo.model = glm::mat4(1.0f);
-        ubo.view = glm::lookAt(m_world->getCamera().getPosition(), m_world->getCamera().getPosition() + m_world->getCamera().getDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(45.0f), m_swapChain->getExtent().width / (float) m_swapChain->getExtent().height, 0.1f, m_world->getCamera().getViewDistance());
-        ubo.proj[1][1] *= -1;
-        ubo.lightPos = m_world->getLightSource().getPosition();
-        ubo.lightColor = m_world->getLightSource().getColor();
-        ubo.ambientLightStrength = m_world->getLightSource().getAmbient();
+    //{
+    //    UniformBufferObjectCamera ubo{};
+    //    ubo.model = glm::mat4(1.0f);
+    //    ubo.view = glm::lookAt(m_world->getCamera().getPosition(), m_world->getCamera().getPosition() + m_world->getCamera().getDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
+    //    ubo.proj = glm::perspective(glm::radians(45.0f), m_swapChain->getExtent().width / (float) m_swapChain->getExtent().height, 0.1f, m_world->getCamera().getViewDistance());
+    //    ubo.proj[1][1] *= -1;
+    //    ubo.lightPos = m_world->getLightSource().getPosition();
+    //    ubo.lightColor = m_world->getLightSource().getColor();
+    //    ubo.ambientLightStrength = m_world->getLightSource().getAmbient();
+    //
+    //    Buffer & uniformBuffer = *(m_swapChain->getCameraUniformBuffer(currentImage));
+    //
+    //    uniformBuffer.loadData(&ubo, sizeof(UniformBufferObjectCamera));
+    //}
+    //{
+    //    const auto & entities = m_world->getShapes();
+    //    std::vector<UniformBufferObjectTransform> ubos(entities.size());
+    //    size_t i = 0;
+    //    for(const auto & entity : entities)
+    //    {
+    //        ubos[i].transform = entity->getTransform();
+    //
+    //        ++i;
+    //    }
+    //
+    //    Buffer & uniformBuffer = *(m_swapChain->getTransformsUniformBuffer(currentImage));
+    //
+    //    uniformBuffer.loadData(ubos.data(), entities.size() * sizeof(UniformBufferObjectTransform));
+    //}
 
-        Buffer & uniformBuffer = *(m_swapChain->getCameraUniformBuffer(currentImage));
-
-        uniformBuffer.loadData(&ubo, sizeof(UniformBufferObjectCamera));
-    }
-    {
-        const auto & entities = m_world->getShapes();
-        std::vector<UniformBufferObjectTransform> ubos(entities.size());
-        size_t i = 0;
-        for(const auto & entity : entities)
-        {
-            ubos[i].transform = entity->getTransform();
-
-            ++i;
-        }
-
-        Buffer & uniformBuffer = *(m_swapChain->getTransformsUniformBuffer(currentImage));
-
-        uniformBuffer.loadData(ubos.data(), entities.size() * sizeof(UniformBufferObjectTransform));
-    }
+    */
 }
 
 void VulkanApplication::drawFrame()
 {
     /// ////////////////// acquire image ////////////////// ///
-
+/*
     vkWaitForFences(m_logicalDevice->raw(), 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
@@ -207,6 +210,7 @@ void VulkanApplication::drawFrame()
     }
 
     m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+    */
 }
 
 void VulkanApplication::initWindow()
@@ -288,7 +292,7 @@ void VulkanApplication::initInstance()
 void VulkanApplication::initSurface()
 {
     VkSurfaceKHR surface;
-    VkResult result = glfwCreateWindowSurface(m_instance->raw(), m_window->raw(), nullptr, &surface);
+    VkResult result = glfwCreateWindowSurface(static_cast<VkInstance>(**m_instance), m_window->raw(), nullptr, &surface);
     if (result != VK_SUCCESS) 
     {
         const char* description;
@@ -297,4 +301,102 @@ void VulkanApplication::initSurface()
     }
 
     m_surface = std::make_shared<vk::raii::SurfaceKHR>(*m_instance, surface);
+}
+
+QueueFamilyIndices VulkanApplication::findQueueFamilies(const vk::raii::PhysicalDevice & device) 
+{
+    QueueFamilyIndices indices;
+
+    std::vector<vk::QueueFamilyProperties> queueFamilies = device.getQueueFamilyProperties();
+
+    int i = 0;
+    for (const auto& queueFamily : queueFamilies) 
+    {
+        // find graphicsFamily
+        if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) 
+        {
+            indices.graphicsFamily = i;
+        }
+
+        // find presentFamily
+        if (device.getSurfaceSupportKHR(i, **m_surface)) 
+        {
+            indices.presentFamily = i;
+        }
+
+        if (indices.isComplete())
+        {
+            break;
+        }
+
+        i++;
+    }
+
+    return indices;
+}
+
+bool VulkanApplication::checkDeviceExtensionSupport(const vk::raii::PhysicalDevice & device)
+{
+    auto availableExtensions = device.enumerateDeviceExtensionProperties();
+
+    std::set<std::string> requiredExtensions(m_deviceExtensions.begin(), m_deviceExtensions.end());
+
+    for (const auto& extension : availableExtensions)
+    {
+        requiredExtensions.erase(extension.extensionName);
+    }
+
+    return requiredExtensions.empty();
+}
+
+bool VulkanApplication::isDeviceSuitable(const vk::raii::PhysicalDevice & device)
+{
+    QueueFamilyIndices indices = findQueueFamilies(device);
+
+    bool extensionsSupported = checkDeviceExtensionSupport(device);
+
+    bool swapChainAdequate = false;
+    if (extensionsSupported) 
+    {
+        auto formats = device.getSurfaceFormatsKHR(**m_surface);
+        auto presentModes = device.getSurfacePresentModesKHR(**m_surface);
+        swapChainAdequate = !formats.empty() && !presentModes.empty();
+    }
+
+    return indices.isComplete() && extensionsSupported && swapChainAdequate;
+}
+
+vk::SampleCountFlagBits VulkanApplication::getMaxUsableSampleCount(const vk::raii::PhysicalDevice & device)
+{
+    auto physicalDeviceProperties = device.getProperties();
+
+    vk::SampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+    if (counts & vk::SampleCountFlagBits::e64) { return vk::SampleCountFlagBits::e64; }
+    if (counts & vk::SampleCountFlagBits::e32) { return vk::SampleCountFlagBits::e32; }
+    if (counts & vk::SampleCountFlagBits::e16) { return vk::SampleCountFlagBits::e16; }
+    if (counts & vk::SampleCountFlagBits::e8)  { return vk::SampleCountFlagBits::e8;  }
+    if (counts & vk::SampleCountFlagBits::e4)  { return vk::SampleCountFlagBits::e4;  }
+    if (counts & vk::SampleCountFlagBits::e2)  { return vk::SampleCountFlagBits::e2;  }
+
+    return vk::SampleCountFlagBits::e1;
+}
+
+void VulkanApplication::initPhysicalDevice()
+{
+    vk::raii::PhysicalDevices physicalDevices(*m_instance);
+
+    for (auto& device : physicalDevices)
+    {
+        if (isDeviceSuitable(device))
+        {
+            m_msaaSampleCount = getMaxUsableSampleCount(device);
+            m_physicalDevice = std::make_shared<vk::raii::PhysicalDevice>(std::move(device));
+            break;
+        }
+    }
+
+    if (m_physicalDevice == nullptr)
+    {
+        throw std::runtime_error("failed to find a suitable GPU!");
+    }
 }

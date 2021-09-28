@@ -1,10 +1,8 @@
 #ifndef MPJVP_IMAGE
 #define MPJVP_IMAGE
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan_raii.hpp>
 
-#include "render/PhysicalDevice.hpp"
 #include "render/LogicalDevice.hpp"
 
 class Image

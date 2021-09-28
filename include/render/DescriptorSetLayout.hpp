@@ -1,8 +1,7 @@
 #ifndef MPJVP_DESCRIPTORSETLAYOUT
 #define MPJVP_DESCRIPTORSETLAYOUT
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan_raii.hpp>
 
 #include <stdexcept>
 #include <array>

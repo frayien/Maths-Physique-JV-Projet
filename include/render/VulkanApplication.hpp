@@ -1,5 +1,5 @@
-#ifndef MPJVP_VULKANAPPLICATION
-#define MPJVP_VULKANAPPLICATION
+#ifndef FRAYIEN_VULKANAPPLICATION
+#define FRAYIEN_VULKANAPPLICATION
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -8,11 +8,13 @@
 
 #include <vulkan/vulkan_raii.hpp>
 
+#include <set>
+#include <string>
 #include <chrono>
+#include <optional>
 
 #include "render/Window.hpp"
-
-#include "render/PhysicalDevice.hpp"
+/*
 #include "render/LogicalDevice.hpp"
 #include "render/CommandPool.hpp"
 #include "render/SwapChain.hpp"
@@ -23,10 +25,30 @@
 
 #include "render/ImGuiVulkan.hpp"
 
+*/
+
+class IApplication{};
+
+struct QueueFamilyIndices
+{
+    std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
+
+    bool isComplete() 
+    {
+        return graphicsFamily.has_value() && presentFamily.has_value();
+    }
+};
+
 class VulkanApplication 
 {
 private:
     const int MAX_FRAMES_IN_FLIGHT = 2;
+
+    const std::vector<const char*> m_deviceExtensions = 
+    {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    };
 
     const std::vector<const char*> m_validationLayers = 
     {
@@ -44,18 +66,20 @@ private:
     std::shared_ptr<vk::raii::Context>        m_context;
     std::shared_ptr<vk::raii::Instance>       m_instance;
     std::shared_ptr<vk::raii::SurfaceKHR>     m_surface;
-    std::shared_ptr<PhysicalDevice> m_physicalDevice;
-    std::shared_ptr<LogicalDevice>  m_logicalDevice ;
-    std::shared_ptr<CommandPool>    m_commandPool   ;
-    std::shared_ptr<World>          m_world         ;
-    std::shared_ptr<SwapChain>      m_swapChain     ;
-    std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
+    std::shared_ptr<vk::raii::PhysicalDevice> m_physicalDevice;
+    vk::SampleCountFlagBits m_msaaSampleCount;
 
-    std::vector<VkSemaphore> m_imageAvailableSemaphores;
-    std::vector<VkSemaphore> m_renderFinishedSemaphores;
-    std::vector<VkFence> m_inFlightFences;
-    std::vector<VkFence> m_imagesInFlight;
-    size_t m_currentFrame = 0;
+    //std::shared_ptr<LogicalDevice>  m_logicalDevice ;
+    //std::shared_ptr<CommandPool>    m_commandPool   ;
+    //std::shared_ptr<World>          m_world         ;
+    //std::shared_ptr<SwapChain>      m_swapChain     ;
+    //std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
+
+    //std::vector<VkSemaphore> m_imageAvailableSemaphores;
+    //std::vector<VkSemaphore> m_renderFinishedSemaphores;
+    //std::vector<VkFence> m_inFlightFences;
+    //std::vector<VkFence> m_imagesInFlight;
+    //size_t m_currentFrame = 0;
 
     std::vector<bool> m_needRecord;
 
@@ -80,6 +104,12 @@ private:
     void initInstance();
     // surface initialization
     void initSurface();
+    // physical device initialization
+    QueueFamilyIndices findQueueFamilies(const vk::raii::PhysicalDevice & device);
+    bool checkDeviceExtensionSupport(const vk::raii::PhysicalDevice & device);
+    bool isDeviceSuitable(const vk::raii::PhysicalDevice & device);
+    vk::SampleCountFlagBits getMaxUsableSampleCount(const vk::raii::PhysicalDevice & device);
+    void initPhysicalDevice();
 };
 
-#endif // MPJVP_VULKANAPPLICATION
+#endif // FRAYIEN_VULKANAPPLICATION
