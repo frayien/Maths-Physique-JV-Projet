@@ -3,8 +3,10 @@
 VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & application) :
     m_application{application}
 {
-    m_window         = std::make_shared<Window>        ();
-    m_instance       = std::make_shared<Instance>      ();
+    initWindow();
+    initContext();
+    initInstance();
+    
     m_surface        = std::make_shared<Surface>       (m_window, m_instance);
     m_physicalDevice = std::make_shared<PhysicalDevice>(m_instance, m_surface);
     m_logicalDevice  = std::make_shared<LogicalDevice> (m_physicalDevice);
@@ -205,4 +207,80 @@ void VulkanApplication::drawFrame()
     }
 
     m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void VulkanApplication::initWindow()
+{
+    m_window = std::make_shared<Window>();
+}
+
+void VulkanApplication::initContext()
+{
+    m_context = std::make_shared<vk::raii::Context>();
+}
+
+bool VulkanApplication::checkValidationLayerSupport() 
+{
+    std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
+
+    // check if all wanted validation layers are available
+    for (const char* layerName : m_validationLayers)
+    {
+        bool layerFound = false;
+
+        for (const auto & layerProperties : availableLayers)
+        {
+            if (strcmp(layerName, layerProperties.layerName) == 0)
+            {
+                layerFound = true;
+                break;
+            }
+        }
+
+        if (!layerFound)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void VulkanApplication::initInstance()
+{
+    if (m_enableValidationLayers && !checkValidationLayerSupport()) 
+    {
+        throw std::runtime_error("validation layers requested, but not available!");
+    }
+
+    vk::ApplicationInfo appInfo;
+
+    appInfo.pApplicationName = "Vulkan";
+    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.pEngineName = "No Engine";
+    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.apiVersion = VK_API_VERSION_1_0;
+
+    vk::InstanceCreateInfo createInfo;
+    
+    createInfo.pApplicationInfo = &appInfo;
+
+    // get vulkan extensions from glfw
+    auto [glfwExtensionCount, glfwExtensions] = Window::getRequiredInstanceExtensions();
+    
+    createInfo.enabledExtensionCount = glfwExtensionCount;
+    createInfo.ppEnabledExtensionNames = glfwExtensions;
+
+    // parameter validation layers
+    if (m_enableValidationLayers) 
+    {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(m_validationLayers.size());
+        createInfo.ppEnabledLayerNames = m_validationLayers.data();
+    }
+    else 
+    {
+        createInfo.enabledLayerCount = 0;
+    }
+
+    m_instance = std::make_shared<vk::raii::Instance>(*m_context, createInfo);
 }

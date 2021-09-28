@@ -39,6 +39,7 @@ include_directories(./lib/glfw-3.3.4.bin.WIN64/include)
 link_directories(./lib/glfw-3.3.4.bin.WIN64/lib-vc2019)
 
 include_directories(./lib/glm)
+include_directories(./lib/vulkan-hpp)
 
 ### Project sources ###
 file(GLOB_RECURSE SRCS src/*)

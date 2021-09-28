@@ -6,11 +6,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <vulkan/vulkan_raii.hpp>
 
 #include <chrono>
 
 #include "render/Window.hpp"
-#include "render/Instance.hpp"
 #include "render/Surface.hpp"
 #include "render/PhysicalDevice.hpp"
 #include "render/LogicalDevice.hpp"
@@ -28,8 +28,21 @@ class VulkanApplication
 private:
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
-    std::shared_ptr<Window>         m_window        ;
-    std::shared_ptr<Instance>       m_instance      ;
+    const std::vector<const char*> m_validationLayers = 
+    {
+        "VK_LAYER_KHRONOS_validation",
+    };
+
+    // Validation layers should only be enabled when in debug mode
+    #ifdef MPVJP__DEBUG
+        const bool m_enableValidationLayers = true;
+    #else
+        const bool m_enableValidationLayers = false;
+    #endif
+
+    std::shared_ptr<Window>                   m_window;
+    std::shared_ptr<vk::raii::Context>        m_context;
+    std::shared_ptr<vk::raii::Instance>       m_instance;
     std::shared_ptr<Surface>        m_surface       ;
     std::shared_ptr<PhysicalDevice> m_physicalDevice;
     std::shared_ptr<LogicalDevice>  m_logicalDevice ;
@@ -57,6 +70,14 @@ public:
 private:
     void update(uint32_t currentImage);
     void drawFrame();
+
+    // window initialization
+    void initWindow();
+    // context initialization
+    void initContext();
+    // instance initialization
+    bool checkValidationLayerSupport();
+    void initInstance();
 };
 
 #endif // MPJVP_VULKANAPPLICATION
