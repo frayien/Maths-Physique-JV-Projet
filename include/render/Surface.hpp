@@ -7,7 +7,6 @@
 #include <string>
 
 #include "render/Window.hpp"
-#include "render/Instance.hpp"
 
 //namespace
 //{
@@ -33,7 +32,6 @@ public:
     Surface(const std::shared_ptr<Window> & window, const std::shared_ptr<Instance> & instance);
     virtual ~Surface();
 
-    bool supportPhysicalDevice(VkPhysicalDevice device, uint32_t queueFamilyIndex); 
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
     inline VkSurfaceKHR & raw() { return m_surface; }

@@ -8,6 +8,7 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     initInstance();
     initSurface();
     initPhysicalDevice();
+    initDevice();
 
     //m_logicalDevice  = std::make_shared<LogicalDevice> (m_physicalDevice);
     //m_commandPool    = std::make_shared<CommandPool>   (m_logicalDevice);
@@ -399,4 +400,41 @@ void VulkanApplication::initPhysicalDevice()
     {
         throw std::runtime_error("failed to find a suitable GPU!");
     }
+}
+
+void VulkanApplication::initDevice()
+{
+    QueueFamilyIndices indices = findQueueFamilies(*m_physicalDevice);
+
+    std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
+    std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+
+    float queuePriority = 1.0f;
+    for (uint32_t queueFamily : uniqueQueueFamilies)
+    {
+        vk::DeviceQueueCreateInfo queueCreateInfo{};
+        queueCreateInfo.queueFamilyIndex = queueFamily;
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+        queueCreateInfos.push_back(queueCreateInfo);
+    }
+
+    vk::PhysicalDeviceFeatures deviceFeatures{};
+    deviceFeatures.sampleRateShading = VK_TRUE;
+
+    vk::DeviceCreateInfo createInfo{};
+    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
+
+    createInfo.pEnabledFeatures = &deviceFeatures;
+
+    // extensions
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(m_deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = m_deviceExtensions.data();
+
+    m_device = std::make_shared<vk::raii::Device>(m_physicalDevice, createInfo);
+
+    // queues are created along with the logical device, we just need to query for them
+    m_graphicsQueue = std::make_shared<vk::raii::Queue>(*m_device, indices.graphicsFamily.value(), 0);
+    m_presentQueue  = std::make_shared<vk::raii::Queue>(*m_device, indices.presentFamily .value(), 0);
 }

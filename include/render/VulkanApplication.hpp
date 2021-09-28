@@ -15,7 +15,6 @@
 
 #include "render/Window.hpp"
 /*
-#include "render/LogicalDevice.hpp"
 #include "render/CommandPool.hpp"
 #include "render/SwapChain.hpp"
 
@@ -68,8 +67,10 @@ private:
     std::shared_ptr<vk::raii::SurfaceKHR>     m_surface;
     std::shared_ptr<vk::raii::PhysicalDevice> m_physicalDevice;
     vk::SampleCountFlagBits m_msaaSampleCount;
+    std::shared_ptr<vk::raii::Device>  m_device;
+    std::shared_ptr<vk::raii::Queue> m_graphicsQueue;
+    std::shared_ptr<vk::raii::Queue> m_presentQueue;
 
-    //std::shared_ptr<LogicalDevice>  m_logicalDevice ;
     //std::shared_ptr<CommandPool>    m_commandPool   ;
     //std::shared_ptr<World>          m_world         ;
     //std::shared_ptr<SwapChain>      m_swapChain     ;
@@ -110,6 +111,8 @@ private:
     bool isDeviceSuitable(const vk::raii::PhysicalDevice & device);
     vk::SampleCountFlagBits getMaxUsableSampleCount(const vk::raii::PhysicalDevice & device);
     void initPhysicalDevice();
+    // logical device initialization
+    void initDevice();
 };
 
 #endif // FRAYIEN_VULKANAPPLICATION
