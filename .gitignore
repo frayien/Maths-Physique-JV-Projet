@@ -34,6 +34,8 @@
 .vscode
 build
 Debug
-lib
+lib/*
+!lib/vulkan-hpp
+!lib/glm
 .vs
 imgui.ini
