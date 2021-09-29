@@ -35,10 +35,15 @@ void Application::init(World & world)
     particleRendered = world.makeSphere({ 0.2f, 0.2f, 0.2f });
     particleRendered->scale(0.2f);
 
+    particle = new Particle();
+
     // Initialisation of the particle based on the data specified by the user in ImGui
-    particle.setMass(1.0f);
-    particle.setPosition(positionInit);
-    particle.setVelocity(velocityInit);
+    particle->setMass(1.0f);
+    particle->setPosition(positionInit);
+    particle->setVelocity(velocityInit);
+
+    ParticleGravity* particleGravity = new ParticleGravity();
+    particleRegistry.AddForce(particle, particleGravity, 0.0);
 }
 
 void Application::update(World & world, float deltaTime)
@@ -75,30 +80,27 @@ void Application::update(World & world, float deltaTime)
             {
                 countTimeStepMarks = 0;
                 std::shared_ptr<BufferedShape> tmpSphere = world.makeSphere({1.0f, 0.0f, 0.0f});
-                tmpSphere->setPosition(particle.getPosition());
+                tmpSphere->setPosition(particle->getPosition());
                 tmpSphere->scale(0.03f);
 
                 marks.push_back(tmpSphere);
             }
 
-            // Initialisation of the different forces that apply to the particle - TEMPORARY
-            // For the moment, there is only gravity
-            Vector3f g(0, 0, -9.81);
-            float mass = 1.0f / particle.getInverseMass();
-
-            std::vector<Vector3f> forceList = { mass * g };
+            for (std::vector<ParticleForceRegistry::Entry>::iterator it = particleRegistry.getRegistry().begin(); it != particleRegistry.getRegistry().end(); ++it) {
+                it->particleForceGenerator->UpdateForce(it->particle, 0.0);
+            }
 
             // We update the position of the particle and its graphical rendering
-            particle.integrate(forceList, TIMESTEP);
-            particleRendered->setPosition(particle.getPosition());
+            particle->integrate(TIMESTEP);
+            particleRendered->setPosition(particle->getPosition());
         }
     }
 
     // If we click on the reset button
     if(world.getWindow().isKeyPressed(GLFW_KEY_R))
     {
-        particle.setPosition(positionInit);
-        particle.setVelocity(velocityInit);
+        particle->setPosition(positionInit);
+        particle->setVelocity(velocityInit);
         resetMarks = true;
     }
 
