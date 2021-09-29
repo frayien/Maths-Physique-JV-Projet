@@ -11,6 +11,7 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     initDevice();
     initCommandPool();
     initWorld();
+    initDescriptorSetLayout();
 
     //m_application->init(*m_world);
 
@@ -659,6 +660,7 @@ void VulkanApplication::initSwapchain()
 
 void VulkanApplication::recreateSwapchain()
 {
+    // wait for the size to be non null (happen when the window is minimized)
     int width = 0, height = 0;
     while (width == 0 || height == 0)
     {
@@ -672,4 +674,27 @@ void VulkanApplication::recreateSwapchain()
     m_swapchainImageViews.clear();
 
     initSwapchain();
+}
+
+void VulkanApplication::initDescriptorSetLayout()
+{
+    std::array<vk::DescriptorSetLayoutBinding, 2> uboLayoutBindings;
+
+    uboLayoutBindings[0].binding = 0;
+    uboLayoutBindings[0].descriptorType = vk::DescriptorType::eUniformBuffer; 
+    uboLayoutBindings[0].descriptorCount = 1;
+    uboLayoutBindings[0].stageFlags = vk::ShaderStageFlagBits::eVertex;
+    uboLayoutBindings[0].pImmutableSamplers = nullptr;
+
+    uboLayoutBindings[1].binding = 1;
+    uboLayoutBindings[1].descriptorType = vk::DescriptorType::eUniformBufferDynamic; 
+    uboLayoutBindings[1].descriptorCount = 1;
+    uboLayoutBindings[1].stageFlags = vk::ShaderStageFlagBits::eVertex;
+    uboLayoutBindings[1].pImmutableSamplers = nullptr;
+
+    vk::DescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.bindingCount = uboLayoutBindings.size();
+    layoutInfo.pBindings = uboLayoutBindings.data();
+
+    m_descriptorSetLayout = std::make_shared<vk::raii::DescriptorSetLayout>(**m_device, layoutInfo);
 }

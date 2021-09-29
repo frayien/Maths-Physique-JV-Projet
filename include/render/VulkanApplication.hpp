@@ -78,6 +78,7 @@ private:
     vk::Format                                        m_swapchainImageFormat;
     vk::Extent2D                                      m_swapchainExtent;
     std::vector<std::shared_ptr<vk::raii::ImageView>> m_swapchainImageViews;
+    std::shared_ptr<vk::raii::DescriptorSetLayout>    m_descriptorSetLayout;
     //std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
 
     //std::vector<VkSemaphore> m_imageAvailableSemaphores;
@@ -128,13 +129,15 @@ public:
 private:
     // world initialization
     void initWorld();
-    // swap chain initialization
+    // swapchain initialization
     vk::SurfaceFormatKHR chooseSwapSurfaceFormat();
     vk::PresentModeKHR chooseSwapPresentMode();
     vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR & capabilities);
     uint32_t chooseSwapImageCount(const vk::SurfaceCapabilitiesKHR & capabilities);
     void initSwapchain();
     void recreateSwapchain();
+    // descriptor set layout initialization
+    void initDescriptorSetLayout();
 };
 
 #endif // MPJVP_VULKANAPPLICATION

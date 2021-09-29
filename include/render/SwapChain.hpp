@@ -25,18 +25,6 @@
 class SwapChain
 {
 private:
-    std::shared_ptr<Window> m_window;
-    std::shared_ptr<Surface> m_surface;
-    std::shared_ptr<PhysicalDevice> m_physicalDevice;
-    std::shared_ptr<LogicalDevice> m_logicalDevice;
-    std::shared_ptr<CommandPool> m_commandPool;
-    std::shared_ptr<World> m_world;
-
-    VkSwapchainKHR m_swapChain;
-
-    std::vector<std::shared_ptr<ImageView> > m_imageViews;
-    
-    std::shared_ptr<DescriptorSetLayout> m_descriptorSetLayout;
 
     std::shared_ptr<GraphicsPipeline> m_graphicsPipeline;
     std::shared_ptr<FrameBuffers> m_frameBuffers;
