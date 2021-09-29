@@ -13,6 +13,7 @@
 #include <chrono>
 #include <optional>
 #include <limits>
+#include <fstream>
 
 #include "render/Window.hpp"
 #include "render/World.hpp"
@@ -80,6 +81,7 @@ private:
     std::vector<std::shared_ptr<vk::raii::ImageView>> m_swapchainImageViews;
     std::shared_ptr<vk::raii::DescriptorSetLayout>    m_descriptorSetLayout;
     std::shared_ptr<vk::raii::RenderPass>             m_renderPass;
+    std::shared_ptr<vk::raii::PipelineLayout>         m_graphicsPipelineLayout;
     std::shared_ptr<vk::raii::Pipeline>               m_graphicsPipeline;
     //std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
 
@@ -145,6 +147,8 @@ private:
     // render pass initialization
     void initRenderPass();
     // graphics pipeline initialization
+    static std::vector<char> readFile(const std::string& filename);
+    vk::raii::ShaderModule createShaderModule(const std::vector<char>& code);
     void initGraphicsPipeline();
 };
 
