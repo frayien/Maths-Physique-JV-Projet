@@ -13,13 +13,12 @@ class PhysicalDevice
 {
 public:
 {
-    VkFormat findDepthFormat() const;
+    
     VkDeviceSize getMinUniformBufferOffsetAlignment() const;
 
     inline VkPhysicalDevice & raw() { return m_physicalDevice; }
 
 private:
-    VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 };
 
 

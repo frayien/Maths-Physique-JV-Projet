@@ -79,6 +79,8 @@ private:
     vk::Extent2D                                      m_swapchainExtent;
     std::vector<std::shared_ptr<vk::raii::ImageView>> m_swapchainImageViews;
     std::shared_ptr<vk::raii::DescriptorSetLayout>    m_descriptorSetLayout;
+    std::shared_ptr<vk::raii::RenderPass>             m_renderPass;
+    std::shared_ptr<vk::raii::Pipeline>               m_graphicsPipeline;
     //std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
 
     //std::vector<VkSemaphore> m_imageAvailableSemaphores;
@@ -116,6 +118,8 @@ private:
     bool isDeviceSuitable(const vk::raii::PhysicalDevice & device);
     vk::SampleCountFlagBits getMaxUsableSampleCount(const vk::raii::PhysicalDevice & device);
     void initPhysicalDevice();
+    vk::Format findSupportedFormat(const std::vector<vk::Format>& candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features) const;
+    vk::Format findDepthFormat() const;
 public:
     uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) const;
 private:
@@ -138,6 +142,10 @@ private:
     void recreateSwapchain();
     // descriptor set layout initialization
     void initDescriptorSetLayout();
+    // render pass initialization
+    void initRenderPass();
+    // graphics pipeline initialization
+    void initGraphicsPipeline();
 };
 
 #endif // MPJVP_VULKANAPPLICATION

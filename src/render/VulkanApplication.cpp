@@ -12,6 +12,8 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     initCommandPool();
     initWorld();
     initDescriptorSetLayout();
+    initRenderPass();
+    initGraphicsPipeline();
 
     //m_application->init(*m_world);
 
@@ -401,6 +403,34 @@ void VulkanApplication::initPhysicalDevice()
     }
 }
 
+vk::Format VulkanApplication::findSupportedFormat(const std::vector<vk::Format>& candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features) const
+{
+    for (vk::Format format : candidates)
+    {
+        vk::FormatProperties props = m_physicalDevice->getFormatProperties(format);
+
+        if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features)
+        {
+            return format;
+        }
+        else if (tiling == vk::ImageTiling::eOptimal && (props.optimalTilingFeatures & features) == features)
+        {
+            return format;
+        }
+    }
+
+    throw std::runtime_error("failed to find supported format!");
+}
+
+vk::Format VulkanApplication::findDepthFormat() const
+{
+    return findSupportedFormat(
+        {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint},
+        vk::ImageTiling::eOptimal,
+        vk::FormatFeatureFlagBits::eDepthStencilAttachment
+    );
+}
+
 uint32_t VulkanApplication::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) const
 {
     vk::PhysicalDeviceMemoryProperties memProperties = m_physicalDevice->getMemoryProperties();
@@ -601,6 +631,7 @@ void VulkanApplication::initSwapchain()
     uint32_t imageCount = chooseSwapImageCount(surfaceCapabilities);
 
     m_swapchainImageFormat = surfaceFormat.format;
+
     m_swapchainExtent = extent;
 
 
@@ -674,6 +705,8 @@ void VulkanApplication::recreateSwapchain()
     m_swapchainImageViews.clear();
 
     initSwapchain();
+    initRenderPass();
+    initGraphicsPipeline();
 }
 
 void VulkanApplication::initDescriptorSetLayout()
@@ -697,4 +730,81 @@ void VulkanApplication::initDescriptorSetLayout()
     layoutInfo.pBindings = uboLayoutBindings.data();
 
     m_descriptorSetLayout = std::make_shared<vk::raii::DescriptorSetLayout>(**m_device, layoutInfo);
+}
+
+void VulkanApplication::initRenderPass()
+{
+    vk::AttachmentDescription colorAttachment{};
+    colorAttachment.format = m_swapchainImageFormat;
+    colorAttachment.samples = m_msaaSampleCount;
+    colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+    colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+    colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
+    colorAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
+
+    vk::AttachmentReference colorAttachmentRef{};
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+
+    vk::AttachmentDescription depthAttachment{};
+    depthAttachment.format = findDepthFormat();
+    depthAttachment.samples = m_msaaSampleCount;
+    depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+    depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
+    depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
+    depthAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+    vk::AttachmentReference depthAttachmentRef{};
+    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+    vk::AttachmentDescription colorAttachmentResolve{};
+    colorAttachmentResolve.format = m_swapchainImageFormat;
+    colorAttachmentResolve.samples = vk::SampleCountFlagBits::e1;
+    colorAttachmentResolve.loadOp = vk::AttachmentLoadOp::eDontCare;
+    colorAttachmentResolve.storeOp = vk::AttachmentStoreOp::eStore;
+    colorAttachmentResolve.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    colorAttachmentResolve.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    colorAttachmentResolve.initialLayout = vk::ImageLayout::eUndefined;
+    colorAttachmentResolve.finalLayout = vk::ImageLayout::eColorAttachmentOptimal; // vk::ImageLayout::eColorAttachmentOptimal or vk::ImageLayout::ePresentSrcKHR ?
+
+    vk::AttachmentReference colorAttachmentResolveRef{};
+    colorAttachmentResolveRef.attachment = 2;
+    colorAttachmentResolveRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+
+    vk::SubpassDescription subpass{};
+    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+    subpass.pResolveAttachments = &colorAttachmentResolveRef;
+
+    std::array<vk::AttachmentDescription, 3> attachments = {colorAttachment, depthAttachment, colorAttachmentResolve};
+    vk::RenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    renderPassInfo.pAttachments = attachments.data();
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+
+    vk::SubpassDependency dependency{};
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcAccessMask = {};
+    dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    dependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+    
+    renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies = &dependency;
+
+    m_renderPass = std::make_shared<vk::raii::RenderPass>(*m_device, renderPassInfo);
+}
+
+void VulkanApplication::initGraphicsPipeline()
+{
+    //m_graphicsPipeline = std::make_shared<GraphicsPipeline>(m_logicalDevice, *m_descriptorSetLayout, getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
 }
