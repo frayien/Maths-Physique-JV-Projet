@@ -15,8 +15,8 @@ struct Vertex
     glm::vec3 color;
     glm::vec3 normal;
 
-    static VkVertexInputBindingDescription getBindingDescription();
-    static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions();
+    static vk::VertexInputBindingDescription getBindingDescription();
+    static std::array<vk::VertexInputAttributeDescription, 3> getAttributeDescriptions();
 };
 
 #endif // MPJVP_VERTEX
