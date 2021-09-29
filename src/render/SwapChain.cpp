@@ -9,8 +9,6 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
     m_world{world}
 {
 
-
-    m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, size());
     m_descriptorSets = std::make_shared<DescriptorSets>(m_logicalDevice, m_descriptorPool, *m_descriptorSetLayout, m_world->getShapes().size(), size());
 
     m_commandBuffers = std::make_shared<CommandBuffers>(m_logicalDevice, m_commandPool, size());
@@ -27,9 +25,6 @@ SwapChain::~SwapChain()
 
 void SwapChain::recreate()
 {
-
-
-    m_descriptorPool->recreate(size());
     m_descriptorSets->recreate(*m_descriptorSetLayout, m_world->getShapes().size(), size());
 
 

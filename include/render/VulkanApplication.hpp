@@ -90,6 +90,7 @@ private:
     std::shared_ptr<vk::raii::DeviceMemory>              m_depthImageMemory;
     std::shared_ptr<vk::raii::ImageView>                 m_depthImageView;
     std::vector<std::shared_ptr<vk::raii::Framebuffer> > m_frameBuffers;
+    std::shared_ptr<vk::raii::DescriptorPool>            m_descriptorPool;
     //std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
 
     //std::vector<VkSemaphore> m_imageAvailableSemaphores;
@@ -162,6 +163,8 @@ private:
     std::shared_ptr<vk::raii::DeviceMemory> makeDeviceMemory(vk::MemoryRequirements memRequirements, vk::MemoryPropertyFlags memProperties);
     std::shared_ptr<vk::raii::ImageView> makeImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags);
     void initFramebuffers();
+    // descriptor pool initialization
+    void initDescriptorPool();
 };
 
 #endif // MPJVP_VULKANAPPLICATION

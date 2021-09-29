@@ -8,12 +8,6 @@
 
 #include "render/Window.hpp"
 #include "render/Surface.hpp"
-#include "render/PhysicalDevice.hpp"
-#include "render/LogicalDevice.hpp"
-#include "render/GraphicsPipeline.hpp"
-#include "render/CommandPool.hpp"
-#include "render/FrameBuffers.hpp"
-#include "render/DescriptorPool.hpp"
 #include "render/DescriptorSets.hpp"
 #include "render/CommandBuffers.hpp"
 
@@ -25,8 +19,6 @@
 class SwapChain
 {
 private:
-
-    std::shared_ptr<DescriptorPool> m_descriptorPool;
 
     std::shared_ptr<DescriptorSets> m_descriptorSets;
 

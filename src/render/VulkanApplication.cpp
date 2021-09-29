@@ -15,6 +15,7 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     initRenderPass();
     initGraphicsPipeline();
     initFramebuffers();
+    initDescriptorPool();
 
     //m_application->init(*m_world);
 
@@ -710,6 +711,7 @@ void VulkanApplication::recreateSwapchain()
     initRenderPass();
     initGraphicsPipeline();
     initFramebuffers();
+    initDescriptorPool();
 }
 
 void VulkanApplication::initDescriptorSetLayout()
@@ -1048,4 +1050,22 @@ void VulkanApplication::initFramebuffers()
 
         m_frameBuffers.push_back(std::make_shared<vk::raii::Framebuffer>(*m_device, framebufferInfo));
     }
+}
+
+void VulkanApplication::initDescriptorPool()
+{
+    size_t size = m_swapchainImageViews.size();
+
+    std::array<vk::DescriptorPoolSize, 2> poolSizes = 
+    {
+        vk::DescriptorPoolSize{vk::DescriptorType::eUniformBuffer       , static_cast<uint32_t>(size)},
+        vk::DescriptorPoolSize{vk::DescriptorType::eUniformBufferDynamic, static_cast<uint32_t>(size)},
+    };
+
+    vk::DescriptorPoolCreateInfo poolInfo{};
+    poolInfo.poolSizeCount = poolSizes.size();
+    poolInfo.pPoolSizes = poolSizes.data();
+    poolInfo.maxSets = static_cast<uint32_t>(size * poolSizes.size());
+
+    m_descriptorPool = std::make_shared<vk::raii::DescriptorPool>(*m_device, poolInfo);
 }
