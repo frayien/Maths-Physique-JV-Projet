@@ -10,10 +10,7 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     initPhysicalDevice();
     initDevice();
     initCommandPool();
-
-    //m_logicalDevice  = std::make_shared<LogicalDevice> (m_physicalDevice);
-    //m_commandPool    = std::make_shared<CommandPool>   (m_logicalDevice);
-    //m_world          = std::make_shared<World>         (m_window, m_logicalDevice, m_commandPool);
+    initWorld();
 
     //m_application->init(*m_world);
 
@@ -403,6 +400,21 @@ void VulkanApplication::initPhysicalDevice()
     }
 }
 
+uint32_t VulkanApplication::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) const
+{
+    vk::PhysicalDeviceMemoryProperties memProperties = m_physicalDevice->getMemoryProperties();
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+    {
+        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+        {
+            return i;
+        }
+    }
+
+    throw std::runtime_error("failed to find suitable memory type!");
+}
+
 void VulkanApplication::initDevice()
 {
     QueueFamilyIndices indices = findQueueFamilies(*m_physicalDevice);
@@ -451,7 +463,7 @@ void VulkanApplication::initCommandPool()
     m_commandPool = std::make_shared<vk::raii::CommandPool>(*m_device, poolInfo);
 }
 
-void VulkanApplication::copyBuffer(vk::raii::Buffer & src, vk::raii::Buffer & dest, vk::DeviceSize size)
+void VulkanApplication::copyBuffer(vk::raii::Buffer & src, vk::raii::Buffer & dest, vk::DeviceSize size) const
 {
     // Allocate a new command buffer
     vk::CommandBufferAllocateInfo allocInfo{};
@@ -483,4 +495,29 @@ void VulkanApplication::copyBuffer(vk::raii::Buffer & src, vk::raii::Buffer & de
 
     m_graphicsQueue->submit(submitInfo);
     m_graphicsQueue->waitIdle();
+}
+
+void VulkanApplication::makeBuffer(std::unique_ptr<vk::raii::Buffer> & buffer, std::unique_ptr<vk::raii::DeviceMemory> & deviceMemory, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties) const
+{
+    vk::BufferCreateInfo bufferInfo{};
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = vk::SharingMode::eExclusive;
+
+    buffer = std::make_unique<vk::raii::Buffer>(*m_device, bufferInfo);
+
+    vk::MemoryRequirements memRequirements = buffer->getMemoryRequirements();
+
+    vk::MemoryAllocateInfo allocInfo{};
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+    deviceMemory = std::make_unique<vk::raii::DeviceMemory>(*m_device, allocInfo);
+
+    buffer->bindMemory(**deviceMemory, 0);
+}
+
+void VulkanApplication::initWorld()
+{
+    m_world = std::make_shared<World>(m_window, m_device, m_commandPool);
 }

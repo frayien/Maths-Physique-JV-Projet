@@ -12,8 +12,7 @@
 class PhysicalDevice
 {
 public:
-
-    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+{
     VkFormat findDepthFormat() const;
     VkDeviceSize getMinUniformBufferOffsetAlignment() const;
 

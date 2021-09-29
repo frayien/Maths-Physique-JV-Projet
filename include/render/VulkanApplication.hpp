@@ -14,8 +14,9 @@
 #include <optional>
 
 #include "render/Window.hpp"
+#include "render/World.hpp"
+
 /*
-#include "render/CommandPool.hpp"
 #include "render/SwapChain.hpp"
 
 #include "render/Vertex.hpp"
@@ -71,8 +72,7 @@ private:
     std::shared_ptr<vk::raii::Queue>          m_graphicsQueue;
     std::shared_ptr<vk::raii::Queue>          m_presentQueue;
     std::shared_ptr<vk::raii::CommandPool>    m_commandPool;
-
-    //std::shared_ptr<World>          m_world         ;
+    std::shared_ptr<World>                    m_world;
     //std::shared_ptr<SwapChain>      m_swapChain     ;
     //std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
 
@@ -111,11 +111,19 @@ private:
     bool isDeviceSuitable(const vk::raii::PhysicalDevice & device);
     vk::SampleCountFlagBits getMaxUsableSampleCount(const vk::raii::PhysicalDevice & device);
     void initPhysicalDevice();
+public:
+    uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) const;
+private:
     // logical device initialization
     void initDevice();
     // command pool initialization
     void initCommandPool();
-    void copyBuffer(vk::raii::Buffer & src, vk::raii::Buffer & dest, vk::DeviceSize size);
+public:
+    void copyBuffer(vk::raii::Buffer & src, vk::raii::Buffer & dest, vk::DeviceSize size) const;
+    void makeBuffer(std::unique_ptr<vk::raii::Buffer> & buffer, std::unique_ptr<vk::raii::DeviceMemory> & deviceMemory, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties) const;
+private:
+    // world initialization
+    void initWorld();
 };
 
 #endif // MPJVP_VULKANAPPLICATION
