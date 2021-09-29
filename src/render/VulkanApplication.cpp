@@ -519,5 +519,5 @@ void VulkanApplication::makeBuffer(std::unique_ptr<vk::raii::Buffer> & buffer, s
 
 void VulkanApplication::initWorld()
 {
-    m_world = std::make_shared<World>(m_window, m_device, m_commandPool);
+    m_world = std::make_shared<World>(m_window, *this);
 }
