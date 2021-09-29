@@ -9,6 +9,7 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     initSurface();
     initPhysicalDevice();
     initDevice();
+    initCommandPool();
 
     //m_logicalDevice  = std::make_shared<LogicalDevice> (m_physicalDevice);
     //m_commandPool    = std::make_shared<CommandPool>   (m_logicalDevice);
@@ -437,4 +438,49 @@ void VulkanApplication::initDevice()
     // queues are created along with the logical device, we just need to query for them
     m_graphicsQueue = std::make_shared<vk::raii::Queue>(*m_device, indices.graphicsFamily.value(), 0);
     m_presentQueue  = std::make_shared<vk::raii::Queue>(*m_device, indices.presentFamily .value(), 0);
+}
+
+void VulkanApplication::initCommandPool()
+{
+    QueueFamilyIndices indices = findQueueFamilies(*m_physicalDevice);
+
+    vk::CommandPoolCreateInfo poolInfo{};
+    poolInfo.queueFamilyIndex = indices.graphicsFamily.value();
+    poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+
+    m_commandPool = std::make_shared<vk::raii::CommandPool>(*m_device, poolInfo);
+}
+
+void VulkanApplication::copyBuffer(vk::raii::Buffer & src, vk::raii::Buffer & dest, vk::DeviceSize size)
+{
+    // Allocate a new command buffer
+    vk::CommandBufferAllocateInfo allocInfo{};
+    allocInfo.level = vk::CommandBufferLevel::ePrimary;
+    allocInfo.commandPool = **m_commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    vk::raii::CommandBuffers commandBuffers(*m_device, allocInfo);
+    vk::raii::CommandBuffer & commandBuffer = commandBuffers[0];
+
+    // Begin the copy command
+    vk::CommandBufferBeginInfo beginInfo{};
+    beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+
+    commandBuffer.begin(beginInfo);
+
+    vk::BufferCopy copyRegion{};
+    copyRegion.srcOffset = 0; // Optional
+    copyRegion.dstOffset = 0; // Optional
+    copyRegion.size = size;
+    commandBuffer.copyBuffer(*src, *dest, copyRegion);
+
+    commandBuffer.end();
+
+    // Submit the command to the queue
+    vk::SubmitInfo submitInfo{};
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &*commandBuffer;
+
+    m_graphicsQueue->submit(submitInfo);
+    m_graphicsQueue->waitIdle();
 }

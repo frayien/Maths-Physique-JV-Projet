@@ -1,5 +1,5 @@
-#ifndef FRAYIEN_VULKANAPPLICATION
-#define FRAYIEN_VULKANAPPLICATION
+#ifndef MPJVP_VULKANAPPLICATION
+#define MPJVP_VULKANAPPLICATION
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -66,12 +66,12 @@ private:
     std::shared_ptr<vk::raii::Instance>       m_instance;
     std::shared_ptr<vk::raii::SurfaceKHR>     m_surface;
     std::shared_ptr<vk::raii::PhysicalDevice> m_physicalDevice;
-    vk::SampleCountFlagBits m_msaaSampleCount;
-    std::shared_ptr<vk::raii::Device>  m_device;
-    std::shared_ptr<vk::raii::Queue> m_graphicsQueue;
-    std::shared_ptr<vk::raii::Queue> m_presentQueue;
+    vk::SampleCountFlagBits                   m_msaaSampleCount = vk::SampleCountFlagBits::e1;
+    std::shared_ptr<vk::raii::Device>         m_device;
+    std::shared_ptr<vk::raii::Queue>          m_graphicsQueue;
+    std::shared_ptr<vk::raii::Queue>          m_presentQueue;
+    std::shared_ptr<vk::raii::CommandPool>    m_commandPool;
 
-    //std::shared_ptr<CommandPool>    m_commandPool   ;
     //std::shared_ptr<World>          m_world         ;
     //std::shared_ptr<SwapChain>      m_swapChain     ;
     //std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
@@ -113,6 +113,9 @@ private:
     void initPhysicalDevice();
     // logical device initialization
     void initDevice();
+    // command pool initialization
+    void initCommandPool();
+    void copyBuffer(vk::raii::Buffer & src, vk::raii::Buffer & dest, vk::DeviceSize size);
 };
 
-#endif // FRAYIEN_VULKANAPPLICATION
+#endif // MPJVP_VULKANAPPLICATION
