@@ -12,6 +12,7 @@
 #include <string>
 #include <chrono>
 #include <optional>
+#include <limits>
 
 #include "render/Window.hpp"
 #include "render/World.hpp"
@@ -62,18 +63,21 @@ private:
         const bool m_enableValidationLayers = false;
     #endif
 
-    std::shared_ptr<Window>                   m_window;
-    std::shared_ptr<vk::raii::Context>        m_context;
-    std::shared_ptr<vk::raii::Instance>       m_instance;
-    std::shared_ptr<vk::raii::SurfaceKHR>     m_surface;
-    std::shared_ptr<vk::raii::PhysicalDevice> m_physicalDevice;
-    vk::SampleCountFlagBits                   m_msaaSampleCount = vk::SampleCountFlagBits::e1;
-    std::shared_ptr<vk::raii::Device>         m_device;
-    std::shared_ptr<vk::raii::Queue>          m_graphicsQueue;
-    std::shared_ptr<vk::raii::Queue>          m_presentQueue;
-    std::shared_ptr<vk::raii::CommandPool>    m_commandPool;
-    std::shared_ptr<World>                    m_world;
-    //std::shared_ptr<SwapChain>      m_swapChain     ;
+    std::shared_ptr<Window>                           m_window;
+    std::shared_ptr<vk::raii::Context>                m_context;
+    std::shared_ptr<vk::raii::Instance>               m_instance;
+    std::shared_ptr<vk::raii::SurfaceKHR>             m_surface;
+    std::shared_ptr<vk::raii::PhysicalDevice>         m_physicalDevice;
+    vk::SampleCountFlagBits                           m_msaaSampleCount = vk::SampleCountFlagBits::e1;
+    std::shared_ptr<vk::raii::Device>                 m_device;
+    std::shared_ptr<vk::raii::Queue>                  m_graphicsQueue;
+    std::shared_ptr<vk::raii::Queue>                  m_presentQueue;
+    std::shared_ptr<vk::raii::CommandPool>            m_commandPool;
+    std::shared_ptr<World>                            m_world;
+    std::shared_ptr<vk::raii::SwapchainKHR>           m_swapchain;
+    vk::Format                                        m_swapchainImageFormat;
+    vk::Extent2D                                      m_swapchainExtent;
+    std::vector<std::shared_ptr<vk::raii::ImageView>> m_swapchainImageViews;
     //std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
 
     //std::vector<VkSemaphore> m_imageAvailableSemaphores;
@@ -124,6 +128,13 @@ public:
 private:
     // world initialization
     void initWorld();
+    // swap chain initialization
+    vk::SurfaceFormatKHR chooseSwapSurfaceFormat();
+    vk::PresentModeKHR chooseSwapPresentMode();
+    vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR & capabilities);
+    uint32_t chooseSwapImageCount(const vk::SurfaceCapabilitiesKHR & capabilities);
+    void initSwapchain();
+    void recreateSwapchain();
 };
 
 #endif // MPJVP_VULKANAPPLICATION
