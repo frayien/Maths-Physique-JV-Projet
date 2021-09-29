@@ -9,8 +9,6 @@ SwapChain::SwapChain(const std::shared_ptr<Window> & window, const std::shared_p
     m_world{world}
 {
 
-    m_graphicsPipeline = std::make_shared<GraphicsPipeline>(m_logicalDevice, *m_descriptorSetLayout, getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
-    m_frameBuffers = std::make_shared<FrameBuffers>(m_logicalDevice, m_graphicsPipeline, m_imageViews, getExtent(), getImageFormat(), m_physicalDevice->findDepthFormat());
 
     m_descriptorPool = std::make_shared<DescriptorPool>(m_logicalDevice, size());
     m_descriptorSets = std::make_shared<DescriptorSets>(m_logicalDevice, m_descriptorPool, *m_descriptorSetLayout, m_world->getShapes().size(), size());
@@ -30,8 +28,6 @@ SwapChain::~SwapChain()
 void SwapChain::recreate()
 {
 
-    m_graphicsPipeline->recreate(*m_descriptorSetLayout, getImageFormat(), m_physicalDevice->findDepthFormat(), getExtent(), m_physicalDevice->getMsaaSampleCount());
-    m_frameBuffers->recreate(m_graphicsPipeline, m_imageViews, getExtent(), getImageFormat(), m_physicalDevice->findDepthFormat());
 
     m_descriptorPool->recreate(size());
     m_descriptorSets->recreate(*m_descriptorSetLayout, m_world->getShapes().size(), size());

@@ -26,9 +26,6 @@ class SwapChain
 {
 private:
 
-    std::shared_ptr<GraphicsPipeline> m_graphicsPipeline;
-    std::shared_ptr<FrameBuffers> m_frameBuffers;
-
     std::shared_ptr<DescriptorPool> m_descriptorPool;
 
     std::shared_ptr<DescriptorSets> m_descriptorSets;

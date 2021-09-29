@@ -36,7 +36,7 @@ Image::Image(const std::shared_ptr<LogicalDevice> & logicalDevice, VkExtent2D ex
         throw std::runtime_error("failed to allocate image memory!");
     }
 
-    vkBindImageMemory(m_logicalDevice->raw(), m_image, m_imageMemory, 0); 
+    vkBindImageMemory(m_logicalDevice->raw(), m_image, m_imageMemory, 0);
 }
 
 Image::~Image()

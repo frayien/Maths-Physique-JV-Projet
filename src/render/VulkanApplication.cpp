@@ -14,6 +14,7 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     initDescriptorSetLayout();
     initRenderPass();
     initGraphicsPipeline();
+    initFramebuffers();
 
     //m_application->init(*m_world);
 
@@ -703,10 +704,12 @@ void VulkanApplication::recreateSwapchain()
     m_device->waitIdle();
 
     m_swapchainImageViews.clear();
+    m_frameBuffers.clear();
 
     initSwapchain();
     initRenderPass();
     initGraphicsPipeline();
+    initFramebuffers();
 }
 
 void VulkanApplication::initDescriptorSetLayout()
@@ -968,3 +971,81 @@ void VulkanApplication::initGraphicsPipeline()
     m_graphicsPipeline = std::make_shared<vk::raii::Pipeline>(m_device, nullptr, pipelineInfo);
 }
 
+std::shared_ptr<vk::raii::Image> VulkanApplication::makeImage(vk::Extent2D extent, vk::SampleCountFlagBits numSamples, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage)
+{
+    vk::ImageCreateInfo imageInfo{};
+    imageInfo.imageType = vk::ImageType::e2D;
+    imageInfo.extent.width = extent.width;
+    imageInfo.extent.height = extent.height;
+    imageInfo.extent.depth = 1;
+    imageInfo.mipLevels = 1;
+    imageInfo.arrayLayers = 1;
+    imageInfo.format = format;
+    imageInfo.tiling = tiling;
+    imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+    imageInfo.usage = usage;
+    imageInfo.samples = numSamples;
+    imageInfo.sharingMode = vk::SharingMode::eExclusive;
+
+    return std::make_unique<vk::raii::Image>(*m_device, imageInfo);
+}
+
+std::shared_ptr<vk::raii::DeviceMemory> VulkanApplication::makeDeviceMemory(vk::MemoryRequirements memRequirements, vk::MemoryPropertyFlags memProperties)
+{
+    vk::MemoryAllocateInfo allocInfo{};
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, memProperties);
+
+    return std::make_shared<vk::raii::DeviceMemory>(*m_device, allocInfo);
+}
+
+std::shared_ptr<vk::raii::ImageView> VulkanApplication::makeImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags)
+{
+    vk::ImageViewCreateInfo viewInfo{};
+    viewInfo.image = image;
+    viewInfo.viewType = vk::ImageViewType::e2D;
+    viewInfo.format = format;
+    viewInfo.subresourceRange.aspectMask = aspectFlags;
+    viewInfo.subresourceRange.baseMipLevel = 0;
+    viewInfo.subresourceRange.levelCount = 1;
+    viewInfo.subresourceRange.baseArrayLayer = 0;
+    viewInfo.subresourceRange.layerCount = 1;
+
+    return std::make_shared<vk::raii::ImageView>(*m_device, viewInfo);
+}
+
+void VulkanApplication::initFramebuffers()
+{
+    m_colorImage = makeImage(m_swapchainExtent, m_msaaSampleCount, m_swapchainImageFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment);
+    m_colorImageMemory = makeDeviceMemory(m_colorImage->getMemoryRequirements(), vk::MemoryPropertyFlagBits::eDeviceLocal);
+    m_colorImage->bindMemory(**m_colorImageMemory, 0);
+    m_colorImageView = makeImageView(**m_colorImage, m_swapchainImageFormat, vk::ImageAspectFlagBits::eColor);
+
+
+    vk::Format depthFormat = findDepthFormat();
+    m_depthImage = makeImage(m_swapchainExtent, m_msaaSampleCount, depthFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment);
+    m_depthImageMemory = makeDeviceMemory(m_depthImage->getMemoryRequirements(), vk::MemoryPropertyFlagBits::eDeviceLocal);
+    m_depthImage->bindMemory(**m_depthImageMemory, 0);
+    m_depthImageView = makeImageView(**m_depthImage, depthFormat, vk::ImageAspectFlagBits::eDepth);
+
+
+    for (const auto & imageView : m_swapchainImageViews)
+    {
+        std::array<vk::ImageView, 3> attachments =
+        {
+            **m_colorImageView,
+            **m_depthImageView,
+            **imageView,
+        };
+
+        vk::FramebufferCreateInfo framebufferInfo{};
+        framebufferInfo.renderPass = **m_renderPass;
+        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferInfo.pAttachments = attachments.data();
+        framebufferInfo.width = m_swapchainExtent.width;
+        framebufferInfo.height = m_swapchainExtent.height;
+        framebufferInfo.layers = 1;
+
+        m_frameBuffers.push_back(std::make_shared<vk::raii::Framebuffer>(*m_device, framebufferInfo));
+    }
+}
