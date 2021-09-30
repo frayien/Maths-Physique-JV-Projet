@@ -15,17 +15,20 @@ class Application : public IApplication
 private:
     static constexpr float PI = glm::pi<float>();
     
-    Particle* particle;
-    std::shared_ptr<BufferedShape> particleRendered;
-    ParticleForceRegistry particleRegistry;
+    std::shared_ptr<BufferedShape> m_particleRendered;
 
-    Vector3f positionInit = {-8, -3, 0};
-    Vector3f velocityInit = {0, 4, 7};
+    Particle m_particle;
+    ParticleGravity m_particleGravity;
 
-    int countTimeStepMarks = 0;
-    int countTimeStepMarksMax = 15;
-    std::vector<std::shared_ptr<BufferedShape>> marks{};
-    bool resetMarks = false;
+    ParticleForceRegistry m_particleRegistry;
+
+    Vector3f m_positionInit = {-8, -3, 0};
+    Vector3f m_velocityInit = {0, 4, 7};
+
+    int m_countTimeStepMarks = 0;
+    int m_countTimeStepMarksMax = 15;
+    std::vector<std::shared_ptr<BufferedShape>> m_marks{};
+    bool m_resetMarks = false;
     
 public:
     virtual void init(World & world) override;
@@ -33,7 +36,7 @@ public:
 
     void updateCamera(World & world, float deltaTime);
 
-    inline Particle getParticle() { return *particle; }
+    inline Particle & getParticle() { return m_particle; }
 
     void setPositionInit(Vector3f positionInit);
     void setVelocityInit(Vector3f velocityInit);

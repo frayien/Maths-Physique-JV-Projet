@@ -11,15 +11,16 @@ public:
 		Particle* particle;
 		ParticleForceGenerator* particleForceGenerator;
 	};
-	typedef ParticleForceEntry Entry;
 
-	using Registry = std::vector<Entry>;
+	using Registry = std::vector<ParticleForceEntry>;
 
 	ParticleForceRegistry();
-	~ParticleForceRegistry();
-	inline Registry getRegistry() { return m_registry; }
+	virtual ~ParticleForceRegistry();
+
 	void addForce(Particle* particle, ParticleForceGenerator* particleForceGenerator, float duration);
 	void removeForce(ParticleForceGenerator* _particleForceGenerator);
+
+	void update(float deltaTime);
 
 private:
 	Registry m_registry;

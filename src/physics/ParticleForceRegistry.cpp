@@ -10,7 +10,7 @@ ParticleForceRegistry::~ParticleForceRegistry()
 
 void ParticleForceRegistry::addForce(Particle* particle, ParticleForceGenerator* particleForceGenerator, float duration)
 {
-	Entry newEntry;
+	ParticleForceEntry newEntry;
 
 	newEntry.particle = particle;
 	newEntry.particleForceGenerator = particleForceGenerator;
@@ -24,5 +24,13 @@ void ParticleForceRegistry::removeForce(ParticleForceGenerator* _particleForceGe
 		if (it->particleForceGenerator == _particleForceGenerator) {
 			m_registry.erase(it);
 		}
+	}
+}
+
+void ParticleForceRegistry::update(float deltaTime)
+{
+	for (auto & [particle, particleForceGenerator] : m_registry)
+	{
+		particleForceGenerator->updateForce(particle, deltaTime);
 	}
 }
