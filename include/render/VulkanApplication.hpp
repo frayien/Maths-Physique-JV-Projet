@@ -9,6 +9,8 @@
 #include <vulkan/vulkan_raii.hpp>
 
 #include <set>
+#include <vector>
+#include <list>
 #include <string>
 #include <chrono>
 #include <optional>
@@ -68,38 +70,40 @@ private:
         const bool m_enableValidationLayers = false;
     #endif
 
-    std::shared_ptr<Window>                               m_window;
-    std::shared_ptr<vk::raii::Context>                    m_context;
-    std::shared_ptr<vk::raii::Instance>                   m_instance;
-    std::shared_ptr<vk::raii::SurfaceKHR>                 m_surface;
-    std::shared_ptr<vk::raii::PhysicalDevice>             m_physicalDevice;
-    vk::SampleCountFlagBits                               m_msaaSampleCount = vk::SampleCountFlagBits::e1;
-    std::shared_ptr<vk::raii::Device>                     m_device;
-    std::shared_ptr<vk::raii::Queue>                      m_graphicsQueue;
-    std::shared_ptr<vk::raii::Queue>                      m_presentQueue;
-    std::shared_ptr<vk::raii::CommandPool>                m_commandPool;
-    std::shared_ptr<World>                                m_world;
-    std::shared_ptr<vk::raii::SwapchainKHR>               m_swapchain;
-    vk::Format                                            m_swapchainImageFormat;
-    vk::Extent2D                                          m_swapchainExtent;
-    std::vector<std::shared_ptr<vk::raii::ImageView> >    m_swapchainImageViews;
-    std::shared_ptr<vk::raii::DescriptorSetLayout>        m_descriptorSetLayout;
-    std::shared_ptr<vk::raii::RenderPass>                 m_renderPass;
-    std::shared_ptr<vk::raii::PipelineLayout>             m_graphicsPipelineLayout;
-    std::shared_ptr<vk::raii::Pipeline>                   m_graphicsPipeline;
-    std::shared_ptr<vk::raii::Image>                      m_colorImage;
-    std::shared_ptr<vk::raii::DeviceMemory>               m_colorImageMemory;
-    std::shared_ptr<vk::raii::ImageView>                  m_colorImageView;
-    std::shared_ptr<vk::raii::Image>                      m_depthImage;
-    std::shared_ptr<vk::raii::DeviceMemory>               m_depthImageMemory;
-    std::shared_ptr<vk::raii::ImageView>                  m_depthImageView;
-    std::vector<std::shared_ptr<vk::raii::Framebuffer> >  m_frameBuffers;
-    std::shared_ptr<vk::raii::DescriptorPool>             m_descriptorPool;
-    std::vector<std::shared_ptr<vk::raii::Buffer> >       m_uniformBuffers;
-    std::vector<std::shared_ptr<vk::raii::DeviceMemory> > m_uniformBufferMemories;
-    std::vector<std::shared_ptr<vk::raii::Buffer> >       m_uniformBufferDynamics;
-    std::vector<std::shared_ptr<vk::raii::DeviceMemory> > m_uniformBufferDynamicMemories;
-    std::shared_ptr<vk::raii::DescriptorSets>             m_descriptorSets;
+    std::shared_ptr<Window>                                  m_window;
+    std::shared_ptr<vk::raii::Context>                       m_context;
+    std::shared_ptr<vk::raii::Instance>                      m_instance;
+    std::shared_ptr<vk::raii::SurfaceKHR>                    m_surface;
+    std::shared_ptr<vk::raii::PhysicalDevice>                m_physicalDevice;
+    vk::SampleCountFlagBits                                  m_msaaSampleCount = vk::SampleCountFlagBits::e1;
+    std::shared_ptr<vk::raii::Device>                        m_device;
+    std::shared_ptr<vk::raii::Queue>                         m_graphicsQueue;
+    std::shared_ptr<vk::raii::Queue>                         m_presentQueue;
+    std::shared_ptr<vk::raii::CommandPool>                   m_commandPool;
+    std::shared_ptr<World>                                   m_world;
+    std::shared_ptr<vk::raii::SwapchainKHR>                  m_swapchain;
+    vk::Format                                               m_swapchainImageFormat;
+    vk::Extent2D                                             m_swapchainExtent;
+    std::vector<std::shared_ptr<vk::raii::ImageView> >       m_swapchainImageViews;
+    std::shared_ptr<vk::raii::DescriptorSetLayout>           m_descriptorSetLayout;
+    std::shared_ptr<vk::raii::RenderPass>                    m_renderPass;
+    std::shared_ptr<vk::raii::PipelineLayout>                m_graphicsPipelineLayout;
+    std::shared_ptr<vk::raii::Pipeline>                      m_graphicsPipeline;
+    std::shared_ptr<vk::raii::Image>                         m_colorImage;
+    std::shared_ptr<vk::raii::DeviceMemory>                  m_colorImageMemory;
+    std::shared_ptr<vk::raii::ImageView>                     m_colorImageView;
+    std::shared_ptr<vk::raii::Image>                         m_depthImage;
+    std::shared_ptr<vk::raii::DeviceMemory>                  m_depthImageMemory;
+    std::shared_ptr<vk::raii::ImageView>                     m_depthImageView;
+    std::vector<std::shared_ptr<vk::raii::Framebuffer> >     m_frameBuffers;
+    std::shared_ptr<vk::raii::DescriptorPool>                m_descriptorPool;
+    std::vector<std::shared_ptr<vk::raii::Buffer> >          m_uniformBuffers;
+    std::vector<std::shared_ptr<vk::raii::DeviceMemory> >    m_uniformBufferMemories;
+    std::vector<std::shared_ptr<vk::raii::Buffer> >          m_uniformBufferDynamics;
+    std::vector<std::shared_ptr<vk::raii::DeviceMemory> >    m_uniformBufferDynamicMemories;
+    std::shared_ptr<vk::raii::DescriptorSets>                m_descriptorSets;
+    std::shared_ptr<vk::raii::CommandBuffers>                m_commandBuffers;
+    std::vector<std::list<std::shared_ptr<BufferedShape> > > m_commandBufferInUseShapeLists;
     //std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
 
     //std::vector<VkSemaphore> m_imageAvailableSemaphores;
@@ -180,6 +184,12 @@ private:
     void initDescriptorSets();
     void initDynamicBuffer(size_t i, size_t dynamicBufferSize);
     void updateDescriptorSet(size_t i);
+    // command buffers initialization
+    void initCommandBuffers();
+    void recordCommandBufferForTheFirstTime(size_t i, const World & world);
+public:
+    void rerecordCommandBuffer(size_t i, const World & world);
+private:
 };
 
 #endif // MPJVP_VULKANAPPLICATION

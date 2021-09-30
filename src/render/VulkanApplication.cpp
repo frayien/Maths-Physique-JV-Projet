@@ -17,6 +17,12 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     initFramebuffers();
     initDescriptorPool();
     initDescriptorSets();
+    initCommandBuffers();
+
+    for(size_t i = 0; i < m_commandBuffers->size(); ++i)
+    {
+        recordCommandBufferForTheFirstTime(i, *m_world);
+    }
 
     //m_application->init(*m_world);
 
@@ -701,6 +707,7 @@ void VulkanApplication::recreateSwapchain()
     m_uniformBuffers.clear();
     m_uniformBufferDynamicMemories.clear();
     m_uniformBufferDynamics.clear();
+    m_commandBufferInUseShapeLists.clear();
 
     initSwapchain();
     initRenderPass();
@@ -708,6 +715,12 @@ void VulkanApplication::recreateSwapchain()
     initFramebuffers();
     initDescriptorPool();
     initDescriptorSets();
+    initCommandBuffers();
+
+    for(size_t i = 0; i < m_commandBuffers->size(); ++i)
+    {
+        recordCommandBufferForTheFirstTime(i, *m_world);
+    }
 }
 
 void VulkanApplication::initDescriptorSetLayout()
@@ -1131,5 +1144,84 @@ void VulkanApplication::updateDescriptorSet(size_t i)
     descriptorWrites[1].pNext = nullptr;
 
     m_device->updateDescriptorSets(descriptorWrites, nullptr);
+}
+
+void VulkanApplication::initCommandBuffers()
+{
+    size_t size = m_swapchainImageViews.size();
+
+    vk::CommandBufferAllocateInfo allocInfo{};
+    allocInfo.commandPool = **m_commandPool;
+    allocInfo.level = vk::CommandBufferLevel::ePrimary;
+    allocInfo.commandBufferCount = static_cast<uint32_t>(size);
+
+    m_commandBuffers = std::make_shared<vk::raii::CommandBuffers>(*m_device, allocInfo);
+    m_commandBufferInUseShapeLists.resize(size);
+}
+
+void VulkanApplication::recordCommandBufferForTheFirstTime(size_t i, const World & world)
+{
+    // store internaly a refenrence to the current entites.
+    // This way, when an entity is removed from the world
+    // it is not deleted before this buffer gets re-recorded.
+    m_commandBufferInUseShapeLists[i] = world.getShapes();
+
+    auto & commandBuffer = (*m_commandBuffers)[i];
+
+    // starting command buffer recording
+    vk::CommandBufferBeginInfo beginInfo{};
+    beginInfo.flags = {};
+    beginInfo.pInheritanceInfo = nullptr;
+
+    commandBuffer.begin(beginInfo);
+
+    // starting a render pass
+    vk::RenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.renderPass = **m_renderPass;
+    renderPassInfo.framebuffer = **m_frameBuffers[i];
+    renderPassInfo.renderArea.offset = vk::Offset2D{0, 0};
+    renderPassInfo.renderArea.extent = m_swapchainExtent;
+
+    std::array<vk::ClearValue, 2> clearValues{};
+    clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+    clearValues[1].depthStencil = vk::ClearDepthStencilValue{1.0f, 0};
+
+    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassInfo.pClearValues = clearValues.data();
+
+    commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, **m_graphicsPipeline);
+
+    size_t i = 0;
+    for(const auto & shape : m_commandBufferInUseShapeLists[i])
+    {
+        std::array<uint32_t, 1> dynamicOffsets = {sizeof(UniformBufferObjectTransform) * static_cast<uint32_t>(i)};
+
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, **m_graphicsPipelineLayout, 0, *(*m_descriptorSets)[i], dynamicOffsets);
+
+        std::array<vk::Buffer, 1> vertexBuffers = {**shape->getVertexBuffer()};
+        std::array<vk::DeviceSize, 1> offsets = {0};
+
+        commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
+
+        vk::Buffer indexBuffer = **shape->getIndexBuffer();
+
+        commandBuffer.bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
+
+        commandBuffer.drawIndexed(static_cast<uint32_t>(shape->getIndexBufferSize()), 1, 0, 0, 0);
+
+        ++i;
+    }
+
+    commandBuffer.endRenderPass();
+    commandBuffer.end();
+}
+
+void VulkanApplication::rerecordCommandBuffer(size_t i, const World & world)
+{
+    initDynamicBuffer(i, world.getShapes().size());
+    updateDescriptorSet(i);
+    recordCommandBufferForTheFirstTime(i, world);
 }
 
