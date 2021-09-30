@@ -25,8 +25,7 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
         recordCommandBufferForTheFirstTime(i, *m_world);
     }
 
-    m_imGuiVulkan = std::make_shared<ImGuiVulkan>(m_application, m_window, m_instance, m_physicalDevice, m_device, m_graphicsQueue, m_swapchainImageViews, m_swapchainExtent, m_swapchainImageFormat, findQueueFamilies(*m_physicalDevice).graphicsFamily.value());
-
+    initImGui();
 
     //m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     //m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -1225,3 +1224,7 @@ void VulkanApplication::rerecordCommandBuffer(size_t i, const World & world)
     recordCommandBufferForTheFirstTime(i, world);
 }
 
+void VulkanApplication::initImGui()
+{
+    m_imGuiVulkan = std::make_shared<ImGuiVulkan>(m_application, m_window, m_instance, m_physicalDevice, m_device, m_graphicsQueue, m_swapchainImageViews, m_swapchainExtent, m_swapchainImageFormat, findQueueFamilies(*m_physicalDevice).graphicsFamily.value());
+}

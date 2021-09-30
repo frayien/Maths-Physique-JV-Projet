@@ -93,6 +93,7 @@ private:
     std::shared_ptr<vk::raii::DescriptorSets>                m_descriptorSets;
     std::shared_ptr<vk::raii::CommandBuffers>                m_commandBuffers;
     std::vector<std::list<std::shared_ptr<BufferedShape> > > m_commandBufferInUseShapeLists;
+    
     std::shared_ptr<ImGuiVulkan>                             m_imGuiVulkan;
 
     //std::vector<VkSemaphore> m_imageAvailableSemaphores;
@@ -178,6 +179,9 @@ private:
     void recordCommandBufferForTheFirstTime(size_t i, const World & world);
 public:
     void rerecordCommandBuffer(size_t i, const World & world);
+private:
+    // imgui initialization
+    void initImGui();
 };
 
 #endif // MPJVP_VULKANAPPLICATION
