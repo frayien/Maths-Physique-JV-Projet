@@ -35,6 +35,10 @@ include_directories(include/imgui)
 include_directories(./lib/vulkan/Include)
 link_directories(./lib/vulkan/Lib)
 
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(./lib/glfw-3.3.4)
 include_directories(./lib/glfw-3.3.4/include)
 
