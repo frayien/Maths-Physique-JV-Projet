@@ -20,8 +20,6 @@ class SwapChain
 {
 private:
 
-    std::shared_ptr<DescriptorSets> m_descriptorSets;
-
     std::shared_ptr<CommandBuffers> m_commandBuffers;
 
     VkFormat m_imageFormat;
