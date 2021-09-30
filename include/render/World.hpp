@@ -1,6 +1,8 @@
 #ifndef MPJVP_WORLD
 #define MPJVP_WORLD
 
+#include <vulkan/vulkan_raii.hpp>
+
 #include <vector>
 #include <list>
 #include <limits>
@@ -10,15 +12,15 @@
 #include "render/BufferedShape.hpp"
 
 #include "render/Window.hpp"
-#include "render/LogicalDevice.hpp"
-#include "render/CommandPool.hpp"
+
+class VulkanApplication;
 
 class World
 {
 private:
     std::shared_ptr<Window> m_window;
-    std::shared_ptr<LogicalDevice> m_logicalDevice;
-    std::shared_ptr<CommandPool> m_commandPool;
+
+    const VulkanApplication & m_vulkanApplication;
 
     std::list<std::shared_ptr<BufferedShape> > m_shapes;
     bool m_changed = false;
@@ -27,7 +29,7 @@ private:
     LightSource m_lightSource;
 
 public:
-    World(const std::shared_ptr<Window> & window, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool);
+    World(const std::shared_ptr<Window> & window, const VulkanApplication & vulkanApplication);
     virtual ~World();
 
     std::shared_ptr<BufferedShape> makeShape(const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);

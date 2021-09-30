@@ -1,9 +1,8 @@
 #include "render/World.hpp"
 
-World::World(const std::shared_ptr<Window> & window, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<CommandPool> & commandPool) :
+World::World(const std::shared_ptr<Window> & window, const VulkanApplication & vulkanApplication) :
     m_window{window},
-    m_logicalDevice{logicalDevice},
-    m_commandPool{commandPool}
+    m_vulkanApplication{vulkanApplication}
 {
 }
 
@@ -13,7 +12,7 @@ World::~World()
 
 std::shared_ptr<BufferedShape> World::makeShape(const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices)
 {
-    std::shared_ptr<BufferedShape> entity = std::make_shared<BufferedShape>(m_logicalDevice, m_commandPool, vertices, indices);
+    std::shared_ptr<BufferedShape> entity = std::make_shared<BufferedShape>(m_vulkanApplication, vertices, indices);
     m_shapes.push_back(entity);
     m_changed = true;
 

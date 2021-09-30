@@ -35,14 +35,19 @@ include_directories(include/imgui)
 include_directories(./lib/vulkan/Include)
 link_directories(./lib/vulkan/Lib)
 
-include_directories(./lib/glfw-3.3.4.bin.WIN64/include)
-link_directories(./lib/glfw-3.3.4.bin.WIN64/lib-vc2019)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(./lib/glfw-3.3.4)
+include_directories(./lib/glfw-3.3.4/include)
 
 include_directories(./lib/glm)
+include_directories(./lib/vulkan-hpp)
 
 ### Project sources ###
-file(GLOB_RECURSE SRCS src/*)
-file(GLOB_RECURSE HEADERS include/*)
+file(GLOB_RECURSE SRCS ./src/*)
+file(GLOB_RECURSE HEADERS ./include/*)
 
 add_executable(Proj ${HEADERS} ${SRCS})
 
@@ -53,5 +58,6 @@ include(CPack)
 target_link_libraries(
     Proj
     vulkan-1
-    glfw3
+    glfw
+    ${GLFW_LIBRARIES}
 )

@@ -32,13 +32,15 @@ void Application::init(World & world)
     cube->scale(0.05f);
 
     // Initialisation of the graphic rendering of the particle
-    particleRendered = world.makeSphere({ 0.2f, 0.2f, 0.2f });
-    particleRendered->scale(0.2f);
+    m_particleRendered = world.makeSphere({ 0.2f, 0.2f, 0.2f });
+    m_particleRendered->scale(0.2f);
 
     // Initialisation of the particle based on the data specified by the user in ImGui
-    particle.setMass(1.0f);
-    particle.setPosition(positionInit);
-    particle.setVelocity(velocityInit);
+    m_particle.setMass(1.0f);
+    m_particle.setPosition(m_positionInit);
+    m_particle.setVelocity(m_velocityInit);
+
+    m_particleRegistry.addForce(&m_particle, &m_particleGravity, 0.0);
 }
 
 void Application::update(World & world, float deltaTime)
@@ -50,15 +52,15 @@ void Application::update(World & world, float deltaTime)
     elapsedTime += deltaTime;
 
     // If we want to reset the world and the pause isn't active
-    if (resetMarks && !pause)
+    if (m_resetMarks && !pause)
     {
-        while (!marks.empty())
+        while (!m_marks.empty())
         {
-            world.removeShape(marks.back());
-            marks.pop_back();
+            world.removeShape(m_marks.back());
+            m_marks.pop_back();
         }
 
-        resetMarks = false;
+        m_resetMarks = false;
     }
 
     // If the elapsed time is greater than TIMESTEP, we enter the loop
@@ -69,37 +71,31 @@ void Application::update(World & world, float deltaTime)
         if (!pause)
         {
             // Creation of multiple little spheres to symbolize the path taken by the particle
-            countTimeStepMarks++;
+            m_countTimeStepMarks++;
 
-            if (countTimeStepMarks >= countTimeStepMarksMax)
+            if (m_countTimeStepMarks >= m_countTimeStepMarksMax)
             {
-                countTimeStepMarks = 0;
+                m_countTimeStepMarks = 0;
                 std::shared_ptr<BufferedShape> tmpSphere = world.makeSphere({1.0f, 0.0f, 0.0f});
-                tmpSphere->setPosition(particle.getPosition());
+                tmpSphere->setPosition(m_particle.getPosition());
                 tmpSphere->scale(0.03f);
 
-                marks.push_back(tmpSphere);
+                m_marks.push_back(tmpSphere);
             }
 
-            // Initialisation of the different forces that apply to the particle - TEMPORARY
-            // For the moment, there is only gravity
-            Vector3f g(0, 0, -9.81);
-            float mass = 1.0f / particle.getInverseMass();
-
-            std::vector<Vector3f> forceList = { mass * g };
-
             // We update the position of the particle and its graphical rendering
-            particle.integrate(forceList, TIMESTEP);
-            particleRendered->setPosition(particle.getPosition());
+            m_particleRegistry.update(TIMESTEP);
+            m_particle.integrate(TIMESTEP);
+            m_particleRendered->setPosition(m_particle.getPosition());
         }
     }
 
     // If we click on the reset button
     if(world.getWindow().isKeyPressed(GLFW_KEY_R))
     {
-        particle.setPosition(positionInit);
-        particle.setVelocity(velocityInit);
-        resetMarks = true;
+        m_particle.setPosition(m_positionInit);
+        m_particle.setVelocity(m_velocityInit);
+        m_resetMarks = true;
     }
 
     // If we click on the pause button
@@ -120,7 +116,7 @@ void Application::update(World & world, float deltaTime)
 void Application::updateCamera(World & world, float deltaTime)
 {
     const Window & win = world.getWindow();
-            Camera & cam = world.getCamera();
+          Camera & cam = world.getCamera();
 
     const float rotationSpeed = 1.0f * PI; // rad/s
     const float moveSpeed     = 0.1f; // unit/s
@@ -149,16 +145,16 @@ void Application::updateCamera(World & world, float deltaTime)
 // Function used to set the initial position of the particle as defined in ImGui
 void Application::setPositionInit(Vector3f positionInit)
 {
-    this->positionInit = positionInit;
+    m_positionInit = positionInit;
 }
 
 // Function used to set the initial velocity of the particle as defined in ImGui
 void Application::setVelocityInit(Vector3f velocityInit)
 {
-    this->velocityInit = velocityInit;
+    m_velocityInit = velocityInit;
 }
 
 void Application::setResetMarks(bool resetMarks)
 {
-    this->resetMarks = resetMarks;
+    m_resetMarks = resetMarks;
 }
