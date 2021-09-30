@@ -19,23 +19,12 @@
 
 #include "render/Window.hpp"
 #include "render/World.hpp"
+#include "render/ImGuiVulkan.hpp"
+
+#include "render/IApplication.hpp"
 
 #include "render/UniformBufferObjectCamera.hpp"
 #include "render/UniformBufferObjectTransform.hpp"
-
-
-/*
-#include "render/SwapChain.hpp"
-
-#include "render/Vertex.hpp"
-#include "render/World.hpp"
-#include "render/IApplication.hpp"
-
-#include "render/ImGuiVulkan.hpp"
-
-*/
-
-class IApplication{};
 
 struct QueueFamilyIndices
 {
@@ -104,7 +93,7 @@ private:
     std::shared_ptr<vk::raii::DescriptorSets>                m_descriptorSets;
     std::shared_ptr<vk::raii::CommandBuffers>                m_commandBuffers;
     std::vector<std::list<std::shared_ptr<BufferedShape> > > m_commandBufferInUseShapeLists;
-    //std::shared_ptr<ImGuiVulkan>    m_imGuiVulkan   ;
+    std::shared_ptr<ImGuiVulkan>                             m_imGuiVulkan;
 
     //std::vector<VkSemaphore> m_imageAvailableSemaphores;
     //std::vector<VkSemaphore> m_renderFinishedSemaphores;
@@ -189,7 +178,6 @@ private:
     void recordCommandBufferForTheFirstTime(size_t i, const World & world);
 public:
     void rerecordCommandBuffer(size_t i, const World & world);
-private:
 };
 
 #endif // MPJVP_VULKANAPPLICATION

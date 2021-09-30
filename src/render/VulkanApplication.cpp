@@ -11,6 +11,7 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     initDevice();
     initCommandPool();
     initWorld();
+    initSwapchain();
     initDescriptorSetLayout();
     initRenderPass();
     initGraphicsPipeline();
@@ -24,11 +25,8 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
         recordCommandBufferForTheFirstTime(i, *m_world);
     }
 
-    //m_application->init(*m_world);
+    m_imGuiVulkan = std::make_shared<ImGuiVulkan>(m_application, m_window, m_instance, m_physicalDevice, m_device, m_graphicsQueue, m_swapchainImageViews, m_swapchainExtent, m_swapchainImageFormat, findQueueFamilies(*m_physicalDevice).graphicsFamily.value());
 
-    //m_swapChain      = std::make_shared<SwapChain>     (m_window, m_surface, m_physicalDevice, m_logicalDevice, m_commandPool, m_world);
-
-    //m_imGuiVulkan    = std::make_shared<ImGuiVulkan>   (m_application, m_window, m_instance, m_physicalDevice, m_logicalDevice, m_swapChain);
 
     //m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     //m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -550,6 +548,8 @@ std::shared_ptr<vk::raii::Buffer> VulkanApplication::makeBuffer(vk::DeviceSize s
 void VulkanApplication::initWorld()
 {
     m_world = std::make_shared<World>(m_window, *this);
+
+    m_application->init(*m_world);
 }
 
 vk::SurfaceFormatKHR VulkanApplication::chooseSwapSurfaceFormat()
