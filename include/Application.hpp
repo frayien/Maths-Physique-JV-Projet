@@ -6,9 +6,9 @@
 #include <functional>
 
 #include "render/IApplication.hpp"
-#include "Particle.hpp"
-#include "ParticleForceRegistry.hpp"
-#include "ParticleGravity.hpp"
+#include "physics/Particle.hpp"
+#include "physics/ParticleForceRegistry.hpp"
+#include "physics/ParticleGravity.hpp"
 
 class Application : public IApplication
 {

@@ -1,7 +1,7 @@
 #ifndef MPJVP_PARTICLEFORCEGENERATOR
 #define MPJVP_PARTICLEFORCEGENERATOR
 
-#include "Particle.hpp"
+#include "physics/Particle.hpp"
 
 class ParticleForceGenerator
 {

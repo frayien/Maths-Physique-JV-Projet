@@ -1,8 +1,8 @@
 #ifndef MPJVP_PARTICLEGRAVITY
 #define MPJVP_PARTICLEGRAVITY
 
-#include "ParticleForceGenerator.hpp"
-#include "Vector3f.hpp"
+#include "physics/ParticleForceGenerator.hpp"
+#include "physics/Vector3f.hpp"
 
 class ParticleGravity : public ParticleForceGenerator 
 {

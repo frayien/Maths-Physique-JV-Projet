@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cmath>
 #include <array>
+
 class Vector3f
 {
 public:

@@ -1,4 +1,4 @@
-#include "Vector3f.hpp"
+#include "physics/Vector3f.hpp"
 
 Vector3f::Vector3f() : m_x{0.f}, m_y{0.f}, m_z{0.f}
 {

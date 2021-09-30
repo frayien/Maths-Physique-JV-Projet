@@ -1,11 +1,10 @@
 #ifndef MPJVP_PARTICLEFORCEREGISTRY
 #define MPJVP_PARTICLEFORCEREGISTRY
 
-#include "ParticleForceGenerator.hpp"
+#include "physics/ParticleForceGenerator.hpp"
 
 class ParticleForceRegistry 
 {
-
 public:
 	struct ParticleForceEntry
 	{

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
-#include "Vector3f.hpp"
+#include "physics/Vector3f.hpp"
 
 class Particle
 {
