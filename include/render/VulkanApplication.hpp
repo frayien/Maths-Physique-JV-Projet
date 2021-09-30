@@ -96,11 +96,11 @@ private:
     
     std::shared_ptr<ImGuiVulkan>                             m_imGuiVulkan;
 
-    //std::vector<VkSemaphore> m_imageAvailableSemaphores;
-    //std::vector<VkSemaphore> m_renderFinishedSemaphores;
-    //std::vector<VkFence> m_inFlightFences;
-    //std::vector<VkFence> m_imagesInFlight;
-    //size_t m_currentFrame = 0;
+    std::vector<std::shared_ptr<vk::raii::Semaphore> >       m_imageAvailableSemaphores;
+    std::vector<std::shared_ptr<vk::raii::Semaphore> >       m_renderFinishedSemaphores;
+    std::vector<std::shared_ptr<vk::raii::Fence> >           m_inFlightFences;
+    std::vector<std::shared_ptr<vk::raii::Fence> >           m_imagesInFlight;
+    size_t                                                   m_currentFrame = 0;
 
     std::vector<bool> m_needRecord;
 
@@ -182,6 +182,8 @@ public:
 private:
     // imgui initialization
     void initImGui();
+    // sync objects initialization
+    void initSyncObjects();
 };
 
 #endif // MPJVP_VULKANAPPLICATION

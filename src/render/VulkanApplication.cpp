@@ -26,41 +26,13 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     }
 
     initImGui();
+    initSyncObjects();
 
-    //m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    //m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    //m_inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-    //m_imagesInFlight.resize(m_swapChain->size(), VK_NULL_HANDLE);
-
-    //VkSemaphoreCreateInfo semaphoreInfo{};
-    //semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-    //VkFenceCreateInfo fenceInfo{};
-    //fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    //fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-    //for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-    //{
-    //    if (vkCreateSemaphore(m_logicalDevice->raw(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS ||
-    //        vkCreateSemaphore(m_logicalDevice->raw(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS ||
-    //        vkCreateFence(m_logicalDevice->raw(), &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS)
-    //    {
-    //        
-    //        throw std::runtime_error("failed to create synchronization objects for a frame!");
-    //    }
-    //}
-
-    //m_needRecord.resize(m_swapChain->size(), false);
+    m_needRecord.resize(m_swapchainImageViews.size(), false);
 }
 
 VulkanApplication::~VulkanApplication()
 {
-    //for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-    //{
-    //    vkDestroySemaphore(m_logicalDevice->raw(), m_renderFinishedSemaphores[i], nullptr);
-    //    vkDestroySemaphore(m_logicalDevice->raw(), m_imageAvailableSemaphores[i], nullptr);
-    //    vkDestroyFence(m_logicalDevice->raw(), m_inFlightFences[i], nullptr);
-    //}
 }
 
 void VulkanApplication::run()
@@ -72,19 +44,18 @@ void VulkanApplication::run()
         drawFrame();
     }
 
-    //m_logicalDevice->waitIdle();
+    m_device->waitIdle();
 }
 
 void VulkanApplication::update(uint32_t currentImage)
 {
-    /*
     static auto previousTime = std::chrono::high_resolution_clock::now();
 
     auto currentTime = std::chrono::high_resolution_clock::now();
     float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - previousTime).count();
     previousTime = currentTime;
 
-    //m_application->update(*m_world, deltaTime);
+    m_application->update(*m_world, deltaTime);
 
     if(m_world->hasChanged())
     {
@@ -96,65 +67,71 @@ void VulkanApplication::update(uint32_t currentImage)
     }
     if(m_needRecord[currentImage])
     {
-        //m_swapChain->recordCommandBuffer(currentImage);
+        rerecordCommandBuffer(currentImage, *m_world);
         m_needRecord[currentImage] = false;
     }
-    //{
-    //    UniformBufferObjectCamera ubo{};
-    //    ubo.model = glm::mat4(1.0f);
-    //    ubo.view = glm::lookAt(m_world->getCamera().getPosition(), m_world->getCamera().getPosition() + m_world->getCamera().getDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
-    //    ubo.proj = glm::perspective(glm::radians(45.0f), m_swapChain->getExtent().width / (float) m_swapChain->getExtent().height, 0.1f, m_world->getCamera().getViewDistance());
-    //    ubo.proj[1][1] *= -1;
-    //    ubo.lightPos = m_world->getLightSource().getPosition();
-    //    ubo.lightColor = m_world->getLightSource().getColor();
-    //    ubo.ambientLightStrength = m_world->getLightSource().getAmbient();
-    //
-    //    Buffer & uniformBuffer = *(m_swapChain->getCameraUniformBuffer(currentImage));
-    //
-    //    uniformBuffer.loadData(&ubo, sizeof(UniformBufferObjectCamera));
-    //}
-    //{
-    //    const auto & entities = m_world->getShapes();
-    //    std::vector<UniformBufferObjectTransform> ubos(entities.size());
-    //    size_t i = 0;
-    //    for(const auto & entity : entities)
-    //    {
-    //        ubos[i].transform = entity->getTransform();
-    //
-    //        ++i;
-    //    }
-    //
-    //    Buffer & uniformBuffer = *(m_swapChain->getTransformsUniformBuffer(currentImage));
-    //
-    //    uniformBuffer.loadData(ubos.data(), entities.size() * sizeof(UniformBufferObjectTransform));
-    //}
+    {
+        UniformBufferObjectCamera ubo{};
+        ubo.model = glm::mat4(1.0f);
+        ubo.view = glm::lookAt(m_world->getCamera().getPosition(), m_world->getCamera().getPosition() + m_world->getCamera().getDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchainExtent.width) / static_cast<float>(m_swapchainExtent.height), 0.1f, m_world->getCamera().getViewDistance());
+        ubo.proj[1][1] *= -1;
+        ubo.lightPos = m_world->getLightSource().getPosition();
+        ubo.lightColor = m_world->getLightSource().getColor();
+        ubo.ambientLightStrength = m_world->getLightSource().getAmbient();
 
-    */
+        const auto & uniformBufferMemory = m_uniformBufferMemories[currentImage];
+
+        void* data_dst = uniformBufferMemory->mapMemory(0, sizeof(UniformBufferObjectCamera));
+            memcpy(data_dst, &ubo, sizeof(UniformBufferObjectCamera));
+        uniformBufferMemory->unmapMemory();        
+    }
+    {
+        const auto & entities = m_world->getShapes();
+        std::vector<UniformBufferObjectTransform> ubos(entities.size());
+        size_t i = 0;
+        for(const auto & entity : entities)
+        {
+            ubos[i].transform = entity->getTransform();
+    
+            ++i;
+        }
+
+        const auto & uniformBufferDynamicMemory = m_uniformBufferDynamicMemories[currentImage];
+
+        void* data_dst = uniformBufferDynamicMemory->mapMemory(0, entities.size() * sizeof(UniformBufferObjectTransform));
+            memcpy(data_dst, ubos.data(), entities.size() * sizeof(UniformBufferObjectTransform));
+        uniformBufferDynamicMemory->unmapMemory();  
+    }
+
+    
 }
 
 void VulkanApplication::drawFrame()
 {
+    constexpr uint64_t TIMEOUT = std::numeric_limits<uint64_t>().max();
     /// ////////////////// acquire image ////////////////// ///
-/*
-    vkWaitForFences(m_logicalDevice->raw(), 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
+    static_cast<void>( m_device->waitForFences(**m_inFlightFences[m_currentFrame], true, TIMEOUT) );
 
-    uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(m_logicalDevice->raw(), m_swapChain->raw(), UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &imageIndex);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR)
+    auto [presult, pimageIndex] = m_swapchain->acquireNextImage(TIMEOUT, **m_imageAvailableSemaphores[m_currentFrame]);
+    vk::Result result = presult;
+    uint32_t imageIndex = pimageIndex;
+
+    if (result == vk::Result::eErrorOutOfDateKHR)
     {
-        m_swapChain->recreate();
-        m_imGuiVulkan->recreate();
+        recreateSwapchain();
+        m_imGuiVulkan->recreate(m_swapchainImageViews, m_swapchainExtent, m_swapchainImageFormat);
         return;
-    } 
-    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    }
+    else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
     {
         throw std::runtime_error("failed to acquire swap chain image!");
     }
 
     // Check if a previous frame is using this image (i.e. there is its fence to wait on)
-    if (m_imagesInFlight[imageIndex] != VK_NULL_HANDLE)
+    if (m_imagesInFlight[imageIndex] != nullptr)
     {
-        vkWaitForFences(m_logicalDevice->raw(), 1, &m_imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+        static_cast<void>( m_device->waitForFences(**m_imagesInFlight[imageIndex], true, TIMEOUT) );
     }
     // Mark the image as now being in use by this frame
     m_imagesInFlight[imageIndex] = m_inFlightFences[m_currentFrame];
@@ -166,59 +143,53 @@ void VulkanApplication::drawFrame()
     m_imGuiVulkan->createFrame();
     m_imGuiVulkan->render(imageIndex);
 
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    vk::SubmitInfo submitInfo{};
 
-    std::array<VkCommandBuffer, 2> submitCommandBuffers = { m_swapChain->getCommandBuffer(imageIndex)->raw(), m_imGuiVulkan->getCommandBuffer(imageIndex) };
+    std::array<vk::CommandBuffer, 2> submitCommandBuffers = { *(*m_commandBuffers)[imageIndex], *m_imGuiVulkan->getCommandBuffer(imageIndex) };
+    std::array<vk::Semaphore, 1> waitSemaphores = { **m_imageAvailableSemaphores[m_currentFrame] };
+    std::array<vk::PipelineStageFlags, 1> waitStages = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
 
-    VkSemaphore waitSemaphores[] = {m_imageAvailableSemaphores[m_currentFrame]};
-    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
+    submitInfo.pWaitSemaphores = waitSemaphores.data();
+    submitInfo.pWaitDstStageMask = waitStages.data();
     submitInfo.commandBufferCount = static_cast<uint32_t>(submitCommandBuffers.size());;
     submitInfo.pCommandBuffers = submitCommandBuffers.data();
 
-    VkSemaphore signalSemaphores[] = {m_renderFinishedSemaphores[m_currentFrame]};
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
+    std::array<vk::Semaphore, 1> signalSemaphores = {**m_renderFinishedSemaphores[m_currentFrame]};
+    submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());
+    submitInfo.pSignalSemaphores = signalSemaphores.data();
 
-    vkResetFences(m_logicalDevice->raw(), 1, &m_inFlightFences[m_currentFrame]);
+    m_device->resetFences(**m_inFlightFences[m_currentFrame]);
 
-    if (vkQueueSubmit(m_logicalDevice->getGraphicsQueue().raw(), 1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to submit draw command buffer!");
-    }
+    m_graphicsQueue->submit(submitInfo, **m_inFlightFences[m_currentFrame]);
 
     /// ////////////////// return image for presentation ////////////////// ///
 
-    VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    vk::PresentInfoKHR presentInfo{};
 
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = signalSemaphores;
+    presentInfo.waitSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());
+    presentInfo.pWaitSemaphores = signalSemaphores.data();
 
-    VkSwapchainKHR swapChains[] = {m_swapChain->raw()};
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapChains;
+    std::array<vk::SwapchainKHR, 1> swapchains = {**m_swapchain};
+    presentInfo.swapchainCount = static_cast<uint32_t>(swapchains.size());
+    presentInfo.pSwapchains = swapchains.data();
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
-    
-    result = vkQueuePresentKHR(m_logicalDevice->getPresentQueue().raw(), &presentInfo);
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window->isFramebufferResized())
+    result = m_presentQueue->presentKHR(presentInfo);
+    
+    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || m_window->isFramebufferResized())
     {
         m_window->setFramebufferResized(false);
-        m_swapChain->recreate();
-        m_imGuiVulkan->recreate();
+        recreateSwapchain();
+        m_imGuiVulkan->recreate(m_swapchainImageViews, m_swapchainExtent, m_swapchainImageFormat);
     }
-    else if (result != VK_SUCCESS)
+    else if (result != vk::Result::eSuccess)
     {
         throw std::runtime_error("failed to present swap chain image!");
     }
 
     m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-    */
 }
 
 void VulkanApplication::initWindow()
@@ -482,7 +453,7 @@ void VulkanApplication::initDevice()
     createInfo.enabledExtensionCount = static_cast<uint32_t>(m_deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = m_deviceExtensions.data();
 
-    m_device = std::make_shared<vk::raii::Device>(m_physicalDevice, createInfo);
+    m_device = std::make_shared<vk::raii::Device>(*m_physicalDevice, createInfo);
 
     // queues are created along with the logical device, we just need to query for them
     m_graphicsQueue = std::make_shared<vk::raii::Queue>(*m_device, indices.graphicsFamily.value(), 0);
@@ -742,7 +713,7 @@ void VulkanApplication::initDescriptorSetLayout()
     layoutInfo.bindingCount = uboLayoutBindings.size();
     layoutInfo.pBindings = uboLayoutBindings.data();
 
-    m_descriptorSetLayout = std::make_shared<vk::raii::DescriptorSetLayout>(**m_device, layoutInfo);
+    m_descriptorSetLayout = std::make_shared<vk::raii::DescriptorSetLayout>(*m_device, layoutInfo);
 }
 
 void VulkanApplication::initRenderPass()
@@ -946,7 +917,7 @@ void VulkanApplication::initGraphicsPipeline()
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-    m_graphicsPipelineLayout = std::make_shared<vk::raii::PipelineLayout>(**m_device, pipelineLayoutInfo);
+    m_graphicsPipelineLayout = std::make_shared<vk::raii::PipelineLayout>(*m_device, pipelineLayoutInfo);
 
     vk::PipelineDepthStencilStateCreateInfo depthStencil{};
     depthStencil.depthTestEnable = true;
@@ -978,7 +949,7 @@ void VulkanApplication::initGraphicsPipeline()
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.basePipelineIndex = -1;
 
-    m_graphicsPipeline = std::make_shared<vk::raii::Pipeline>(m_device, nullptr, pipelineInfo);
+    m_graphicsPipeline = std::make_shared<vk::raii::Pipeline>(*m_device, nullptr, pipelineInfo);
 }
 
 std::shared_ptr<vk::raii::Image> VulkanApplication::makeImage(vk::Extent2D extent, vk::SampleCountFlagBits numSamples, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage) const
@@ -1182,7 +1153,7 @@ void VulkanApplication::recordCommandBufferForTheFirstTime(size_t i, const World
     renderPassInfo.renderArea.extent = m_swapchainExtent;
 
     std::array<vk::ClearValue, 2> clearValues{};
-    clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+    clearValues[0].color = std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f};
     clearValues[1].depthStencil = vk::ClearDepthStencilValue{1.0f, 0};
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -1192,10 +1163,10 @@ void VulkanApplication::recordCommandBufferForTheFirstTime(size_t i, const World
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, **m_graphicsPipeline);
 
-    size_t i = 0;
+    size_t offset = 0;
     for(const auto & shape : m_commandBufferInUseShapeLists[i])
     {
-        std::array<uint32_t, 1> dynamicOffsets = {sizeof(UniformBufferObjectTransform) * static_cast<uint32_t>(i)};
+        std::array<uint32_t, 1> dynamicOffsets = {sizeof(UniformBufferObjectTransform) * static_cast<uint32_t>(offset)};
 
         commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, **m_graphicsPipelineLayout, 0, *(*m_descriptorSets)[i], dynamicOffsets);
 
@@ -1210,7 +1181,7 @@ void VulkanApplication::recordCommandBufferForTheFirstTime(size_t i, const World
 
         commandBuffer.drawIndexed(static_cast<uint32_t>(shape->getIndexBufferSize()), 1, 0, 0, 0);
 
-        ++i;
+        ++offset;
     }
 
     commandBuffer.endRenderPass();
@@ -1227,4 +1198,24 @@ void VulkanApplication::rerecordCommandBuffer(size_t i, const World & world)
 void VulkanApplication::initImGui()
 {
     m_imGuiVulkan = std::make_shared<ImGuiVulkan>(m_application, m_window, m_instance, m_physicalDevice, m_device, m_graphicsQueue, m_swapchainImageViews, m_swapchainExtent, m_swapchainImageFormat, findQueueFamilies(*m_physicalDevice).graphicsFamily.value());
+}
+
+void VulkanApplication::initSyncObjects()
+{
+    m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    m_inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+    m_imagesInFlight.resize(m_swapchainImageViews.size(), nullptr);
+
+    vk::SemaphoreCreateInfo semaphoreInfo{};
+
+    vk::FenceCreateInfo fenceInfo{};
+    fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        m_imageAvailableSemaphores[i] = std::make_shared<vk::raii::Semaphore>(*m_device, semaphoreInfo);
+        m_renderFinishedSemaphores[i] = std::make_shared<vk::raii::Semaphore>(*m_device, semaphoreInfo);
+        m_inFlightFences[i] = std::make_shared<vk::raii::Fence>(*m_device, fenceInfo);
+    }
 }

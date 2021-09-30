@@ -165,7 +165,7 @@ void ImGuiVulkan::render(uint32_t imageIndex)
     renderPassInfo.clearValueCount = 1;
 
     vk::ClearValue clearValue{};
-    clearValue.color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+    clearValue.color = std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f};
 
     renderPassInfo.pClearValues = &clearValue;
 

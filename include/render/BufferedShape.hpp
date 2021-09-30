@@ -36,8 +36,8 @@ public:
     void scale(const glm::vec3 & vect);
     void scale(float factor);
 
-    inline const std::unique_ptr<vk::raii::Buffer> & getVertexBuffer() const { return m_vertexBuffer; }
-    inline const std::unique_ptr<vk::raii::Buffer> & getIndexBuffer() const { return m_indexBuffer;  }
+    inline const std::shared_ptr<vk::raii::Buffer> & getVertexBuffer() const { return m_vertexBuffer; }
+    inline const std::shared_ptr<vk::raii::Buffer> & getIndexBuffer() const { return m_indexBuffer;  }
     inline size_t getIndexBufferSize() const { return m_indexSize;  }
     glm::mat4 getTransform() const;
 };
