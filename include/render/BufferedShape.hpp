@@ -15,10 +15,10 @@ class VulkanApplication;
 class BufferedShape
 {
 private:
-    std::unique_ptr<vk::raii::Buffer> m_vertexBuffer;
-    std::unique_ptr<vk::raii::DeviceMemory> m_vertexDeviceMemory;
-    std::unique_ptr<vk::raii::Buffer> m_indexBuffer;
-    std::unique_ptr<vk::raii::DeviceMemory> m_indexDeviceMemory;
+    std::shared_ptr<vk::raii::Buffer> m_vertexBuffer;
+    std::shared_ptr<vk::raii::DeviceMemory> m_vertexDeviceMemory;
+    std::shared_ptr<vk::raii::Buffer> m_indexBuffer;
+    std::shared_ptr<vk::raii::DeviceMemory> m_indexDeviceMemory;
 
     glm::vec3 m_position;
     glm::mat4 m_rotation;

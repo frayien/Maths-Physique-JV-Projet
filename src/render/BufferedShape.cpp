@@ -12,17 +12,19 @@ BufferedShape::BufferedShape(const VulkanApplication & vulkanApplication, const 
         vk::DeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
         // Create staging buffer
-        std::unique_ptr<vk::raii::Buffer> staging;
-        std::unique_ptr<vk::raii::DeviceMemory> stagingMemory;
-        vulkanApplication.makeBuffer(staging, stagingMemory, bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-        
+        std::shared_ptr<vk::raii::Buffer> staging = vulkanApplication.makeBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc);
+        std::shared_ptr<vk::raii::DeviceMemory> stagingMemory = vulkanApplication.makeDeviceMemory(staging->getMemoryRequirements(), vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+        staging->bindMemory(**stagingMemory, 0);
+
         // Copy vertex data into staging buffer
         void* data_dst = stagingMemory->mapMemory(0, bufferSize);
             memcpy(data_dst, vertices.data(), bufferSize);
         stagingMemory->unmapMemory();
 
         // Create vertex buffer
-        vulkanApplication.makeBuffer(m_vertexBuffer, m_vertexDeviceMemory, bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+        m_vertexBuffer = vulkanApplication.makeBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
+        m_vertexDeviceMemory = vulkanApplication.makeDeviceMemory(m_vertexBuffer->getMemoryRequirements(), vk::MemoryPropertyFlagBits::eDeviceLocal);
+        m_vertexBuffer->bindMemory(**m_vertexDeviceMemory, 0);
 
         // Copy staging buffer data into vertex buffer
         vulkanApplication.copyBuffer(*staging, *m_vertexBuffer, bufferSize);
@@ -31,17 +33,19 @@ BufferedShape::BufferedShape(const VulkanApplication & vulkanApplication, const 
         vk::DeviceSize bufferSize = sizeof(uint32_t) * indices.size();
 
         // Create staging buffer
-        std::unique_ptr<vk::raii::Buffer> staging;
-        std::unique_ptr<vk::raii::DeviceMemory> stagingMemory;
-        vulkanApplication.makeBuffer(staging, stagingMemory, bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-
+        std::shared_ptr<vk::raii::Buffer> staging = vulkanApplication.makeBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc);
+        std::shared_ptr<vk::raii::DeviceMemory> stagingMemory = vulkanApplication.makeDeviceMemory(staging->getMemoryRequirements(), vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+        staging->bindMemory(**stagingMemory, 0);
+        
         // Copy index data into staging buffer
         void* data_dst = stagingMemory->mapMemory(0, bufferSize);
             memcpy(data_dst, indices.data(), bufferSize);
         stagingMemory->unmapMemory();
 
         // Create index buffer
-        vulkanApplication.makeBuffer(m_indexBuffer, m_indexDeviceMemory, bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+        m_indexBuffer = vulkanApplication.makeBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer);
+        m_indexDeviceMemory = vulkanApplication.makeDeviceMemory(m_indexBuffer->getMemoryRequirements(), vk::MemoryPropertyFlagBits::eDeviceLocal);
+        m_indexBuffer->bindMemory(**m_indexDeviceMemory, 0);
 
         // Copy staging buffer data into index buffer
         vulkanApplication.copyBuffer(*staging, *m_indexBuffer, bufferSize);

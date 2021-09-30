@@ -16,6 +16,7 @@ VulkanApplication::VulkanApplication(const std::shared_ptr<IApplication> & appli
     initGraphicsPipeline();
     initFramebuffers();
     initDescriptorPool();
+    initDescriptorSets();
 
     //m_application->init(*m_world);
 
@@ -530,24 +531,14 @@ void VulkanApplication::copyBuffer(vk::raii::Buffer & src, vk::raii::Buffer & de
     m_graphicsQueue->waitIdle();
 }
 
-void VulkanApplication::makeBuffer(std::unique_ptr<vk::raii::Buffer> & buffer, std::unique_ptr<vk::raii::DeviceMemory> & deviceMemory, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties) const
+std::shared_ptr<vk::raii::Buffer> VulkanApplication::makeBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage) const
 {
     vk::BufferCreateInfo bufferInfo{};
     bufferInfo.size = size;
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
-    buffer = std::make_unique<vk::raii::Buffer>(*m_device, bufferInfo);
-
-    vk::MemoryRequirements memRequirements = buffer->getMemoryRequirements();
-
-    vk::MemoryAllocateInfo allocInfo{};
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-
-    deviceMemory = std::make_unique<vk::raii::DeviceMemory>(*m_device, allocInfo);
-
-    buffer->bindMemory(**deviceMemory, 0);
+    return std::make_shared<vk::raii::Buffer>(*m_device, bufferInfo);
 }
 
 void VulkanApplication::initWorld()
@@ -706,12 +697,17 @@ void VulkanApplication::recreateSwapchain()
 
     m_swapchainImageViews.clear();
     m_frameBuffers.clear();
+    m_uniformBufferMemories.clear();
+    m_uniformBuffers.clear();
+    m_uniformBufferDynamicMemories.clear();
+    m_uniformBufferDynamics.clear();
 
     initSwapchain();
     initRenderPass();
     initGraphicsPipeline();
     initFramebuffers();
     initDescriptorPool();
+    initDescriptorSets();
 }
 
 void VulkanApplication::initDescriptorSetLayout()
@@ -973,7 +969,7 @@ void VulkanApplication::initGraphicsPipeline()
     m_graphicsPipeline = std::make_shared<vk::raii::Pipeline>(m_device, nullptr, pipelineInfo);
 }
 
-std::shared_ptr<vk::raii::Image> VulkanApplication::makeImage(vk::Extent2D extent, vk::SampleCountFlagBits numSamples, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage)
+std::shared_ptr<vk::raii::Image> VulkanApplication::makeImage(vk::Extent2D extent, vk::SampleCountFlagBits numSamples, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage) const
 {
     vk::ImageCreateInfo imageInfo{};
     imageInfo.imageType = vk::ImageType::e2D;
@@ -992,7 +988,7 @@ std::shared_ptr<vk::raii::Image> VulkanApplication::makeImage(vk::Extent2D exten
     return std::make_unique<vk::raii::Image>(*m_device, imageInfo);
 }
 
-std::shared_ptr<vk::raii::DeviceMemory> VulkanApplication::makeDeviceMemory(vk::MemoryRequirements memRequirements, vk::MemoryPropertyFlags memProperties)
+std::shared_ptr<vk::raii::DeviceMemory> VulkanApplication::makeDeviceMemory(vk::MemoryRequirements memRequirements, vk::MemoryPropertyFlags memProperties) const
 {
     vk::MemoryAllocateInfo allocInfo{};
     allocInfo.allocationSize = memRequirements.size;
@@ -1001,7 +997,7 @@ std::shared_ptr<vk::raii::DeviceMemory> VulkanApplication::makeDeviceMemory(vk::
     return std::make_shared<vk::raii::DeviceMemory>(*m_device, allocInfo);
 }
 
-std::shared_ptr<vk::raii::ImageView> VulkanApplication::makeImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags)
+std::shared_ptr<vk::raii::ImageView> VulkanApplication::makeImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags) const
 {
     vk::ImageViewCreateInfo viewInfo{};
     viewInfo.image = image;
@@ -1069,3 +1065,71 @@ void VulkanApplication::initDescriptorPool()
 
     m_descriptorPool = std::make_shared<vk::raii::DescriptorPool>(*m_device, poolInfo);
 }
+
+void VulkanApplication::initDescriptorSets()
+{
+    size_t size = m_swapchainImageViews.size();
+
+    std::vector<vk::DescriptorSetLayout> layouts(size, **m_descriptorSetLayout);
+    vk::DescriptorSetAllocateInfo allocInfo{};
+    allocInfo.descriptorPool = **m_descriptorPool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(size);
+    allocInfo.pSetLayouts = layouts.data();
+
+    m_descriptorSets = std::make_shared<vk::raii::DescriptorSets>(*m_device, allocInfo);
+
+    m_uniformBuffers.resize(size);
+    m_uniformBufferMemories.resize(size);
+    m_uniformBufferDynamics.resize(size);
+    m_uniformBufferDynamicMemories.resize(size);
+
+    for (size_t i = 0; i < size; i++)
+    {
+        m_uniformBuffers[i] = makeBuffer(sizeof(UniformBufferObjectCamera), vk::BufferUsageFlagBits::eUniformBuffer);
+        m_uniformBufferMemories[i] = makeDeviceMemory(m_uniformBuffers[i]->getMemoryRequirements(), vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+        m_uniformBuffers[i]->bindMemory(**m_uniformBufferMemories[i], 0);
+
+        initDynamicBuffer(i, m_world->getShapes().size());
+        updateDescriptorSet(i);
+    }
+}
+
+void VulkanApplication::initDynamicBuffer(size_t i, size_t dynamicBufferSize)
+{
+    m_uniformBufferDynamics[i] = makeBuffer(dynamicBufferSize * sizeof(UniformBufferObjectTransform), vk::BufferUsageFlagBits::eUniformBuffer);
+    m_uniformBufferDynamicMemories[i] = makeDeviceMemory(m_uniformBufferDynamics[i]->getMemoryRequirements(), vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    m_uniformBufferDynamics[i]->bindMemory(**m_uniformBufferDynamicMemories[i], 0);
+}
+
+void VulkanApplication::updateDescriptorSet(size_t i)
+{
+    vk::DescriptorBufferInfo bufferInfo{};
+    bufferInfo.buffer = **m_uniformBuffers[i];
+    bufferInfo.offset = 0;
+    bufferInfo.range = sizeof(UniformBufferObjectCamera);
+
+    std::array<vk::WriteDescriptorSet, 2> descriptorWrites;
+    descriptorWrites[0].dstSet = *(*m_descriptorSets)[i];
+    descriptorWrites[0].dstBinding = 0;
+    descriptorWrites[0].dstArrayElement = 0;
+    descriptorWrites[0].descriptorType = vk::DescriptorType::eUniformBuffer;
+    descriptorWrites[0].descriptorCount = 1;
+    descriptorWrites[0].pBufferInfo = &bufferInfo;
+    descriptorWrites[0].pNext = nullptr;
+
+    vk::DescriptorBufferInfo bufferInfoDynamic{};
+    bufferInfoDynamic.buffer = **m_uniformBufferDynamics[i];
+    bufferInfoDynamic.offset = 0;
+    bufferInfoDynamic.range = sizeof(UniformBufferObjectTransform);
+
+    descriptorWrites[1].dstSet = *(*m_descriptorSets)[i];
+    descriptorWrites[1].dstBinding = 1;
+    descriptorWrites[1].dstArrayElement = 0;
+    descriptorWrites[1].descriptorType = vk::DescriptorType::eUniformBufferDynamic;
+    descriptorWrites[1].descriptorCount = 1;
+    descriptorWrites[1].pBufferInfo = &bufferInfoDynamic;
+    descriptorWrites[1].pNext = nullptr;
+
+    m_device->updateDescriptorSets(descriptorWrites, nullptr);
+}
+
