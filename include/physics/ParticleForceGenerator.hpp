@@ -6,7 +6,7 @@
 class ParticleForceGenerator
 {
 public:
-	virtual void UpdateForce(Particle* particle, float duration) = 0;
+	virtual void updateForce(Particle* particle, float duration) = 0;
 };
 
 #endif // MPJVP_PARTICLEFORCEGENERATOR

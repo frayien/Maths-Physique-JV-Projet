@@ -12,7 +12,8 @@ public:
 	ParticleGravity();
 	ParticleGravity(float gravityValue);
 	~ParticleGravity();
-	void UpdateForce(Particle* particle, float duration);
+	
+	void updateForce(Particle* particle, float duration);
 	
 };
 

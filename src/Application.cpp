@@ -43,7 +43,7 @@ void Application::init(World & world)
     particle->setVelocity(velocityInit);
 
     ParticleGravity* particleGravity = new ParticleGravity();
-    particleRegistry.AddForce(particle, particleGravity, 0.0);
+    particleRegistry.addForce(particle, particleGravity, 0.0);
 }
 
 void Application::update(World & world, float deltaTime)
@@ -87,7 +87,7 @@ void Application::update(World & world, float deltaTime)
             }
 
             for (std::vector<ParticleForceRegistry::Entry>::iterator it = particleRegistry.getRegistry().begin(); it != particleRegistry.getRegistry().end(); ++it) {
-                it->particleForceGenerator->UpdateForce(it->particle, 0.0);
+                it->particleForceGenerator->updateForce(it->particle, 0.0);
             }
 
             // We update the position of the particle and its graphical rendering

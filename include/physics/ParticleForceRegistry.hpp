@@ -18,8 +18,8 @@ public:
 	ParticleForceRegistry();
 	~ParticleForceRegistry();
 	inline Registry getRegistry() { return m_registry; }
-	void AddForce(Particle* particle, ParticleForceGenerator* particleForceGenerator, float duration);
-	void RemoveForce(ParticleForceGenerator* _particleForceGenerator);
+	void addForce(Particle* particle, ParticleForceGenerator* particleForceGenerator, float duration);
+	void removeForce(ParticleForceGenerator* _particleForceGenerator);
 
 private:
 	Registry m_registry;

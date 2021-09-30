@@ -15,7 +15,7 @@ ParticleGravity::~ParticleGravity()
 
 }
 
-void ParticleGravity::UpdateForce(Particle* particle, float duration)
+void ParticleGravity::updateForce(Particle* particle, float duration)
 {
 	particle->setTotalForce(particle->getTotalForce() + m_gravity);
 }

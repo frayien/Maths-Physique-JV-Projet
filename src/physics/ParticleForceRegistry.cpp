@@ -8,7 +8,7 @@ ParticleForceRegistry::~ParticleForceRegistry()
 {
 }
 
-void ParticleForceRegistry::AddForce(Particle* particle, ParticleForceGenerator* particleForceGenerator, float duration)
+void ParticleForceRegistry::addForce(Particle* particle, ParticleForceGenerator* particleForceGenerator, float duration)
 {
 	Entry newEntry;
 
@@ -18,7 +18,7 @@ void ParticleForceRegistry::AddForce(Particle* particle, ParticleForceGenerator*
 	m_registry.push_back(newEntry);
 }
 
-void ParticleForceRegistry::RemoveForce(ParticleForceGenerator* _particleForceGenerator)
+void ParticleForceRegistry::removeForce(ParticleForceGenerator* _particleForceGenerator)
 {
 	for (std::vector<ParticleForceEntry>::iterator it = m_registry.begin(); it != m_registry.end(); ++it) {
 		if (it->particleForceGenerator == _particleForceGenerator) {
