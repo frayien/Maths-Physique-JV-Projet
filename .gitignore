@@ -37,5 +37,6 @@ Debug
 lib/*
 !lib/vulkan-hpp
 !lib/glm
+!lib/glfw-3.3.4
 .vs
 imgui.ini
