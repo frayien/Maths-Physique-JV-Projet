@@ -1,42 +1,40 @@
 #ifndef MPJVP_IMGUIVULKAN
 #define MPJVP_IMGUIVULKAN
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan_raii.hpp>
 
 #include <memory>
 #include <vector>
 #include <array>
 
-#include "render/Instance.hpp"
-#include "render/LogicalDevice.hpp"
-#include "render/PhysicalDevice.hpp"
-#include "render/SwapChain.hpp"
 #include "render/Window.hpp"
 #include "Application.hpp"
 
 class ImGuiVulkan
 {
 private:
-    std::shared_ptr<Application>    m_application   ;
-    std::shared_ptr<LogicalDevice>  m_logicalDevice ;
-    std::shared_ptr<SwapChain>      m_swapChain     ;
+    std::shared_ptr<Application>            m_application;
+    std::shared_ptr<vk::raii::Device>       m_device;
 
-    VkDescriptorPool m_imguiDescriptorPool;
-    VkRenderPass m_imGuiRenderPass;
-    VkCommandPool m_imGuiCommandPool;
-    std::vector<VkCommandBuffer> m_imGuiCommandBuffers;
-    std::vector<VkFramebuffer> m_imGuiFrameBuffers;
+    uint32_t m_graphicsFamily;
+    vk::Extent2D m_swapchainExtent;
+    size_t m_swapchainSize;
+
+    std::unique_ptr<vk::raii::DescriptorPool>            m_imguiDescriptorPool;
+    std::unique_ptr<vk::raii::RenderPass>                m_imGuiRenderPass;
+    std::unique_ptr<vk::raii::CommandPool>               m_imGuiCommandPool;
+    std::unique_ptr<vk::raii::CommandBuffers>            m_imGuiCommandBuffers;
+    std::vector<std::unique_ptr<vk::raii::Framebuffer> > m_imGuiFrameBuffers;
 
     char * projectiles[4] = { "Ball", "Heavy ball", "Laser", "Fireball" };
     std::vector<std::array<float, 3>> projectilesInitialVelocity =
     {
         {0.0f, 4.0f, 7.0f},
-        {0.0f, 2.0f, 2.0f},
-        {0.0f, 3.0f, 3.0f},
+        {0.0f, 2.0f, 6.0f},
+        {0.0f, 16.0f, 6.0f},
         {0.0f, 4.0f, 4.0f}
     };
-    std::vector<float> projectilesMass = {1.0f, 12.0f, 0.2f, 0.5f};
+    std::vector<float> projectilesMass = {4.0f, 12.0f, 0.2f, 2.0f};
 
     int currentIndex = 0;
     char* currentProjectile = projectiles[currentIndex];
@@ -47,21 +45,30 @@ private:
     float damping = 0.999f;
 
 public:
-    ImGuiVulkan(const std::shared_ptr<IApplication> & application, const std::shared_ptr<Window> & window, const std::shared_ptr<Instance> & instance, const std::shared_ptr<PhysicalDevice> & physicalDevice, const std::shared_ptr<LogicalDevice> & logicalDevice, const std::shared_ptr<SwapChain> & swapChain);
+    ImGuiVulkan(
+        const std::shared_ptr<IApplication> & application, 
+        const std::shared_ptr<Window> & window, 
+        const std::shared_ptr<vk::raii::Instance> & instance, 
+        const std::shared_ptr<vk::raii::PhysicalDevice> & physicalDevice, 
+        const std::shared_ptr<vk::raii::Device> & device,
+        const std::shared_ptr<vk::raii::Queue> & graphicsQueue,
+        const std::vector<std::shared_ptr<vk::raii::ImageView> > & swapchainImageViews,
+        vk::Extent2D swapchainExtent,
+        vk::Format imageFormat,
+        uint32_t graphicsFamily);
     virtual ~ImGuiVulkan();
 
     void render(uint32_t m_imageIndex);
-    void cleanup();
-    void recreate();
+    void recreate(const std::vector<std::shared_ptr<vk::raii::ImageView> > & swapchainImageViews, vk::Extent2D swapchainExtent, vk::Format imageFormat);
     void createFrame();
 
-    inline VkCommandBuffer getCommandBuffer(size_t i) { return m_imGuiCommandBuffers[i]; }
+    inline const vk::raii::CommandBuffer & getCommandBuffer(size_t i) { return (*m_imGuiCommandBuffers)[i]; }
 
 private:
-    VkCommandBuffer beginSingleTimeCommands();
-    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-    void createImGuiCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateFlags flags);
-    void createImGuiCommandBuffers(VkCommandBuffer* commandBuffer, uint32_t commandBufferCount, VkCommandPool &commandPool);
+    std::shared_ptr<vk::raii::CommandBuffers> beginSingleTimeCommands();
+    void endSingleTimeCommands(const std::shared_ptr<vk::raii::CommandBuffers> & commandBuffer, const std::shared_ptr<vk::raii::Queue> & graphicsQueue);
+    void createImGuiCommandPool();
+    void createImGuiCommandBuffers();
 };
 
 #endif // MPJVP_IMGUIVULKAN

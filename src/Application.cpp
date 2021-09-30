@@ -14,7 +14,7 @@ void Application::init(World & world)
     // Creation of the background
     auto cube = world.makeCube({0.9f, 0.9f, 0.9f});
     cube->setPosition({-10.0f, 0.0f, 0.0f});
-    cube->scale({0.1f, 10.0f, 10.0f});
+    cube->scale({0.1f, 15.0f, 10.0f});
 
     // We mark the center
     cube = world.makeCube({0.0f, 0.0f, 0.0f});

@@ -1,7 +1,9 @@
 #ifndef MPJVP_WINDOW
 #define MPJVP_WINDOW
 
-#define GLFW_INCLUDE_VULKAN
+#include <vulkan/vulkan_raii.hpp>
+
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 #include <tuple>

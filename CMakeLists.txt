@@ -20,7 +20,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 else(CMAKE_COMPILER_IS_GNUCXX)
   message(STATUS "MSVC detected, adding compile flags")
   set(CMAKE_CXX_FLAGS "/EHsc")
-  set(CMAKE_CXX_FLAGS_DEBUG "/Od")
+  set(CMAKE_CXX_FLAGS_DEBUG "/Od /Zi")
   set(CMAKE_CXX_FLAGS_RELEASE "/O2")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
@@ -35,14 +35,15 @@ include_directories(include/imgui)
 include_directories(./lib/vulkan/Include)
 link_directories(./lib/vulkan/Lib)
 
-include_directories(./lib/glfw-3.3.4.bin.WIN64/include)
-link_directories(./lib/glfw-3.3.4.bin.WIN64/lib-vc2019)
+add_subdirectory(./lib/glfw-3.3.4)
+include_directories(./lib/glfw-3.3.4/include)
 
 include_directories(./lib/glm)
+include_directories(./lib/vulkan-hpp)
 
 ### Project sources ###
-file(GLOB_RECURSE SRCS src/*)
-file(GLOB_RECURSE HEADERS include/*)
+file(GLOB_RECURSE SRCS ./src/*)
+file(GLOB_RECURSE HEADERS ./include/*)
 
 add_executable(Proj ${HEADERS} ${SRCS})
 
@@ -53,5 +54,6 @@ include(CPack)
 target_link_libraries(
     Proj
     vulkan-1
-    glfw3
+    glfw
+    ${GLFW_LIBRARIES}
 )
