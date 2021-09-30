@@ -671,13 +671,19 @@ void VulkanApplication::recreateSwapchain()
 
     m_device->waitIdle();
 
-    m_swapchainImageViews.clear();
-    m_frameBuffers.clear();
-    m_uniformBufferMemories.clear();
-    m_uniformBuffers.clear();
+    m_commandBuffers.reset();
+    m_commandBufferInUseShapeLists.clear();
+    m_descriptorSets.reset();
     m_uniformBufferDynamicMemories.clear();
     m_uniformBufferDynamics.clear();
-    m_commandBufferInUseShapeLists.clear();
+    m_uniformBufferMemories.clear();
+    m_uniformBuffers.clear();
+    m_descriptorPool.reset();
+    m_frameBuffers.clear();
+    m_graphicsPipeline.reset();
+    m_renderPass.reset();
+    m_swapchainImageViews.clear();
+    m_swapchain.reset();
 
     initSwapchain();
     initRenderPass();
@@ -1042,6 +1048,7 @@ void VulkanApplication::initDescriptorPool()
     };
 
     vk::DescriptorPoolCreateInfo poolInfo{};
+    poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
     poolInfo.poolSizeCount = poolSizes.size();
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = static_cast<uint32_t>(size * poolSizes.size());
