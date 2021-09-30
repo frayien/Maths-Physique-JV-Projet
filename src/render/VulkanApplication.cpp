@@ -113,9 +113,9 @@ void VulkanApplication::drawFrame()
     /// ////////////////// acquire image ////////////////// ///
     static_cast<void>( m_device->waitForFences(**m_inFlightFences[m_currentFrame], true, TIMEOUT) );
 
-    auto [presult, pimageIndex] = m_swapchain->acquireNextImage(TIMEOUT, **m_imageAvailableSemaphores[m_currentFrame]);
-    vk::Result result = presult;
-    uint32_t imageIndex = pimageIndex;
+    vk::Result result;
+    uint32_t imageIndex;
+    std::tie(result, imageIndex) = m_swapchain->acquireNextImage(TIMEOUT, **m_imageAvailableSemaphores[m_currentFrame]);
 
     if (result == vk::Result::eErrorOutOfDateKHR)
     {
@@ -664,8 +664,7 @@ void VulkanApplication::recreateSwapchain()
     int width = 0, height = 0;
     while (width == 0 || height == 0)
     {
-        auto [nwidth, nheight] = m_window->getFramebufferSize();
-        width = nwidth; height = nheight;
+        std::tie(width, height) = m_window->getFramebufferSize();
         Window::waitEvents();
     }
 
