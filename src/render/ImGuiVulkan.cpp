@@ -184,6 +184,9 @@ void ImGuiVulkan::recreate(const std::vector<std::shared_ptr<vk::raii::ImageView
     m_swapchainExtent = swapchainExtent;
     m_swapchainSize = swapchainImageViews.size();
 
+    m_imGuiCommandBuffers.reset();
+    m_imGuiCommandPool.reset();
+
     m_imGuiFrameBuffers.clear();
 
     ImGui_ImplVulkan_SetMinImageCount(m_swapchainSize);
