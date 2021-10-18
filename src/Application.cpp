@@ -36,11 +36,12 @@ void Application::init(World & world)
     m_particleRendered->scale(0.2f);
 
     // Initialisation of the particle based on the data specified by the user in ImGui
-    m_particle.setMass(1.0f);
-    m_particle.setPosition(m_positionInit);
-    m_particle.setVelocity(m_velocityInit);
+    Particle & particle = m_particles.emplace_back();
+    particle.setMass(1.0f);
+    particle.setPosition(m_positionInit);
+    particle.setVelocity(m_velocityInit);
 
-    m_particleRegistry.addForce(&m_particle, &m_particleGravity, 0.0);
+    m_physicsEngine.getParticleRegistry().addForce(&particle, &m_particleGravity, 0.0);
 }
 
 void Application::update(World & world, float deltaTime)
@@ -77,24 +78,25 @@ void Application::update(World & world, float deltaTime)
             {
                 m_countTimeStepMarks = 0;
                 std::shared_ptr<BufferedShape> tmpSphere = world.makeSphere({1.0f, 0.0f, 0.0f});
-                tmpSphere->setPosition(m_particle.getPosition());
+                tmpSphere->setPosition(m_particles[0].getPosition());
                 tmpSphere->scale(0.03f);
 
                 m_marks.push_back(tmpSphere);
             }
 
-            // We update the position of the particle and its graphical rendering
-            m_particleRegistry.update(TIMESTEP);
-            m_particle.integrate(TIMESTEP);
-            m_particleRendered->setPosition(m_particle.getPosition());
+            // Update physics engine
+            m_physicsEngine.update(TIMESTEP, m_particles);
         }
     }
+
+    // update graphics
+    m_particleRendered->setPosition(m_particles[0].getPosition());
 
     // If we click on the reset button
     if(world.getWindow().isKeyPressed(GLFW_KEY_R))
     {
-        m_particle.setPosition(m_positionInit);
-        m_particle.setVelocity(m_velocityInit);
+        m_particles[0].setPosition(m_positionInit);
+        m_particles[0].setVelocity(m_velocityInit);
         m_resetMarks = true;
     }
 

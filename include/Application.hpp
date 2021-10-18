@@ -7,8 +7,8 @@
 
 #include "render/IApplication.hpp"
 #include "physics/Particle.hpp"
-#include "physics/ParticleForceRegistry.hpp"
 #include "physics/ParticleGravity.hpp"
+#include "physics/PhysicsEngine.hpp"
 
 class Application : public IApplication
 {
@@ -17,10 +17,9 @@ private:
     
     std::shared_ptr<BufferedShape> m_particleRendered;
 
-    Particle m_particle;
+    std::vector<Particle> m_particles;
     ParticleGravity m_particleGravity;
-
-    ParticleForceRegistry m_particleRegistry;
+    PhysicsEngine m_physicsEngine;
 
     Vector3f m_positionInit = {-8, -3, 0};
     Vector3f m_velocityInit = {0, 4, 7};
@@ -36,7 +35,7 @@ public:
 
     void updateCamera(World & world, float deltaTime);
 
-    inline Particle & getParticle() { return m_particle; }
+    inline Particle & getParticle(int index) { return m_particles[index]; }
 
     void setPositionInit(Vector3f positionInit);
     void setVelocityInit(Vector3f velocityInit);

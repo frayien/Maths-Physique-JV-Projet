@@ -376,7 +376,7 @@ void ImGuiVulkan::createFrame()
     ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.4f);
     if (ImGui::Button("Select"))
     {
-        Particle & particle = m_application->getParticle();
+        Particle & particle = m_application->getParticle(0);
         particle.setPosition(currentInitialPosition);
         particle.setVelocity(currentInitialVelocity);
         particle.setDamping (damping);
