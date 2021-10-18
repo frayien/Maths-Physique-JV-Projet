@@ -41,7 +41,17 @@ void Application::init(World & world)
     particle.setPosition(m_positionInit);
     particle.setVelocity(m_velocityInit);
 
+    m_particleAnchoredSpring.setK(20.0f);
+    m_particleAnchoredSpring.setRestLength(2.0f);
+    m_particleAnchoredSpring.setAnchor({-8.0f, 0.0f, 0.0f});
+
+    m_particleDrag.setK1(5.0f);
+    m_particleDrag.setK1(2.0f);
+
     m_physicsEngine.getParticleRegistry().addForce(&particle, &m_particleGravity, 0.0);
+    m_physicsEngine.getParticleRegistry().addForce(&particle, &m_particleAnchoredSpring, 0.0f);
+    m_physicsEngine.getParticleRegistry().addForce(&particle, &m_particleDrag, 0.0f);
+
 }
 
 void Application::update(World & world, float deltaTime)

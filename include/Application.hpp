@@ -9,6 +9,8 @@
 #include "physics/Particle.hpp"
 #include "physics/ParticleGravity.hpp"
 #include "physics/PhysicsEngine.hpp"
+#include "physics/ParticleAnchoredSpring.hpp"
+#include "physics/ParticleDrag.hpp"
 
 class Application : public IApplication
 {
@@ -20,6 +22,8 @@ private:
     std::vector<Particle> m_particles;
     ParticleGravity m_particleGravity;
     PhysicsEngine m_physicsEngine;
+    ParticleAnchoredSpring m_particleAnchoredSpring;
+    ParticleDrag m_particleDrag;
 
     Vector3f m_positionInit = {-8, -3, 0};
     Vector3f m_velocityInit = {0, 4, 7};
