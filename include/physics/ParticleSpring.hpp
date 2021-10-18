@@ -6,7 +6,7 @@
 
 class ParticleSpring : public ParticleForceGenerator 
 {
-private:
+protected:
 	Particle * m_otherParticle;
     float m_k;
     float m_restLength;
@@ -20,7 +20,7 @@ public:
     void setRestLength(float restLength);
 	void setOtherParticle(Particle * other);
 
-	void updateForce(Particle* particle, float duration);
+	virtual void updateForce(Particle* particle, float duration);
 };
 
 #endif // MPJVP_PARTICLESPRING

@@ -5,7 +5,7 @@
 
 class ParticleAnchoredSpring : public ParticleForceGenerator 
 {
-private:
+protected:
 	Vector3f m_anchor;
     float m_k;
     float m_restLength;
@@ -19,7 +19,7 @@ public:
     void setRestLength(float restLength);
 	void setAnchor(Vector3f anchor);
 
-	void updateForce(Particle* particle, float duration);
+	virtual void updateForce(Particle* particle, float duration);
 };
 
 #endif // MPJVP_PARTICLEANCHOREDSPRING
