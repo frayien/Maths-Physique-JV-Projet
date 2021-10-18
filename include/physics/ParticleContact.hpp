@@ -12,7 +12,7 @@ private:
 
     // value between 0 - 1
     // define the elasticness of the collision
-    float m_restitution;
+    float m_restitution = 1.0f;
 
     // distance of penetration of the contact
     float m_penetration;
@@ -21,7 +21,7 @@ private:
     Vector3f m_normal;
     
 public:
-    ParticleContact(Particle* particleA, Particle* particleB);
+    ParticleContact(Particle* particleA, Particle* particleB, float penetration, Vector3f normal);
     virtual ~ParticleContact();
 
     void resolve(float deltaTime);

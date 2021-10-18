@@ -1,32 +1,33 @@
 #include "physics/ParticleContact.hpp"
 
-ParticleContact::ParticleContact(Particle* particleA, Particle* particleB) :
-    m_particles { particleA, particleB }
+ParticleContact::ParticleContact(Particle* particleA, Particle* particleB, float penetration, Vector3f normal) :
+    m_particles { particleA, particleB },
+    m_penetration { penetration },
+    m_normal { normal }
 {
-    
 }
 
 ParticleContact::~ParticleContact()
 {
 }
 
-void resolve(float deltaTime)
+void ParticleContact::resolve(float deltaTime)
 {
     resolveVelocity();
     resolveInterpenetration();
 }
 
-float calculateSeparatingVelocity()
+float ParticleContact::calculateSeparatingVelocity()
+{
+    return (m_particles[0]->getVelocity() - m_particles[1]->getVelocity()).dotProduct(m_normal);
+}
+
+void ParticleContact::resolveVelocity()
 {
 
 }
 
-void resolveVelocity()
-{
-
-}
-
-void resolveInterpenetration()
+void ParticleContact::resolveInterpenetration()
 {
 
 }
