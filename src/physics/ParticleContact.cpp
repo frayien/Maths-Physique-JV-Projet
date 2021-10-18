@@ -17,17 +17,27 @@ void ParticleContact::resolve(float deltaTime)
     resolveInterpenetration();
 }
 
-float ParticleContact::calculateSeparatingVelocity()
+float ParticleContact::calculateSeparatingVelocity() const
 {
-    return (m_particles[0]->getVelocity() - m_particles[1]->getVelocity()).dotProduct(m_normal);
+    return (m_particleA->getVelocity() - m_particleB->getVelocity()).dotProduct(m_normal);
 }
 
 void ParticleContact::resolveVelocity()
 {
+    float sumInvMass = m_particleA->getInverseMass() + m_particleB->getInverseMass();
+    float sepVel = calculateSeparatingVelocity();
+    float k = (m_restitution + 1.0f) * sepVel / sumInvMass;
 
+    m_particleA->addVelocity(-k*m_particleA->getInverseMass() * m_normal);
+    m_particleB->addVelocity( k*m_particleB->getInverseMass() * m_normal);
 }
 
 void ParticleContact::resolveInterpenetration()
 {
+    float sumMass = m_particleA->getMass() + m_particleB->getMass();
+    Vector3f dPosA =  (m_particleB->getMass() / sumMass) * m_penetration * m_normal;
+    Vector3f dPosB = -(m_particleA->getMass() / sumMass) * m_penetration * m_normal;
 
+    m_particleA->translate(dPosA);
+    m_particleB->translate(dPosB);
 }

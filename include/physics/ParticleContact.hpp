@@ -8,7 +8,15 @@
 class ParticleContact
 {
 private:
-    std::array<Particle*, 2> m_particles;
+    union
+    {
+        std::array<Particle*, 2> m_particles;
+        struct
+        {
+            Particle* m_particleA;
+            Particle* m_particleB;
+        };
+    };
 
     // value between 0 - 1
     // define the elasticness of the collision
@@ -25,7 +33,9 @@ public:
     virtual ~ParticleContact();
 
     void resolve(float deltaTime);
-    float calculateSeparatingVelocity();
+    float calculateSeparatingVelocity() const;
+
+    inline std::array<Particle*, 2> & getParticles() { return m_particles; }
 
     inline void setRestitution(float rest) { m_restitution = rest; }
     inline float getRestitution() { return m_restitution; }
