@@ -18,9 +18,11 @@ public:
 
 	inline Vector3f getPosition() const { return m_position; }
 	inline void setPosition(Vector3f pos) { m_position = pos; }
+	inline void translate(Vector3f trans) { m_position += trans; }
 
 	inline Vector3f getVelocity() const { return m_velocity; }
 	inline void setVelocity(Vector3f initialVelocity) { m_velocity = initialVelocity; }
+	inline void addVelocity(Vector3f vel) { m_velocity += vel; }
 
 	inline Vector3f getTotalForce() const { return m_totalForce; }
 	inline void setTotalForce(Vector3f totalForce) { m_totalForce = totalForce; }
