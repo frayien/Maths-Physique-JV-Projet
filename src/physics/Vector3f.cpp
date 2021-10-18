@@ -24,7 +24,12 @@ float Vector3f::norm() const
 Vector3f Vector3f::normalize() const
 {
     float n = norm();
-    return Vector3f{m_x / n, m_y / n, m_z / n};
+    if (n == 0)
+    {
+        // null vector
+        return {0.0f, 0.0f, 0.0f};
+    }
+    return {m_x / n, m_y / n, m_z / n};
 }
 
 float Vector3f::dotProduct(const Vector3f & b) const
