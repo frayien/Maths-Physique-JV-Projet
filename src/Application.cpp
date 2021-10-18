@@ -170,3 +170,16 @@ void Application::setResetMarks(bool resetMarks)
 {
     m_resetMarks = resetMarks;
 }
+
+void Application::applyParticleAnchoredSpringSettings(Vector3f anchorPosition, float springStiffness, float springRestLength)
+{
+    m_particleAnchoredSpring.setAnchor(anchorPosition);
+    m_particleAnchoredSpring.setK(springStiffness);
+    m_particleAnchoredSpring.setRestLength(springRestLength);
+}
+
+void Application::applyParticleDragSettings(float k1, float k2)
+{
+    m_particleDrag.setK1(k1);
+    m_particleDrag.setK2(k2);
+}

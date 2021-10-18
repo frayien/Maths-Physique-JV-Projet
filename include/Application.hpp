@@ -44,6 +44,9 @@ public:
     void setPositionInit(Vector3f positionInit);
     void setVelocityInit(Vector3f velocityInit);
 
+    void applyParticleAnchoredSpringSettings(Vector3f anchorPosition, float springStiffness, float springRestLength);
+    void applyParticleDragSettings(float k1, float k2);
+
     void setResetMarks(bool resetMarks);
 };
 
