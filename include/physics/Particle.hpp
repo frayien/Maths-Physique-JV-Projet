@@ -27,6 +27,7 @@ public:
 	inline void addForce(Vector3f force) { m_totalForce += force; }
 
 	inline float getInverseMass() const { return m_inverseMass; }
+	inline float getMass() const { return 1.0f / m_inverseMass; }
 	inline void setMass(float mass) { m_inverseMass = 1.0f / mass; }
 
 	inline float getDamping() const { return m_damping; }

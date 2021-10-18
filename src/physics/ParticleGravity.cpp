@@ -22,5 +22,5 @@ void ParticleGravity::setGravity(float value)
 
 void ParticleGravity::updateForce(Particle* particle, float duration)
 {
-	particle->addForce(m_gravity);
+	particle->addForce(m_gravity * particle->getMass());
 }
