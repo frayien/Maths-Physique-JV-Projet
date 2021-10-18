@@ -1,17 +1,17 @@
 #include <iostream>
 
-#include "render/VulkanApplication.hpp"
+#include "render/GraphicsEngine.hpp"
 #include "TestApplication.hpp"
 #include "Application.hpp"
 
 int main()
 {
-    //VulkanApplication app{std::make_shared<TestApplication>()};
-    VulkanApplication app{std::make_shared<Application>()};
+    //GraphicsEngine app{std::make_shared<TestApplication>()};
+    GraphicsEngine graphics{std::make_shared<Application>()};
 
     try 
     {
-        app.run();
+        graphics.run();
     } 
     catch (const std::exception& e) 
     {

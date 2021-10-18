@@ -1,5 +1,5 @@
-#ifndef MPJVP_WINDOW
-#define MPJVP_WINDOW
+#ifndef FRAYIEN_WINDOW
+#define FRAYIEN_WINDOW
 
 #include <vulkan/vulkan_raii.hpp>
 
@@ -29,7 +29,7 @@ public:
     std::tuple<int, int> getFramebufferSize();
 
     bool isKeyPressed(int key) const;
-    bool shouldClose();
+    bool shouldClose() const;
 
     inline bool isFramebufferResized() const { return m_framebufferResized; }
     inline void setFramebufferResized(bool val) { m_framebufferResized = val; }
@@ -44,4 +44,4 @@ private:
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 };
 
-#endif // MPJVP_WINDOW
+#endif // FRAYIEN_WINDOW

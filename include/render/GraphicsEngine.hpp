@@ -1,5 +1,5 @@
-#ifndef MPJVP_VULKANAPPLICATION
-#define MPJVP_VULKANAPPLICATION
+#ifndef FRAYIEN_GRAPHICSENGINE
+#define FRAYIEN_GRAPHICSENGINE
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -37,7 +37,7 @@ struct QueueFamilyIndices
     }
 };
 
-class VulkanApplication 
+class GraphicsEngine 
 {
 private:
     const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -107,8 +107,16 @@ private:
     std::shared_ptr<IApplication> m_application;
 
 public:
-    VulkanApplication(const std::shared_ptr<IApplication> & application);
-    virtual ~VulkanApplication();
+    GraphicsEngine(const std::shared_ptr<IApplication> & application);
+    virtual ~GraphicsEngine();
+
+    bool windowShouldClose() const;
+    void windowPollEvents();
+
+    void clear();
+    void draw();
+    void display();
+    void end();
 
     void run();
 
@@ -186,4 +194,4 @@ private:
     void initSyncObjects();
 };
 
-#endif // MPJVP_VULKANAPPLICATION
+#endif // FRAYIEN_GRAPHICSENGINE

@@ -1,8 +1,8 @@
 #include "render/BufferedShape.hpp"
 
-#include "render/VulkanApplication.hpp"
+#include "render/GraphicsEngine.hpp"
 
-BufferedShape::BufferedShape(const VulkanApplication & vulkanApplication, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices) :
+BufferedShape::BufferedShape(const GraphicsEngine & vulkanApplication, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices) :
     m_indexSize{indices.size()},
     m_position{0.0f, 0.0f, 0.0f},
     m_rotation{1.0f},

@@ -13,14 +13,14 @@
 
 #include "render/Window.hpp"
 
-class VulkanApplication;
+class GraphicsEngine;
 
 class World
 {
 private:
     std::shared_ptr<Window> m_window;
 
-    const VulkanApplication & m_vulkanApplication;
+    const GraphicsEngine & m_vulkanApplication;
 
     std::list<std::shared_ptr<BufferedShape> > m_shapes;
     bool m_changed = false;
@@ -29,7 +29,7 @@ private:
     LightSource m_lightSource;
 
 public:
-    World(const std::shared_ptr<Window> & window, const VulkanApplication & vulkanApplication);
+    World(const std::shared_ptr<Window> & window, const GraphicsEngine & vulkanApplication);
     virtual ~World();
 
     std::shared_ptr<BufferedShape> makeShape(const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);

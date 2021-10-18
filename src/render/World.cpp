@@ -1,6 +1,6 @@
 #include "render/World.hpp"
 
-World::World(const std::shared_ptr<Window> & window, const VulkanApplication & vulkanApplication) :
+World::World(const std::shared_ptr<Window> & window, const GraphicsEngine & vulkanApplication) :
     m_window{window},
     m_vulkanApplication{vulkanApplication}
 {

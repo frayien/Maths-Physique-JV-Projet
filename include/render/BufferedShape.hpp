@@ -10,7 +10,7 @@
 
 #include "render/Vertex.hpp"
 
-class VulkanApplication;
+class GraphicsEngine;
 
 class BufferedShape
 {
@@ -27,7 +27,7 @@ private:
     size_t m_indexSize;
     
 public:
-    BufferedShape(const VulkanApplication & vulkanApplication, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);
+    BufferedShape(const GraphicsEngine & vulkanApplication, const std::vector<Vertex> & vertices, const std::vector<uint32_t> & indices);
     virtual ~BufferedShape();
 
     inline void setPosition(const glm::vec3 & vect) { m_position = vect; }
