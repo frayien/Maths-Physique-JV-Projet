@@ -18,6 +18,7 @@ public:
 	void setK(float k);
     void setRestLength(float restLength);
 	void setAnchor(Vector3f anchor);
+	inline Vector3f getAnchor() const { return m_anchor; }
 
 	virtual void updateForce(Particle* particle, float duration);
 };

@@ -78,6 +78,16 @@ void BufferedShape::scale(float factor)
     m_scale *= factor;
 }
 
+void BufferedShape::setScale(const glm::vec3 & vect)
+{
+    m_scale = vect;
+}
+
+void BufferedShape::setScale(float factor)
+{
+    m_scale = glm::vec3(1.f) * factor;
+}
+
 glm::mat4 BufferedShape::getTransform() const
 {
     glm::mat4 transform{1.0f};

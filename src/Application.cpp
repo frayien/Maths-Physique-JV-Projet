@@ -32,8 +32,17 @@ void Application::init(World & world)
     cube->scale(0.05f);
 
     // Initialisation of the graphic rendering of the particle
-    m_particleRendered = world.makeSphere({ 0.2f, 0.2f, 0.2f });
-    m_particleRendered->scale(0.2f);
+    auto particuleShape = world.makeSphere({ 0.2f, 0.2f, 0.2f });
+    particuleShape->scale(0.2f);
+    m_particleShapes.push_back(particuleShape);
+
+    particuleShape = world.makeSphere({ 0.05f, 0.05f, 0.05f });
+    particuleShape->scale(0.2f);
+    m_particleShapes.push_back(particuleShape);
+
+    particuleShape = world.makeCube({ 0.1f, 0.5f, 0.5f });
+    particuleShape->scale(0.2f);
+    m_particleShapes.push_back(particuleShape);
 
     // Initialisation of the particle based on the data specified by the user in ImGui
     Particle & particle = m_particles.emplace_back();
@@ -100,7 +109,23 @@ void Application::update(World & world, float deltaTime)
     }
 
     // update graphics
-    m_particleRendered->setPosition(m_particles[0].getPosition());
+    Vector3f particulePos = m_particles[0].getPosition();
+    Vector3f anchorPos = m_particleAnchoredSpring.getAnchor();
+    Vector3f springPos = (particulePos + anchorPos)/2.0f;
+
+    const Vector3f springDefaultDir {0.f, 0.f, 1.f};
+
+    Vector3f springDir = (particulePos - anchorPos).normalize();
+    float springAngle = -glm::acos(springDir.dotProduct(springDefaultDir));
+    float springLen = (particulePos - anchorPos).norm();
+
+    m_particleShapes[0]->setPosition(particulePos);
+    m_particleShapes[1]->setPosition(anchorPos);
+    m_particleShapes[2]->setPosition(springPos);
+    m_particleShapes[2]->resetRotation();
+    m_particleShapes[2]->rotate(springAngle, springDir.crossProduct(springDefaultDir));
+    m_particleShapes[2]->setScale({0.05f, 0.05f, springLen / 2.f});
+
 
     // If we click on the reset button
     if(world.getWindow().isKeyPressed(GLFW_KEY_R))

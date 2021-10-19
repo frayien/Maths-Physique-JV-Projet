@@ -1,5 +1,5 @@
-#ifndef MPJVP_APPLICATION
-#define MPJVP_APPLICATION
+#ifndef FRAYIEN_APPLICATION
+#define FRAYIEN_APPLICATION
 
 #include <vector>
 #include <map>
@@ -17,7 +17,7 @@ class Application : public IApplication
 private:
     static constexpr float PI = glm::pi<float>();
     
-    std::shared_ptr<BufferedShape> m_particleRendered;
+    std::vector<std::shared_ptr<BufferedShape>> m_particleShapes;
 
     std::vector<Particle> m_particles;
     ParticleGravity m_particleGravity;
@@ -50,4 +50,4 @@ public:
     void setResetMarks(bool resetMarks);
 };
 
-#endif // MPJVP_APPLICATION
+#endif // FRAYIEN_APPLICATION

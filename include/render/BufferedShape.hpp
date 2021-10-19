@@ -1,5 +1,5 @@
-#ifndef MPJVP_BUFFEREDSHAPE
-#define MPJVP_BUFFEREDSHAPE
+#ifndef FRAYIEN_BUFFEREDSHAPE
+#define FRAYIEN_BUFFEREDSHAPE
 
 #include <vulkan/vulkan_raii.hpp>
 
@@ -33,8 +33,11 @@ public:
     inline void setPosition(const glm::vec3 & vect) { m_position = vect; }
     void translate(const glm::vec3 & vect);
     void rotate(float angle, const glm::vec3 & axis);
+    inline void resetRotation() { m_rotation = glm::mat4(1.0f); }
     void scale(const glm::vec3 & vect);
     void scale(float factor);
+    void setScale(const glm::vec3 & vect);
+    void setScale(float factor);
 
     inline const std::shared_ptr<vk::raii::Buffer> & getVertexBuffer() const { return m_vertexBuffer; }
     inline const std::shared_ptr<vk::raii::Buffer> & getIndexBuffer() const { return m_indexBuffer;  }
@@ -42,4 +45,4 @@ public:
     glm::mat4 getTransform() const;
 };
 
-#endif // MPJVP_BUFFEREDSHAPE
+#endif // FRAYIEN_BUFFEREDSHAPE
