@@ -24,6 +24,7 @@ void ParticleDrag::setK2(float k2)
 
 void ParticleDrag::updateForce(Particle* particle, float duration)
 {
-    Vector3f force = - particle->getVelocity().normalize() * (m_k1 * particle->getVelocity().norm() + m_k2 * particle->getVelocity().norm() * particle->getVelocity().norm());
+    float vel = particle->getVelocity().norm();
+    Vector3f force = - particle->getVelocity().normalize() * (m_k1 * vel + m_k2 * vel * vel);
     particle->addForce(force);
 }

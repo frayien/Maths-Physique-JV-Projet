@@ -54,8 +54,8 @@ void Application::init(World & world)
     m_particleAnchoredSpring.setRestLength(2.0f);
     m_particleAnchoredSpring.setAnchor({-8.0f, 0.0f, 0.0f});
 
-    m_particleDrag.setK1(5.0f);
-    m_particleDrag.setK1(2.0f);
+    m_particleDrag.setK1(0.2f);
+    m_particleDrag.setK2(0.2f);
 
     m_physicsEngine.getParticleRegistry().addForce(&particle, &m_particleGravity, 0.0);
     m_physicsEngine.getParticleRegistry().addForce(&particle, &m_particleAnchoredSpring, 0.0f);
@@ -67,7 +67,7 @@ void Application::update(World & world, float deltaTime)
 {
     static bool canPressPause = true;
     static bool pause = false;
-    static constexpr float TIMESTEP = 1.0f / 60.0f;
+    static constexpr float TIMESTEP = 1.0f / 200.0f;
     static float elapsedTime = 0.0f;
     elapsedTime += deltaTime;
 
