@@ -143,7 +143,14 @@ void GraphicsEngine::drawFrame()
 
     vk::Result result;
     uint32_t imageIndex;
-    std::tie(result, imageIndex) = m_swapchain->acquireNextImage(TIMEOUT, **m_imageAvailableSemaphores[m_currentFrame]);
+    try
+    {
+        std::tie(result, imageIndex) = m_swapchain->acquireNextImage(TIMEOUT, **m_imageAvailableSemaphores[m_currentFrame]);
+    }
+    catch(const vk::OutOfDateKHRError & error)
+    {
+        result = vk::Result::eErrorOutOfDateKHR;
+    }
 
     if (result == vk::Result::eErrorOutOfDateKHR)
     {
@@ -204,7 +211,14 @@ void GraphicsEngine::drawFrame()
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
 
-    result = m_presentQueue->presentKHR(presentInfo);
+    try
+    {
+        result = m_presentQueue->presentKHR(presentInfo);
+    }
+    catch(const vk::OutOfDateKHRError & error)
+    {
+        result = vk::Result::eErrorOutOfDateKHR;
+    }
     
     if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || m_window->isFramebufferResized())
     {
