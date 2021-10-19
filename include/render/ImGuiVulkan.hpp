@@ -46,8 +46,8 @@ private:
     std::array<float, 3> currentAnchorPosition = { -8.0f,  0.0f,  0.0f};
     float currentSpringStiffness = 20.0f;
     float currentSpringRestLength = 2.0f;
-    float currentK1DragCoef = 5.0f;
-    float currentK2DragCoef = 2.0f;
+    float currentK1DragCoef = 0.0f;
+    float currentK2DragCoef = 0.1f;
 
 public:
     ImGuiVulkan(

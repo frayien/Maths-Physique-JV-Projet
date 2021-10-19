@@ -423,11 +423,11 @@ void ImGuiVulkan::createFrame()
 
             // Input for the first drag coefficient (k1)
             ImGui::Text("First drag coefficient (k1) :");
-            ImGui::InputFloat("##k1DragCoef", &currentK1DragCoef, 0.2f, 2.0f, "%.1f");
+            ImGui::InputFloat("##k1DragCoef", &currentK1DragCoef, 0.01f, 0.5f, "%.2f");
 
             // Input for the second drag coefficient (k2)
             ImGui::Text("Second drag coefficient (k2) :");
-            ImGui::InputFloat("##k2DragCoef", &currentK2DragCoef, 0.2f, 2.0f, "%.1f");
+            ImGui::InputFloat("##k2DragCoef", &currentK2DragCoef, 0.01f, 0.5f, "%.2f");
 
             ImGui::Unindent(10.0f);
 
