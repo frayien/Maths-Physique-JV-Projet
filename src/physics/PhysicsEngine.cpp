@@ -12,12 +12,17 @@ PhysicsEngine::~PhysicsEngine()
 
 }
 
-void PhysicsEngine::update(float deltaTime, std::vector<Particle> & particles)
+void PhysicsEngine::update(float deltaTime, GameState & gameState)
 {
-    m_particleRegistry.update(deltaTime);
+    m_particleForceRegistry.update(deltaTime);
 
-    for (Particle & p : particles)
+    for (auto & particleItem : gameState.getParticles())
     {
-        p.integrate(deltaTime);
+        particleItem.second->integrate(deltaTime);
     }
+}
+
+void PhysicsEngine::registerForce(Particle * particle, ParticleForceGenerator * particleForceGenerator, float duration)
+{
+    m_particleForceRegistry.addForce(particle, particleForceGenerator, duration);
 }

@@ -11,6 +11,7 @@
 #include "physics/PhysicsEngine.hpp"
 #include "physics/ParticleAnchoredSpring.hpp"
 #include "physics/ParticleDrag.hpp"
+#include "GameState.hpp"
 
 class Application : public IApplication
 {
@@ -19,11 +20,8 @@ private:
     
     std::vector<std::shared_ptr<BufferedShape>> m_particleShapes;
 
-    std::vector<Particle> m_particles;
-    ParticleGravity m_particleGravity;
     PhysicsEngine m_physicsEngine;
-    ParticleAnchoredSpring m_particleAnchoredSpring;
-    ParticleDrag m_particleDrag;
+    GameState m_gameState;
 
     Vector3f m_positionInit = {-8, -3, 0};
     Vector3f m_velocityInit = {0, 4, 7};
@@ -39,8 +37,6 @@ public:
 
     void updateCamera(World & world, float deltaTime);
 
-    inline Particle & getParticle(int index) { return m_particles[index]; }
-
     void setPositionInit(Vector3f positionInit);
     void setVelocityInit(Vector3f velocityInit);
 
@@ -48,6 +44,8 @@ public:
     void applyParticleDragSettings(float k1, float k2);
 
     void setResetMarks(bool resetMarks);
+
+    inline GameState & getGameState() { return m_gameState; }
 };
 
 #endif // FRAYIEN_APPLICATION

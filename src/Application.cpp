@@ -44,23 +44,25 @@ void Application::init(World & world)
     particuleShape->scale(0.2f);
     m_particleShapes.push_back(particuleShape);
 
-    // Initialisation of the particle based on the data specified by the user in ImGui
-    Particle & particle = m_particles.emplace_back();
-    particle.setMass(1.0f);
-    particle.setPosition(m_positionInit);
-    particle.setVelocity(m_velocityInit);
+    // Create particle
+    std::unique_ptr<Particle> particle = std::make_unique<Particle>(m_positionInit, 1.0f, 0.999f);
+    particle->setVelocity(m_velocityInit);
+    m_gameState.addParticle("particle", particle);
 
-    m_particleAnchoredSpring.setK(20.0f);
-    m_particleAnchoredSpring.setRestLength(2.0f);
-    m_particleAnchoredSpring.setAnchor({-8.0f, 0.0f, 0.0f});
+    // Create force generators
+    std::unique_ptr<ParticleForceGenerator> particleGravity = std::make_unique<ParticleGravity>(9.81f);
+    m_gameState.addParticleForceGenerator("gravity", particleGravity);
 
-    m_particleDrag.setK1(0.0f);
-    m_particleDrag.setK2(0.1f);
+    std::unique_ptr<ParticleForceGenerator> particleDrag = std::make_unique<ParticleDrag>(0.0f, 0.1f);
+    m_gameState.addParticleForceGenerator("drag", particleDrag);
 
-    m_physicsEngine.getParticleRegistry().addForce(&particle, &m_particleGravity, 0.0);
-    m_physicsEngine.getParticleRegistry().addForce(&particle, &m_particleAnchoredSpring, 0.0f);
-    m_physicsEngine.getParticleRegistry().addForce(&particle, &m_particleDrag, 0.0f);
+    std::unique_ptr<ParticleForceGenerator> particleAnchoredSpring = std::make_unique<ParticleAnchoredSpring>(Vector3f{-8.0f, 0.0f, 0.0f}, 20.0f, 2.0f);
+    m_gameState.addParticleForceGenerator("anchoredSpring", particleAnchoredSpring);
 
+    // Register all forces with the particle
+    m_physicsEngine.registerForce(m_gameState.getParticle("particle").get(), m_gameState.getParticleForceGenerator("gravity").get(), 0.0f);
+    m_physicsEngine.registerForce(m_gameState.getParticle("particle").get(), m_gameState.getParticleForceGenerator("drag").get(), 0.0f);
+    m_physicsEngine.registerForce(m_gameState.getParticle("particle").get(), m_gameState.getParticleForceGenerator("anchoredSpring").get(), 0.0f);
 }
 
 void Application::update(World & world, float deltaTime)
@@ -97,20 +99,21 @@ void Application::update(World & world, float deltaTime)
             {
                 m_countTimeStepMarks = 0;
                 std::shared_ptr<BufferedShape> tmpSphere = world.makeSphere({1.0f, 0.0f, 0.0f});
-                tmpSphere->setPosition(m_particles[0].getPosition());
+                tmpSphere->setPosition(m_gameState.getParticle("particle")->getPosition());
                 tmpSphere->scale(0.03f);
 
                 m_marks.push_back(tmpSphere);
             }
 
             // Update physics engine
-            m_physicsEngine.update(TIMESTEP, m_particles);
+            m_physicsEngine.update(TIMESTEP, m_gameState);
         }
     }
 
     // update graphics
-    Vector3f particulePos = m_particles[0].getPosition();
-    Vector3f anchorPos = m_particleAnchoredSpring.getAnchor();
+    Vector3f particulePos = m_gameState.getParticle("particle")->getPosition();
+    ParticleAnchoredSpring * anchoredSpring = static_cast<ParticleAnchoredSpring*>(m_gameState.getParticleForceGenerator("anchoredSpring").get());
+    Vector3f anchorPos = anchoredSpring->getAnchor();
     Vector3f springPos = (particulePos + anchorPos)/2.0f;
 
     const Vector3f springDefaultDir {0.f, 0.f, 1.f};
@@ -130,8 +133,8 @@ void Application::update(World & world, float deltaTime)
     // If we click on the reset button
     if(world.getWindow().isKeyPressed(GLFW_KEY_R))
     {
-        m_particles[0].setPosition(m_positionInit);
-        m_particles[0].setVelocity(m_velocityInit);
+        m_gameState.getParticle("particle")->setPosition(m_positionInit);
+        m_gameState.getParticle("particle")->setVelocity(m_velocityInit);
         m_resetMarks = true;
     }
 
@@ -198,13 +201,15 @@ void Application::setResetMarks(bool resetMarks)
 
 void Application::applyParticleAnchoredSpringSettings(Vector3f anchorPosition, float springStiffness, float springRestLength)
 {
-    m_particleAnchoredSpring.setAnchor(anchorPosition);
-    m_particleAnchoredSpring.setK(springStiffness);
-    m_particleAnchoredSpring.setRestLength(springRestLength);
+    ParticleAnchoredSpring * anchoredSpring = static_cast<ParticleAnchoredSpring*>(m_gameState.getParticleForceGenerator("anchoredSpring").get());
+    anchoredSpring->setAnchor(anchorPosition);
+    anchoredSpring->setK(springStiffness);
+    anchoredSpring->setRestLength(springRestLength);
 }
 
 void Application::applyParticleDragSettings(float k1, float k2)
 {
-    m_particleDrag.setK1(k1);
-    m_particleDrag.setK2(k2);
+    ParticleDrag * drag = static_cast<ParticleDrag*>(m_gameState.getParticleForceGenerator("drag").get());
+    drag->setK1(k1);
+    drag->setK2(k2);
 }

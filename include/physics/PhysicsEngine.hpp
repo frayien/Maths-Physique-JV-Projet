@@ -1,7 +1,10 @@
 #ifndef MPJVP_PHYSICSENGINE
 #define MPJVP_PHYSICSENGINE
 
-#include "physics/ParticleForceRegistry.hpp"
+#include "GameState.hpp"
+#include "ParticleForceRegistry.hpp"
+#include "Particle.hpp"
+#include "ParticleForceGenerator.hpp"
 
 class PhysicsEngine
 {
@@ -10,12 +13,13 @@ public:
 	PhysicsEngine();
 	~PhysicsEngine();
 
-	void update(float deltaTime, std::vector<Particle> & particles);
+	void update(float deltaTime, GameState & gameState);
+	void registerForce(Particle * particle, ParticleForceGenerator * particleForceGenerator, float duration);
 
-    inline ParticleForceRegistry & getParticleRegistry() { return m_particleRegistry; }
+    inline ParticleForceRegistry & getParticleForceRegistry() { return m_particleForceRegistry; }
 
-private :
-	ParticleForceRegistry m_particleRegistry;
+private:
+	ParticleForceRegistry m_particleForceRegistry;
 };
 
 #endif // MPJVP_PHYSICSENGINE
