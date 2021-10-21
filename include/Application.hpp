@@ -12,6 +12,7 @@
 #include "physics/ParticleAnchoredSpring.hpp"
 #include "physics/ParticleDrag.hpp"
 #include "physics/ParticleSpring.hpp"
+#include "physics/ParticleCable.hpp"
 
 class Application : public IApplication
 {
@@ -26,6 +27,7 @@ private:
     ParticleAnchoredSpring m_particleAnchoredSpring;
     ParticleDrag m_particleDrag;
     std::vector<ParticleSpring *> m_blobSprings;
+    std::vector<ParticleContactGenerator *> m_blobCables;
 
     Vector3f m_positionInit = {-8, -3, 0};
     Vector3f m_velocityInit = {0, 4, 7};
