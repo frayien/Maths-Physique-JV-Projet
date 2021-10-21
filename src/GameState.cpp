@@ -10,24 +10,27 @@ GameState::~GameState()
 
 }
 
-void GameState::addParticle(std::string label, std::unique_ptr<Particle> & particle)
+bool GameState::addParticle(const std::string & label, std::unique_ptr<Particle> && particle)
 {
-    m_particles.insert({label, std::move(particle)});
+    return m_particles.insert({label, std::move(particle)}).second;
 }
 
-void GameState::addParticleForceGenerator(std::string label, std::unique_ptr<ParticleForceGenerator> & particleForceGenerator)
+bool GameState::addParticleForceGenerator(const std::string & label, std::unique_ptr<ParticleForceGenerator> && particleForceGenerator)
 {
-    m_particleForceGenerators.insert({label, std::move(particleForceGenerator)});
+    return m_particleForceGenerators.insert({label, std::move(particleForceGenerator)}).second;
 }
 
-std::unique_ptr<Particle> & GameState::getParticle(std::string label)
+bool GameState::addShapeGenerator(const std::string & label, std::unique_ptr<IShapeGenerator> && shapeGenerator)
 {
-    return m_particles.find(label)->second;
-    // TODO: handle particle not found
+    return m_shapeGenerators.insert({label, std::move(shapeGenerator)}).second;
 }
 
-std::unique_ptr<ParticleForceGenerator> & GameState::getParticleForceGenerator(std::string label)
+bool GameState::removeShapeGenerator(const std::string & label)
 {
-    return m_particleForceGenerators.find(label)->second;
-    // TODO: handle force not found
+    auto pos = m_shapeGenerators.find(label);
+    if(pos == m_shapeGenerators.end()) return false;
+
+    m_shapeGenerators.erase(pos);
+
+    return true;
 }

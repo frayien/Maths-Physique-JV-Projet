@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 #include <functional>
 #include <iomanip>
 
@@ -23,9 +24,8 @@ class Application : public IImGuiFrameGenerator
 {
 private:
     static constexpr float PI = glm::pi<float>();
-    
-    std::vector<std::unique_ptr<IShapeGenerator>> m_particleShapes;
 
+    GraphicsEngine m_graphicsEngine;
     PhysicsEngine m_physicsEngine;
     GameState m_gameState;
 
@@ -34,7 +34,7 @@ private:
 
     int m_countTimeStepMarks = 0;
     int m_countTimeStepMarksMax = 15;
-    std::vector<std::unique_ptr<IShapeGenerator>> m_marks{};
+    std::size_t m_markN = 0;
     bool m_resetMarks = false;
 
     // ImGui
@@ -63,23 +63,21 @@ private:
     float currentK2DragCoef = 0.1f;
     
 public:
-    ~Application();
-
-    void init(GraphicsEngine & graphics);
-    void update(GraphicsEngine & graphics, float deltaTime);
+    Application();
+    virtual ~Application();
 
     virtual void createFrame() override;
+    void run();
 
-    void updateCamera(GraphicsEngine & graphics, float deltaTime);
+private:
+    void init();
+    void update(float deltaTime);
 
-    void applyParticleAnchoredSpringSettings(Vector3f anchorPosition, float springStiffness, float springRestLength);
-    void applyParticleDragSettings(float k1, float k2);
+    void updateCamera(float deltaTime);
 
-    void createBlob(GraphicsEngine & graphics);
+    void createBlob();
     void updateBlob();
     void resetBlob();
-
-    inline GameState & getGameState() { return m_gameState; }
 };
 
 #endif // MPJVP_APPLICATION
