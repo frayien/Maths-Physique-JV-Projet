@@ -7,7 +7,6 @@
 #include <sstream>
 
 ImGuiVulkan::ImGuiVulkan(
-    const std::shared_ptr<IApplication> & application,
     const std::shared_ptr<Window> & window,
     const std::shared_ptr<vk::raii::Instance> & instance,
     const std::shared_ptr<vk::raii::PhysicalDevice> & physicalDevice,
@@ -22,8 +21,6 @@ ImGuiVulkan::ImGuiVulkan(
     m_swapchainExtent{swapchainExtent},
     m_swapchainSize{swapchainImageViews.size()}
 {
-    m_application = std::dynamic_pointer_cast<Application>(application);
-
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -250,202 +247,13 @@ void ImGuiVulkan::recreate(const std::vector<std::shared_ptr<vk::raii::ImageView
     }
 }
 
-void ImGuiVulkan::createFrame()
+void ImGuiVulkan::createFrame(IImGuiFrameGenerator* generator)
 {
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::Begin("Settings");
-
-    // Default size
-    float imGuiWidth = 330.0f;
-    float imGuiHeight = 400.0f;
-    ImGui::SetWindowSize(ImVec2(imGuiWidth, imGuiHeight));
-
-    if (ImGui::BeginTabBar("SettingsTabBar", ImGuiTabBarFlags_None))
-    {
-        // Tab to select the projectile, see its properties and set initial position, initial acceleration and damping
-        if (ImGui::BeginTabItem("Projectile"))
-        {
-            ImGui::Text("Choose the projectile :");
-
-            // Add a combo box to select the projectile
-            if (ImGui::BeginCombo("##combo", currentProjectile))
-            {
-                for (int n = 0; n < IM_ARRAYSIZE(projectiles); n++)
-                {
-                    bool isSelected = (currentProjectile == projectiles[n]);
-                    if (ImGui::Selectable(projectiles[n], isSelected))
-                    {
-                        currentProjectile = projectiles[n];
-                        currentIndex = n;
-                        currentInitialVelocity = projectilesInitialVelocity[currentIndex];
-                        currentMass = projectilesMass[currentIndex];
-                    }
-
-                    if (isSelected)
-                    {
-                        ImGui::SetItemDefaultFocus();
-                    }
-
-                }
-                ImGui::EndCombo();
-            }
-
-            ImGui::NewLine();
-
-            ImGui::Text("Projectile's properties : ");
-
-            // Add a table to display projectile's properties (initial velocity and mass)
-            if (ImGui::BeginTable("informationTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
-            {
-                std::stringstream ss;
-                for (int row = 0; row < 2; row++)
-                {
-                    ImGui::TableNextRow();
-                    for (int column = 0; column < 2; column++)
-                    {
-                        ImGui::TableSetColumnIndex(column);
-
-                        if (column == 0)
-                        {
-                            // First column : display properties' name
-                            if (row == 0)
-                            {
-                                // First row : initial velocity
-                                ImGui::Text("Initial velocity");
-                            }
-                            else
-                            {
-                                // Second row : mass
-                                ImGui::Text("Mass");
-                            }
-                        }
-                        else
-                        {
-                            // Second column : display properties' value
-                            if (row == 0)
-                            {
-                                // First row : initial velocity
-                                std::stringstream().swap(ss); // clear ss
-                                ss << "{";
-                                ss << std::fixed << std::setprecision(2) << projectilesInitialVelocity[currentIndex][0];
-                                ss << " ; ";
-                                ss << std::fixed << std::setprecision(2) << projectilesInitialVelocity[currentIndex][1];
-                                ss << " ; ";
-                                ss << std::fixed << std::setprecision(2) << projectilesInitialVelocity[currentIndex][2];
-                                ss << "}";
-                                ImGui::Text(ss.str().c_str());
-                            }
-                            else
-                            {
-                                // Second row : mass
-                                std::stringstream().swap(ss); // clear ss
-                                ss << std::fixed << std::setprecision(2) << projectilesMass[currentIndex];
-                                ImGui::Text(ss.str().c_str());
-                            }
-                        }
-                    }
-                }
-                ImGui::EndTable();
-            }
-
-            ImGui::NewLine();
-
-            ImGui::Text("Adjustable settings :");
-
-            ImGui::Indent(10.0f);
-
-            // Input for the initial position
-            ImGui::Text("Initial position (X ; Y ; Z) :");
-            ImGui::InputFloat3("##Position", currentInitialPosition.data(), "%.1f");
-
-            // Input for the initial velocity
-            ImGui::Text("Initial velocity (X ; Y ; Z) :");
-            ImGui::InputFloat3("##Velocity", currentInitialVelocity.data(), "%.1f");
-
-            // Input for the mass
-            ImGui::Text("Mass : ");
-            ImGui::InputFloat("##Mass", &currentMass, 0.5f, 5.0f, "%.1f");
-
-            // Input for the damping
-            ImGui::Text("Damping : ");
-            ImGui::InputFloat("##Damping", &damping, 0.001f, 0.01f, "%.3f");
-
-            ImGui::Unindent(10.0f);
-
-            // Button to confirm selection
-            ImGui::NewLine();
-            ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.4f);
-            if (ImGui::Button("Select"))
-            {
-                Particle * particle = m_application->getParticle(0);
-                particle->setPosition(currentInitialPosition);
-                particle->setVelocity(currentInitialVelocity);
-                particle->setDamping (damping);
-                particle->setMass    (currentMass);
-
-                m_application->setResetMarks(true);
-            }
-
-            ImGui::EndTabItem();
-        }
-
-        // Tab to edit and add forces
-        if (ImGui::BeginTabItem("Forces"))
-        {
-            // Edit anchored spring force
-            ImGui::Text("Anchored spring settings : ");
-
-            ImGui::Indent(10.0f);
-
-            // Input for the anchor position
-            ImGui::Text("Anchor position (X ; Y ; Z) :");
-            ImGui::InputFloat3("##AnchorPosition", currentAnchorPosition.data(), "%.1f");
-
-            // Input for spring stiffness (k)
-            ImGui::Text("Spring stiffness :");
-            ImGui::InputFloat("##SpringStiffness", &currentSpringStiffness, 0.5f, 5.0f, "%.1f");
-
-            // Input for spring rest length
-            ImGui::Text("Spring rest length :");
-            ImGui::InputFloat("##SpringRestLength", &currentSpringRestLength, 0.2f, 2.0f, "%.1f");
-
-            ImGui::Unindent(10.0f);
-
-            ImGui::Separator();
-
-            // Edit drag force
-            ImGui::Text("Drag settings : ");
-
-            ImGui::Indent(10.0f);
-
-            // Input for the first drag coefficient (k1)
-            ImGui::Text("First drag coefficient (k1) :");
-            ImGui::InputFloat("##k1DragCoef", &currentK1DragCoef, 0.01f, 0.5f, "%.2f");
-
-            // Input for the second drag coefficient (k2)
-            ImGui::Text("Second drag coefficient (k2) :");
-            ImGui::InputFloat("##k2DragCoef", &currentK2DragCoef, 0.01f, 0.5f, "%.2f");
-
-            ImGui::Unindent(10.0f);
-
-            // Button to apply forces
-            ImGui::NewLine();
-            ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.4f);
-            if (ImGui::Button("Apply"))
-            {
-                m_application->applyParticleAnchoredSpringSettings(currentAnchorPosition, currentSpringStiffness, currentSpringRestLength);
-                m_application->applyParticleDragSettings(currentK1DragCoef, currentK2DragCoef);
-            }
-
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-    }
-
-    ImGui::End();
+    generator->createFrame();
 }
 
 std::shared_ptr<vk::raii::CommandBuffers> ImGuiVulkan::beginSingleTimeCommands()

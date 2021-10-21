@@ -13,10 +13,10 @@ Application::~Application()
     }
 }
 
-void Application::init(World & world)
+void Application::init(GraphicsEngine & graphics)
 {
-    Camera & cam = world.getCamera();
-    LightSource & sun = world.getLightSource();
+    Camera & cam = graphics.getCamera();
+    LightSource & sun = graphics.getLightSource();
 
     cam.setPosition({0.0f, 0.0f, 0.0f});
     // rotate cam to look at X- (this way Y+ and Z+ looks more natural for a 2D environment, aka. Y+ is on the right)
@@ -77,7 +77,7 @@ void Application::init(World & world)
     createBlob(world);
 }
 
-void Application::update(World & world, float deltaTime)
+void Application::update(GraphicsEngine & graphics, float deltaTime)
 {
     static bool canPressPause = true;
     static bool pause = false;
@@ -168,10 +168,10 @@ void Application::update(World & world, float deltaTime)
 }
 
 // Function used to translate and rotate the camera
-void Application::updateCamera(World & world, float deltaTime)
+void Application::updateCamera(GraphicsEngine & graphics, float deltaTime)
 {
-    const Window & win = world.getWindow();
-          Camera & cam = world.getCamera();
+    const Window & win = graphics.getWindow();
+          Camera & cam = graphics.getCamera();
 
     const float rotationSpeed = 1.0f * PI; // rad/s
     const float moveSpeed     = 0.1f; // unit/s
@@ -197,21 +197,198 @@ void Application::updateCamera(World & world, float deltaTime)
     }
 }
 
-// Function used to set the initial position of the particle as defined in ImGui
-void Application::setPositionInit(Vector3f positionInit)
+void Application::createFrame()
 {
-    m_positionInit = positionInit;
-}
+    ImGui::Begin("Settings");
 
-// Function used to set the initial velocity of the particle as defined in ImGui
-void Application::setVelocityInit(Vector3f velocityInit)
-{
-    m_velocityInit = velocityInit;
-}
+    // Default size
+    float imGuiWidth = 330.0f;
+    float imGuiHeight = 400.0f;
+    ImGui::SetWindowSize(ImVec2(imGuiWidth, imGuiHeight));
 
-void Application::setResetMarks(bool resetMarks)
-{
-    m_resetMarks = resetMarks;
+    if (ImGui::BeginTabBar("SettingsTabBar", ImGuiTabBarFlags_None))
+    {
+        // Tab to select the projectile, see its properties and set initial position, initial acceleration and damping
+        if (ImGui::BeginTabItem("Projectile"))
+        {
+            ImGui::Text("Choose the projectile :");
+
+            // Add a combo box to select the projectile
+            if (ImGui::BeginCombo("##combo", m_currentProjectile))
+            {
+                for (int n = 0; n < IM_ARRAYSIZE(m_projectiles); n++)
+                {
+                    bool isSelected = (m_currentProjectile == m_projectiles[n]);
+                    if (ImGui::Selectable(m_projectiles[n], isSelected))
+                    {
+                        m_currentProjectile = m_projectiles[n];
+                        m_currentIndex = n;
+                        currentInitialVelocity = m_projectilesInitialVelocity[m_currentIndex];
+                        currentMass = m_projectilesMass[m_currentIndex];
+                    }
+
+                    if (isSelected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+
+                }
+                ImGui::EndCombo();
+            }
+
+            ImGui::NewLine();
+
+            ImGui::Text("Projectile's properties : ");
+
+            // Add a table to display projectile's properties (initial velocity and mass)
+            if (ImGui::BeginTable("informationTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+            {
+                std::stringstream ss;
+                for (int row = 0; row < 2; row++)
+                {
+                    ImGui::TableNextRow();
+                    for (int column = 0; column < 2; column++)
+                    {
+                        ImGui::TableSetColumnIndex(column);
+
+                        if (column == 0)
+                        {
+                            // First column : display properties' name
+                            if (row == 0)
+                            {
+                                // First row : initial velocity
+                                ImGui::Text("Initial velocity");
+                            }
+                            else
+                            {
+                                // Second row : mass
+                                ImGui::Text("Mass");
+                            }
+                        }
+                        else
+                        {
+                            // Second column : display properties' value
+                            if (row == 0)
+                            {
+                                // First row : initial velocity
+                                std::stringstream().swap(ss); // clear ss
+                                ss << "{";
+                                ss << std::fixed << std::setprecision(2) << m_projectilesInitialVelocity[m_currentIndex][0];
+                                ss << " ; ";
+                                ss << std::fixed << std::setprecision(2) << m_projectilesInitialVelocity[m_currentIndex][1];
+                                ss << " ; ";
+                                ss << std::fixed << std::setprecision(2) << m_projectilesInitialVelocity[m_currentIndex][2];
+                                ss << "}";
+                                ImGui::Text(ss.str().c_str());
+                            }
+                            else
+                            {
+                                // Second row : mass
+                                std::stringstream().swap(ss); // clear ss
+                                ss << std::fixed << std::setprecision(2) << m_projectilesMass[m_currentIndex];
+                                ImGui::Text(ss.str().c_str());
+                            }
+                        }
+                    }
+                }
+                ImGui::EndTable();
+            }
+
+            ImGui::NewLine();
+
+            ImGui::Text("Adjustable settings :");
+
+            ImGui::Indent(10.0f);
+
+            // Input for the initial position
+            ImGui::Text("Initial position (X ; Y ; Z) :");
+            ImGui::InputFloat3("##Position", currentInitialPosition.data(), "%.1f");
+
+            // Input for the initial velocity
+            ImGui::Text("Initial velocity (X ; Y ; Z) :");
+            ImGui::InputFloat3("##Velocity", currentInitialVelocity.data(), "%.1f");
+
+            // Input for the mass
+            ImGui::Text("Mass : ");
+            ImGui::InputFloat("##Mass", &currentMass, 0.5f, 5.0f, "%.1f");
+
+            // Input for the damping
+            ImGui::Text("Damping : ");
+            ImGui::InputFloat("##Damping", &damping, 0.001f, 0.01f, "%.3f");
+
+            ImGui::Unindent(10.0f);
+
+            // Button to confirm selection
+            ImGui::NewLine();
+            ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.4f);
+            if (ImGui::Button("Select"))
+            {
+                Particle * particle = m_particles[0];
+                particle->setPosition(currentInitialPosition);
+                particle->setVelocity(currentInitialVelocity);
+                particle->setDamping (damping);
+                particle->setMass    (currentMass);
+
+                m_resetMarks = true;
+            }
+
+            ImGui::EndTabItem();
+        }
+
+        // Tab to edit and add forces
+        if (ImGui::BeginTabItem("Forces"))
+        {
+            // Edit anchored spring force
+            ImGui::Text("Anchored spring settings : ");
+
+            ImGui::Indent(10.0f);
+
+            // Input for the anchor position
+            ImGui::Text("Anchor position (X ; Y ; Z) :");
+            ImGui::InputFloat3("##AnchorPosition", currentAnchorPosition.data(), "%.1f");
+
+            // Input for spring stiffness (k)
+            ImGui::Text("Spring stiffness :");
+            ImGui::InputFloat("##SpringStiffness", &currentSpringStiffness, 0.5f, 5.0f, "%.1f");
+
+            // Input for spring rest length
+            ImGui::Text("Spring rest length :");
+            ImGui::InputFloat("##SpringRestLength", &currentSpringRestLength, 0.2f, 2.0f, "%.1f");
+
+            ImGui::Unindent(10.0f);
+
+            ImGui::Separator();
+
+            // Edit drag force
+            ImGui::Text("Drag settings : ");
+
+            ImGui::Indent(10.0f);
+
+            // Input for the first drag coefficient (k1)
+            ImGui::Text("First drag coefficient (k1) :");
+            ImGui::InputFloat("##k1DragCoef", &currentK1DragCoef, 0.01f, 0.5f, "%.2f");
+
+            // Input for the second drag coefficient (k2)
+            ImGui::Text("Second drag coefficient (k2) :");
+            ImGui::InputFloat("##k2DragCoef", &currentK2DragCoef, 0.01f, 0.5f, "%.2f");
+
+            ImGui::Unindent(10.0f);
+
+            // Button to apply forces
+            ImGui::NewLine();
+            ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.4f);
+            if (ImGui::Button("Apply"))
+            {
+                applyParticleAnchoredSpringSettings(currentAnchorPosition, currentSpringStiffness, currentSpringRestLength);
+                applyParticleDragSettings(currentK1DragCoef, currentK2DragCoef);
+            }
+
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+
+    ImGui::End();
 }
 
 void Application::applyParticleAnchoredSpringSettings(Vector3f anchorPosition, float springStiffness, float springRestLength)

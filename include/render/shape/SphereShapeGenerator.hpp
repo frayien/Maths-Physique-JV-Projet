@@ -1,14 +1,14 @@
-#ifndef MPJVP_SPHERESHAPEGENRATOR
-#define MPJVP_SPHERESHAPEGENRATOR
+#ifndef MPJVP_SPHERESHAPEGENERATOR
+#define MPJVP_SPHERESHAPEGENERATOR
 
 #include "render/shape/IShapeGenerator.hpp"
 #include "render/shape/Transformable.hpp"
 
-class SphereShapeGenrator : public IShapeGenerator, public Transformable
+class SphereShapeGenerator : public IShapeGenerator, public Transformable
 {
 public:
-    SphereShapeGenrator(glm::vec3 color = { 0.5f, 0.5f, 0.5f });
-    ~SphereShapeGenrator();
+    SphereShapeGenerator(glm::vec3 color = { 0.5f, 0.5f, 0.5f });
+    ~SphereShapeGenerator();
 
     virtual void addShape(std::vector<Shape> & shapes) const override;
 
@@ -17,16 +17,16 @@ private:
     float m_radius = 1.0f;
 };
 
-SphereShapeGenrator::SphereShapeGenrator(glm::vec3 color) :
+SphereShapeGenerator::SphereShapeGenerator(glm::vec3 color) :
     m_color{color}
 {
 }
 
-SphereShapeGenrator::~SphereShapeGenrator()
+SphereShapeGenerator::~SphereShapeGenerator()
 {
 }
 
-void SphereShapeGenrator::addShape(std::vector<Shape> & shapes) const
+void SphereShapeGenerator::addShape(std::vector<Shape> & shapes) const
 {
     // algorithms and inspiration from : http://www.songho.ca/opengl/gl_sphere.html
 
@@ -188,4 +188,4 @@ void SphereShapeGenrator::addShape(std::vector<Shape> & shapes) const
     shapes.push_back({vertices, indices, getTransform()});
 }
 
-#endif // MPJVP_SPHERESHAPEGENRATOR
+#endif // MPJVP_SPHERESHAPEGENERATOR

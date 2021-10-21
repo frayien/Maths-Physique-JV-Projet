@@ -1,7 +1,7 @@
 #include "render/GraphicsEngine.hpp"
 
-GraphicsEngine::GraphicsEngine(const std::shared_ptr<IApplication> & application) :
-    m_application{application}
+GraphicsEngine::GraphicsEngine(IImGuiFrameGenerator* imguiFrameGenerator) :
+    m_imguiFrameGenerator{imguiFrameGenerator}
 {
     initWindow();
     initContext();
@@ -10,7 +10,6 @@ GraphicsEngine::GraphicsEngine(const std::shared_ptr<IApplication> & application
     initPhysicalDevice();
     initDevice();
     initCommandPool();
-    initWorld();
     initSwapchain();
     initDescriptorSetLayout();
     initRenderPass();
@@ -20,19 +19,13 @@ GraphicsEngine::GraphicsEngine(const std::shared_ptr<IApplication> & application
     initDescriptorSets();
     initCommandBuffers();
 
-    for(size_t i = 0; i < m_commandBuffers->size(); ++i)
-    {
-        recordCommandBufferForTheFirstTime(i, *m_world);
-    }
-
     initImGui();
     initSyncObjects();
-
-    m_needRecord.resize(m_swapchainImageViews.size(), false);
 }
 
 GraphicsEngine::~GraphicsEngine()
 {
+    m_device->waitIdle();
 }
 
 bool GraphicsEngine::windowShouldClose() const
@@ -47,95 +40,31 @@ void GraphicsEngine::windowPollEvents()
 
 void GraphicsEngine::clear()
 {
-
+    m_shapes.clear();
 }
-void GraphicsEngine::draw()
+
+void GraphicsEngine::draw(const IShapeGenerator & shape)
 {
-
+    shape.addShape(m_shapes);
 }
+
 void GraphicsEngine::display()
 {
-    drawFrame();
+    uint32_t imageIndex = acquireImage();
+    if(imageIndex == std::numeric_limits<uint32_t>::max())
+    {
+        return;
+    }
+
+    loadBuffers(imageIndex);
+
+    m_imGuiVulkan->createFrame(m_imguiFrameGenerator);
+    m_imGuiVulkan->render(imageIndex);
+
+    executeCommandBuffer(imageIndex);
 }
 
-void GraphicsEngine::end()
-{
-    m_device->waitIdle();
-}
-
-void GraphicsEngine::run()
-{
-    while (!m_window->shouldClose()) 
-    {
-        Window::pollEvents();
-
-        drawFrame();
-    }
-
-    m_device->waitIdle();
-}
-
-void GraphicsEngine::update(uint32_t currentImage)
-{
-    static auto previousTime = std::chrono::high_resolution_clock::now();
-
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - previousTime).count();
-    previousTime = currentTime;
-
-    m_application->update(*m_world, deltaTime);
-
-    if(m_world->hasChanged())
-    {
-        for(size_t i = 0; i<m_needRecord.size(); ++i)
-        {
-            m_needRecord[i] = true;
-        }
-        m_world->setChanged(false);
-    }
-    if(m_needRecord[currentImage])
-    {
-        rerecordCommandBuffer(currentImage, *m_world);
-        m_needRecord[currentImage] = false;
-    }
-    {
-        UniformBufferObjectCamera ubo{};
-        ubo.model = glm::mat4(1.0f);
-        ubo.view = glm::lookAt(m_world->getCamera().getPosition(), m_world->getCamera().getPosition() + m_world->getCamera().getDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchainExtent.width) / static_cast<float>(m_swapchainExtent.height), 0.1f, m_world->getCamera().getViewDistance());
-        ubo.proj[1][1] *= -1;
-        ubo.lightPos = m_world->getLightSource().getPosition();
-        ubo.lightColor = m_world->getLightSource().getColor();
-        ubo.ambientLightStrength = m_world->getLightSource().getAmbient();
-
-        const auto & uniformBufferMemory = m_uniformBufferMemories[currentImage];
-
-        void* data_dst = uniformBufferMemory->mapMemory(0, sizeof(UniformBufferObjectCamera));
-            memcpy(data_dst, &ubo, sizeof(UniformBufferObjectCamera));
-        uniformBufferMemory->unmapMemory();        
-    }
-    {
-        const auto & entities = m_world->getShapes();
-        std::vector<UniformBufferObjectTransform> ubos(entities.size());
-        size_t i = 0;
-        for(const auto & entity : entities)
-        {
-            ubos[i].transform = entity->getTransform();
-    
-            ++i;
-        }
-
-        const auto & uniformBufferDynamicMemory = m_uniformBufferDynamicMemories[currentImage];
-
-        void* data_dst = uniformBufferDynamicMemory->mapMemory(0, entities.size() * sizeof(UniformBufferObjectTransform));
-            memcpy(data_dst, ubos.data(), entities.size() * sizeof(UniformBufferObjectTransform));
-        uniformBufferDynamicMemory->unmapMemory();  
-    }
-
-    
-}
-
-void GraphicsEngine::drawFrame()
+uint32_t GraphicsEngine::acquireImage()
 {
     constexpr uint64_t TIMEOUT = std::numeric_limits<uint64_t>().max();
     /// ////////////////// acquire image ////////////////// ///
@@ -156,7 +85,7 @@ void GraphicsEngine::drawFrame()
     {
         recreateSwapchain();
         m_imGuiVulkan->recreate(m_swapchainImageViews, m_swapchainExtent, m_swapchainImageFormat);
-        return;
+        return std::numeric_limits<uint32_t>::max();
     }
     else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
     {
@@ -171,12 +100,12 @@ void GraphicsEngine::drawFrame()
     // Mark the image as now being in use by this frame
     m_imagesInFlight[imageIndex] = m_inFlightFences[m_currentFrame];
 
+    return imageIndex;
+}
+
+void GraphicsEngine::executeCommandBuffer(uint32_t imageIndex)
+{
     /// ////////////////// execute the command buffer ////////////////// ///
-
-    update(imageIndex);
-
-    m_imGuiVulkan->createFrame();
-    m_imGuiVulkan->render(imageIndex);
 
     vk::SubmitInfo submitInfo{};
 
@@ -211,6 +140,7 @@ void GraphicsEngine::drawFrame()
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
 
+    vk::Result result;
     try
     {
         result = m_presentQueue->presentKHR(presentInfo);
@@ -232,6 +162,46 @@ void GraphicsEngine::drawFrame()
     }
 
     m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void GraphicsEngine::loadBuffers(uint32_t currentImage)
+{
+    m_bufferedShapes[currentImage] = std::make_unique<BufferedShapes>(*this, m_shapes);
+
+    recordCommandBuffer(currentImage);
+
+    {
+        UniformBufferObjectCamera ubo{};
+        ubo.model = glm::mat4(1.0f);
+        ubo.view = glm::lookAt(m_camera.getPosition(), m_camera.getPosition() + m_camera.getDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchainExtent.width) / static_cast<float>(m_swapchainExtent.height), 0.1f, m_camera.getViewDistance());
+        ubo.proj[1][1] *= -1;
+        ubo.lightPos = m_lightSource.getPosition();
+        ubo.lightColor = m_lightSource.getColor();
+        ubo.ambientLightStrength = m_lightSource.getAmbient();
+
+        const auto & uniformBufferMemory = m_uniformBufferMemories[currentImage];
+
+        void* data_dst = uniformBufferMemory->mapMemory(0, sizeof(UniformBufferObjectCamera));
+            memcpy(data_dst, &ubo, sizeof(UniformBufferObjectCamera));
+        uniformBufferMemory->unmapMemory();        
+    }
+    {
+        std::vector<UniformBufferObjectTransform> ubos(m_shapes.size());
+        size_t i = 0;
+        for(const auto & shape : m_shapes)
+        {
+            ubos[i].transform = shape.transform;
+    
+            ++i;
+        }
+
+        const auto & uniformBufferDynamicMemory = m_uniformBufferDynamicMemories[currentImage];
+
+        void* data_dst = uniformBufferDynamicMemory->mapMemory(0, m_shapes.size() * sizeof(UniformBufferObjectTransform));
+            memcpy(data_dst, ubos.data(), m_shapes.size() * sizeof(UniformBufferObjectTransform));
+        uniformBufferDynamicMemory->unmapMemory();  
+    }
 }
 
 void GraphicsEngine::initWindow()
@@ -547,21 +517,14 @@ void GraphicsEngine::copyBuffer(vk::raii::Buffer & src, vk::raii::Buffer & dest,
     m_graphicsQueue->waitIdle();
 }
 
-std::shared_ptr<vk::raii::Buffer> GraphicsEngine::makeBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage) const
+std::unique_ptr<vk::raii::Buffer> GraphicsEngine::makeBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage) const
 {
     vk::BufferCreateInfo bufferInfo{};
     bufferInfo.size = size;
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
-    return std::make_shared<vk::raii::Buffer>(*m_device, bufferInfo);
-}
-
-void GraphicsEngine::initWorld()
-{
-    m_world = std::make_shared<World>(m_window, *this);
-
-    m_application->init(*m_world);
+    return std::make_unique<vk::raii::Buffer>(*m_device, bufferInfo);
 }
 
 vk::SurfaceFormatKHR GraphicsEngine::chooseSwapSurfaceFormat()
@@ -713,7 +676,7 @@ void GraphicsEngine::recreateSwapchain()
     m_device->waitIdle();
 
     m_commandBuffers.reset();
-    m_commandBufferInUseShapeLists.clear();
+    m_bufferedShapes.clear();
     m_descriptorSets.reset();
     m_uniformBufferDynamicMemories.clear();
     m_uniformBufferDynamics.clear();
@@ -733,11 +696,6 @@ void GraphicsEngine::recreateSwapchain()
     initDescriptorPool();
     initDescriptorSets();
     initCommandBuffers();
-
-    for(size_t i = 0; i < m_commandBuffers->size(); ++i)
-    {
-        recordCommandBufferForTheFirstTime(i, *m_world);
-    }
 }
 
 void GraphicsEngine::initDescriptorSetLayout()
@@ -999,7 +957,7 @@ void GraphicsEngine::initGraphicsPipeline()
     m_graphicsPipeline = std::make_shared<vk::raii::Pipeline>(*m_device, nullptr, pipelineInfo);
 }
 
-std::shared_ptr<vk::raii::Image> GraphicsEngine::makeImage(vk::Extent2D extent, vk::SampleCountFlagBits numSamples, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage) const
+std::unique_ptr<vk::raii::Image> GraphicsEngine::makeImage(vk::Extent2D extent, vk::SampleCountFlagBits numSamples, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage) const
 {
     vk::ImageCreateInfo imageInfo{};
     imageInfo.imageType = vk::ImageType::e2D;
@@ -1018,16 +976,16 @@ std::shared_ptr<vk::raii::Image> GraphicsEngine::makeImage(vk::Extent2D extent, 
     return std::make_unique<vk::raii::Image>(*m_device, imageInfo);
 }
 
-std::shared_ptr<vk::raii::DeviceMemory> GraphicsEngine::makeDeviceMemory(vk::MemoryRequirements memRequirements, vk::MemoryPropertyFlags memProperties) const
+std::unique_ptr<vk::raii::DeviceMemory> GraphicsEngine::makeDeviceMemory(vk::MemoryRequirements memRequirements, vk::MemoryPropertyFlags memProperties) const
 {
     vk::MemoryAllocateInfo allocInfo{};
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, memProperties);
 
-    return std::make_shared<vk::raii::DeviceMemory>(*m_device, allocInfo);
+    return std::make_unique<vk::raii::DeviceMemory>(*m_device, allocInfo);
 }
 
-std::shared_ptr<vk::raii::ImageView> GraphicsEngine::makeImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags) const
+std::unique_ptr<vk::raii::ImageView> GraphicsEngine::makeImageView(vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags) const
 {
     vk::ImageViewCreateInfo viewInfo{};
     viewInfo.image = image;
@@ -1039,7 +997,7 @@ std::shared_ptr<vk::raii::ImageView> GraphicsEngine::makeImageView(vk::Image ima
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
-    return std::make_shared<vk::raii::ImageView>(*m_device, viewInfo);
+    return std::make_unique<vk::raii::ImageView>(*m_device, viewInfo);
 }
 
 void GraphicsEngine::initFramebuffers()
@@ -1119,9 +1077,6 @@ void GraphicsEngine::initDescriptorSets()
         m_uniformBuffers[i] = makeBuffer(sizeof(UniformBufferObjectCamera), vk::BufferUsageFlagBits::eUniformBuffer);
         m_uniformBufferMemories[i] = makeDeviceMemory(m_uniformBuffers[i]->getMemoryRequirements(), vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
         m_uniformBuffers[i]->bindMemory(**m_uniformBufferMemories[i], 0);
-
-        initDynamicBuffer(i, m_world->getShapes().size());
-        updateDescriptorSet(i);
     }
 }
 
@@ -1174,15 +1129,13 @@ void GraphicsEngine::initCommandBuffers()
     allocInfo.commandBufferCount = static_cast<uint32_t>(size);
 
     m_commandBuffers = std::make_shared<vk::raii::CommandBuffers>(*m_device, allocInfo);
-    m_commandBufferInUseShapeLists.resize(size);
+    m_bufferedShapes.resize(size);
 }
 
-void GraphicsEngine::recordCommandBufferForTheFirstTime(size_t i, const World & world)
+void GraphicsEngine::recordCommandBuffer(size_t i)
 {
-    // store internaly a refenrence to the current entites.
-    // This way, when an entity is removed from the world
-    // it is not deleted before this buffer gets re-recorded.
-    m_commandBufferInUseShapeLists[i] = world.getShapes();
+    initDynamicBuffer(i, m_shapes.size());
+    updateDescriptorSet(i);
 
     auto & commandBuffer = (*m_commandBuffers)[i];
 
@@ -1211,41 +1164,40 @@ void GraphicsEngine::recordCommandBufferForTheFirstTime(size_t i, const World & 
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, **m_graphicsPipeline);
 
+    // Bind Vertex & Index Buffers
+
+    std::array<vk::Buffer, 1> vertexBuffers = {*m_bufferedShapes[i]->getVertexBuffer()};
+    std::array<vk::DeviceSize, 1> offsets = {0};
+    commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
+
+    vk::Buffer indexBuffer = *m_bufferedShapes[i]->getIndexBuffer();
+    commandBuffer.bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
+
+    // Call draw for each shape, updating the offset for each shape
+
     size_t offset = 0;
-    for(const auto & shape : m_commandBufferInUseShapeLists[i])
+    vk::DeviceSize vertexOffset = 0;
+    vk::DeviceSize indexOffset = 0;
+    for(const auto & shape : m_shapes)
     {
         std::array<uint32_t, 1> dynamicOffsets = {sizeof(UniformBufferObjectTransform) * static_cast<uint32_t>(offset)};
 
         commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, **m_graphicsPipelineLayout, 0, *(*m_descriptorSets)[i], dynamicOffsets);
 
-        std::array<vk::Buffer, 1> vertexBuffers = {**shape->getVertexBuffer()};
-        std::array<vk::DeviceSize, 1> offsets = {0};
-
-        commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
-
-        vk::Buffer indexBuffer = **shape->getIndexBuffer();
-
-        commandBuffer.bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
-
-        commandBuffer.drawIndexed(static_cast<uint32_t>(shape->getIndexBufferSize()), 1, 0, 0, 0);
+        commandBuffer.drawIndexed(static_cast<uint32_t>(shape.indices.size()), 1, indexOffset, vertexOffset, 0);
 
         ++offset;
+        vertexOffset += shape.vertices.size();
+        indexOffset += shape.indices.size();
     }
 
     commandBuffer.endRenderPass();
     commandBuffer.end();
 }
 
-void GraphicsEngine::rerecordCommandBuffer(size_t i, const World & world)
-{
-    initDynamicBuffer(i, world.getShapes().size());
-    updateDescriptorSet(i);
-    recordCommandBufferForTheFirstTime(i, world);
-}
-
 void GraphicsEngine::initImGui()
 {
-    m_imGuiVulkan = std::make_shared<ImGuiVulkan>(m_application, m_window, m_instance, m_physicalDevice, m_device, m_graphicsQueue, m_swapchainImageViews, m_swapchainExtent, m_swapchainImageFormat, findQueueFamilies(*m_physicalDevice).graphicsFamily.value());
+    m_imGuiVulkan = std::make_shared<ImGuiVulkan>(m_window, m_instance, m_physicalDevice, m_device, m_graphicsQueue, m_swapchainImageViews, m_swapchainExtent, m_swapchainImageFormat, findQueueFamilies(*m_physicalDevice).graphicsFamily.value());
 }
 
 void GraphicsEngine::initSyncObjects()
