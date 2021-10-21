@@ -13,7 +13,7 @@
 class ImGuiVulkan
 {
 private:
-    std::shared_ptr<vk::raii::Device>       m_device;
+    vk::raii::Device* m_device;
 
     uint32_t m_graphicsFamily;
     vk::Extent2D m_swapchainExtent;
@@ -27,26 +27,26 @@ private:
 
 public:
     ImGuiVulkan(
-        const std::shared_ptr<Window> & window, 
-        const std::shared_ptr<vk::raii::Instance> & instance, 
-        const std::shared_ptr<vk::raii::PhysicalDevice> & physicalDevice, 
-        const std::shared_ptr<vk::raii::Device> & device,
-        const std::shared_ptr<vk::raii::Queue> & graphicsQueue,
-        const std::vector<std::shared_ptr<vk::raii::ImageView> > & swapchainImageViews,
+        const std::unique_ptr<Window> & window, 
+        const std::unique_ptr<vk::raii::Instance> & instance, 
+        const std::unique_ptr<vk::raii::PhysicalDevice> & physicalDevice, 
+        const std::unique_ptr<vk::raii::Device> & device,
+        const std::unique_ptr<vk::raii::Queue> & graphicsQueue,
+        const std::vector<std::unique_ptr<vk::raii::ImageView> > & swapchainImageViews,
         vk::Extent2D swapchainExtent,
         vk::Format imageFormat,
         uint32_t graphicsFamily);
     virtual ~ImGuiVulkan();
 
     void render(uint32_t m_imageIndex);
-    void recreate(const std::vector<std::shared_ptr<vk::raii::ImageView> > & swapchainImageViews, vk::Extent2D swapchainExtent, vk::Format imageFormat);
+    void recreate(const std::vector<std::unique_ptr<vk::raii::ImageView> > & swapchainImageViews, vk::Extent2D swapchainExtent, vk::Format imageFormat);
     void createFrame(IImGuiFrameGenerator* generator);
 
     inline const vk::raii::CommandBuffer & getCommandBuffer(size_t i) { return (*m_imGuiCommandBuffers)[i]; }
 
 private:
-    std::shared_ptr<vk::raii::CommandBuffers> beginSingleTimeCommands();
-    void endSingleTimeCommands(const std::shared_ptr<vk::raii::CommandBuffers> & commandBuffer, const std::shared_ptr<vk::raii::Queue> & graphicsQueue);
+    std::unique_ptr<vk::raii::CommandBuffers> beginSingleTimeCommands();
+    void endSingleTimeCommands(const std::unique_ptr<vk::raii::CommandBuffers> & commandBuffer, const std::unique_ptr<vk::raii::Queue> & graphicsQueue);
     void createImGuiCommandPool();
     void createImGuiCommandBuffers();
 };

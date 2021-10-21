@@ -98,7 +98,7 @@ uint32_t GraphicsEngine::acquireImage()
         static_cast<void>( m_device->waitForFences(**m_imagesInFlight[imageIndex], true, TIMEOUT) );
     }
     // Mark the image as now being in use by this frame
-    m_imagesInFlight[imageIndex] = m_inFlightFences[m_currentFrame];
+    m_imagesInFlight[imageIndex] = m_inFlightFences[m_currentFrame].get();
 
     return imageIndex;
 }
@@ -206,12 +206,12 @@ void GraphicsEngine::loadBuffers(uint32_t currentImage)
 
 void GraphicsEngine::initWindow()
 {
-    m_window = std::make_shared<Window>();
+    m_window = std::make_unique<Window>();
 }
 
 void GraphicsEngine::initContext()
 {
-    m_context = std::make_shared<vk::raii::Context>();
+    m_context = std::make_unique<vk::raii::Context>();
 }
 
 bool GraphicsEngine::checkValidationLayerSupport() 
@@ -277,7 +277,7 @@ void GraphicsEngine::initInstance()
         createInfo.enabledLayerCount = 0;
     }
 
-    m_instance = std::make_shared<vk::raii::Instance>(*m_context, createInfo);
+    m_instance = std::make_unique<vk::raii::Instance>(*m_context, createInfo);
 }
 
 void GraphicsEngine::initSurface()
@@ -291,7 +291,7 @@ void GraphicsEngine::initSurface()
         throw std::runtime_error("failed to create window surface! " + std::to_string(result) + " " + description);
     }
 
-    m_surface = std::make_shared<vk::raii::SurfaceKHR>(*m_instance, surface);
+    m_surface = std::make_unique<vk::raii::SurfaceKHR>(*m_instance, surface);
 }
 
 QueueFamilyIndices GraphicsEngine::findQueueFamilies(const vk::raii::PhysicalDevice & device) 
@@ -381,7 +381,7 @@ void GraphicsEngine::initPhysicalDevice()
         if (isDeviceSuitable(device))
         {
             m_msaaSampleCount = getMaxUsableSampleCount(device);
-            m_physicalDevice = std::make_shared<vk::raii::PhysicalDevice>(std::move(device));
+            m_physicalDevice = std::make_unique<vk::raii::PhysicalDevice>(std::move(device));
             break;
         }
     }
@@ -465,11 +465,11 @@ void GraphicsEngine::initDevice()
     createInfo.enabledExtensionCount = static_cast<uint32_t>(m_deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = m_deviceExtensions.data();
 
-    m_device = std::make_shared<vk::raii::Device>(*m_physicalDevice, createInfo);
+    m_device = std::make_unique<vk::raii::Device>(*m_physicalDevice, createInfo);
 
     // queues are created along with the logical device, we just need to query for them
-    m_graphicsQueue = std::make_shared<vk::raii::Queue>(*m_device, indices.graphicsFamily.value(), 0);
-    m_presentQueue  = std::make_shared<vk::raii::Queue>(*m_device, indices.presentFamily .value(), 0);
+    m_graphicsQueue = std::make_unique<vk::raii::Queue>(*m_device, indices.graphicsFamily.value(), 0);
+    m_presentQueue  = std::make_unique<vk::raii::Queue>(*m_device, indices.presentFamily .value(), 0);
 }
 
 void GraphicsEngine::initCommandPool()
@@ -480,7 +480,7 @@ void GraphicsEngine::initCommandPool()
     poolInfo.queueFamilyIndex = indices.graphicsFamily.value();
     poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
 
-    m_commandPool = std::make_shared<vk::raii::CommandPool>(*m_device, poolInfo);
+    m_commandPool = std::make_unique<vk::raii::CommandPool>(*m_device, poolInfo);
 }
 
 void GraphicsEngine::copyBuffer(vk::raii::Buffer & src, vk::raii::Buffer & dest, vk::DeviceSize size) const
@@ -641,7 +641,7 @@ void GraphicsEngine::initSwapchain()
     createInfo.clipped = true;
     createInfo.oldSwapchain = nullptr;
 
-    m_swapchain = std::make_shared<vk::raii::SwapchainKHR>(*m_device, createInfo);
+    m_swapchain = std::make_unique<vk::raii::SwapchainKHR>(*m_device, createInfo);
 
     // retrive the created swap chain
     std::vector<VkImage> images = m_swapchain->getImages();
@@ -659,7 +659,7 @@ void GraphicsEngine::initSwapchain()
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        m_swapchainImageViews.push_back(std::make_shared<vk::raii::ImageView>(*m_device, viewInfo));
+        m_swapchainImageViews.push_back(std::make_unique<vk::raii::ImageView>(*m_device, viewInfo));
     }
 }
 
@@ -718,7 +718,7 @@ void GraphicsEngine::initDescriptorSetLayout()
     layoutInfo.bindingCount = uboLayoutBindings.size();
     layoutInfo.pBindings = uboLayoutBindings.data();
 
-    m_descriptorSetLayout = std::make_shared<vk::raii::DescriptorSetLayout>(*m_device, layoutInfo);
+    m_descriptorSetLayout = std::make_unique<vk::raii::DescriptorSetLayout>(*m_device, layoutInfo);
 }
 
 void GraphicsEngine::initRenderPass()
@@ -790,7 +790,7 @@ void GraphicsEngine::initRenderPass()
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    m_renderPass = std::make_shared<vk::raii::RenderPass>(*m_device, renderPassInfo);
+    m_renderPass = std::make_unique<vk::raii::RenderPass>(*m_device, renderPassInfo);
 }
 
 std::vector<char> GraphicsEngine::readFile(const std::string& filename)
@@ -922,7 +922,7 @@ void GraphicsEngine::initGraphicsPipeline()
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-    m_graphicsPipelineLayout = std::make_shared<vk::raii::PipelineLayout>(*m_device, pipelineLayoutInfo);
+    m_graphicsPipelineLayout = std::make_unique<vk::raii::PipelineLayout>(*m_device, pipelineLayoutInfo);
 
     vk::PipelineDepthStencilStateCreateInfo depthStencil{};
     depthStencil.depthTestEnable = true;
@@ -954,7 +954,7 @@ void GraphicsEngine::initGraphicsPipeline()
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.basePipelineIndex = -1;
 
-    m_graphicsPipeline = std::make_shared<vk::raii::Pipeline>(*m_device, nullptr, pipelineInfo);
+    m_graphicsPipeline = std::make_unique<vk::raii::Pipeline>(*m_device, nullptr, pipelineInfo);
 }
 
 std::unique_ptr<vk::raii::Image> GraphicsEngine::makeImage(vk::Extent2D extent, vk::SampleCountFlagBits numSamples, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage) const
@@ -1032,7 +1032,7 @@ void GraphicsEngine::initFramebuffers()
         framebufferInfo.height = m_swapchainExtent.height;
         framebufferInfo.layers = 1;
 
-        m_frameBuffers.push_back(std::make_shared<vk::raii::Framebuffer>(*m_device, framebufferInfo));
+        m_frameBuffers.push_back(std::make_unique<vk::raii::Framebuffer>(*m_device, framebufferInfo));
     }
 }
 
@@ -1052,7 +1052,7 @@ void GraphicsEngine::initDescriptorPool()
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = static_cast<uint32_t>(size * poolSizes.size());
 
-    m_descriptorPool = std::make_shared<vk::raii::DescriptorPool>(*m_device, poolInfo);
+    m_descriptorPool = std::make_unique<vk::raii::DescriptorPool>(*m_device, poolInfo);
 }
 
 void GraphicsEngine::initDescriptorSets()
@@ -1065,7 +1065,7 @@ void GraphicsEngine::initDescriptorSets()
     allocInfo.descriptorSetCount = static_cast<uint32_t>(size);
     allocInfo.pSetLayouts = layouts.data();
 
-    m_descriptorSets = std::make_shared<vk::raii::DescriptorSets>(*m_device, allocInfo);
+    m_descriptorSets = std::make_unique<vk::raii::DescriptorSets>(*m_device, allocInfo);
 
     m_uniformBuffers.resize(size);
     m_uniformBufferMemories.resize(size);
@@ -1128,7 +1128,7 @@ void GraphicsEngine::initCommandBuffers()
     allocInfo.level = vk::CommandBufferLevel::ePrimary;
     allocInfo.commandBufferCount = static_cast<uint32_t>(size);
 
-    m_commandBuffers = std::make_shared<vk::raii::CommandBuffers>(*m_device, allocInfo);
+    m_commandBuffers = std::make_unique<vk::raii::CommandBuffers>(*m_device, allocInfo);
     m_bufferedShapes.resize(size);
 }
 
@@ -1197,7 +1197,7 @@ void GraphicsEngine::recordCommandBuffer(size_t i)
 
 void GraphicsEngine::initImGui()
 {
-    m_imGuiVulkan = std::make_shared<ImGuiVulkan>(m_window, m_instance, m_physicalDevice, m_device, m_graphicsQueue, m_swapchainImageViews, m_swapchainExtent, m_swapchainImageFormat, findQueueFamilies(*m_physicalDevice).graphicsFamily.value());
+    m_imGuiVulkan = std::make_unique<ImGuiVulkan>(m_window, m_instance, m_physicalDevice, m_device, m_graphicsQueue, m_swapchainImageViews, m_swapchainExtent, m_swapchainImageFormat, findQueueFamilies(*m_physicalDevice).graphicsFamily.value());
 }
 
 void GraphicsEngine::initSyncObjects()
@@ -1214,8 +1214,8 @@ void GraphicsEngine::initSyncObjects()
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_imageAvailableSemaphores[i] = std::make_shared<vk::raii::Semaphore>(*m_device, semaphoreInfo);
-        m_renderFinishedSemaphores[i] = std::make_shared<vk::raii::Semaphore>(*m_device, semaphoreInfo);
-        m_inFlightFences[i] = std::make_shared<vk::raii::Fence>(*m_device, fenceInfo);
+        m_imageAvailableSemaphores[i] = std::make_unique<vk::raii::Semaphore>(*m_device, semaphoreInfo);
+        m_renderFinishedSemaphores[i] = std::make_unique<vk::raii::Semaphore>(*m_device, semaphoreInfo);
+        m_inFlightFences[i] = std::make_unique<vk::raii::Fence>(*m_device, fenceInfo);
     }
 }

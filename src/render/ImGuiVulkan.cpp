@@ -7,16 +7,16 @@
 #include <sstream>
 
 ImGuiVulkan::ImGuiVulkan(
-    const std::shared_ptr<Window> & window,
-    const std::shared_ptr<vk::raii::Instance> & instance,
-    const std::shared_ptr<vk::raii::PhysicalDevice> & physicalDevice,
-    const std::shared_ptr<vk::raii::Device> & device,
-    const std::shared_ptr<vk::raii::Queue> & graphicsQueue,
-    const std::vector<std::shared_ptr<vk::raii::ImageView> > & swapchainImageViews,
+    const std::unique_ptr<Window> & window,
+    const std::unique_ptr<vk::raii::Instance> & instance,
+    const std::unique_ptr<vk::raii::PhysicalDevice> & physicalDevice,
+    const std::unique_ptr<vk::raii::Device> & device,
+    const std::unique_ptr<vk::raii::Queue> & graphicsQueue,
+    const std::vector<std::unique_ptr<vk::raii::ImageView> > & swapchainImageViews,
     vk::Extent2D swapchainExtent,
     vk::Format imageFormat,
     uint32_t graphicsFamily) :
-    m_device{device},
+    m_device{device.get()},
     m_graphicsFamily{graphicsFamily},
     m_swapchainExtent{swapchainExtent},
     m_swapchainSize{swapchainImageViews.size()}
@@ -176,7 +176,7 @@ void ImGuiVulkan::render(uint32_t imageIndex)
     commandBuffer.end();
 }
 
-void ImGuiVulkan::recreate(const std::vector<std::shared_ptr<vk::raii::ImageView> > & swapchainImageViews, vk::Extent2D swapchainExtent, vk::Format imageFormat)
+void ImGuiVulkan::recreate(const std::vector<std::unique_ptr<vk::raii::ImageView> > & swapchainImageViews, vk::Extent2D swapchainExtent, vk::Format imageFormat)
 {
     m_swapchainExtent = swapchainExtent;
     m_swapchainSize = swapchainImageViews.size();
@@ -256,14 +256,14 @@ void ImGuiVulkan::createFrame(IImGuiFrameGenerator* generator)
     generator->createFrame();
 }
 
-std::shared_ptr<vk::raii::CommandBuffers> ImGuiVulkan::beginSingleTimeCommands()
+std::unique_ptr<vk::raii::CommandBuffers> ImGuiVulkan::beginSingleTimeCommands()
 {
     vk::CommandBufferAllocateInfo allocInfo{};
     allocInfo.level = vk::CommandBufferLevel::ePrimary;
     allocInfo.commandPool = **m_imGuiCommandPool;
     allocInfo.commandBufferCount = 1;
 
-    auto commandBuffers = std::make_shared<vk::raii::CommandBuffers>(*m_device, allocInfo);
+    auto commandBuffers = std::make_unique<vk::raii::CommandBuffers>(*m_device, allocInfo);
 
     vk::CommandBufferBeginInfo beginInfo{};
     beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
@@ -273,7 +273,7 @@ std::shared_ptr<vk::raii::CommandBuffers> ImGuiVulkan::beginSingleTimeCommands()
     return commandBuffers;
 }
 
-void ImGuiVulkan::endSingleTimeCommands(const std::shared_ptr<vk::raii::CommandBuffers> & commandBuffers, const std::shared_ptr<vk::raii::Queue> & graphicsQueue)
+void ImGuiVulkan::endSingleTimeCommands(const std::unique_ptr<vk::raii::CommandBuffers> & commandBuffers, const std::unique_ptr<vk::raii::Queue> & graphicsQueue)
 {
     (*commandBuffers)[0].end();
 
