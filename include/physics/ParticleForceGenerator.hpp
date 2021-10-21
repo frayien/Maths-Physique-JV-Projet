@@ -2,6 +2,7 @@
 #define MPJVP_PARTICLEFORCEGENERATOR
 
 #include "physics/Particle.hpp"
+#include "physics/ParticleContact.hpp"
 
 class ParticleForceGenerator
 {

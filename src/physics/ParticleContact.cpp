@@ -1,9 +1,10 @@
 #include "physics/ParticleContact.hpp"
 
-ParticleContact::ParticleContact(Particle* particleA, Particle* particleB, float penetration, Vector3f normal) :
+ParticleContact::ParticleContact(Particle* particleA, Particle* particleB, float penetration, Vector3f normal, float restitution) :
     m_particles { particleA, particleB },
     m_penetration { penetration },
-    m_normal { normal }
+    m_normal { normal },
+    m_restitution { restitution }
 {
 }
 
