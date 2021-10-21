@@ -1,17 +1,14 @@
 #include <iostream>
 
-#include "render/GraphicsEngine.hpp"
-#include "TestApplication.hpp"
 #include "Application.hpp"
 
 int main()
 {
-    //GraphicsEngine app{std::make_shared<TestApplication>()};
-    GraphicsEngine graphics{std::make_shared<Application>()};
+    Application application{};
 
     try 
     {
-        graphics.run();
+        application.run();
     } 
     catch (const std::exception& e) 
     {

@@ -13,7 +13,7 @@ private:
 
 public:
     ParticleCable() = default;
-    ParticleCable(float m_maxLength, float m_restitution);
+    ParticleCable(Particle* particleOne, Particle* particleTwo, float m_maxLength, float m_restitution);
     virtual ~ParticleCable() = default;
 
     void addContact(std::vector<ParticleContact>& contacts) const;

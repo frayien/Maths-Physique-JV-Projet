@@ -19,6 +19,12 @@ Particle::~Particle()
 
 void Particle::integrate(float deltaTime)
 {
+	if (m_inverseMass == 0.0f)
+	{
+		// Don't integrate particle with infinite mass
+		return;
+	}
+
 	Vector3f acceleration = m_inverseMass * m_totalForce;
 
 	m_position += m_velocity * deltaTime + (deltaTime * deltaTime * acceleration / 2.0f);
