@@ -12,7 +12,7 @@ private:
 
 public:
     ParticleRod() = default;
-    ParticleRod(float length);
+    ParticleRod(Particle* particleOne, Particle* particleTwo, float length);
     virtual ~ParticleRod() = default;
 
     void addContact(std::vector<ParticleContact>& contacts) const;
