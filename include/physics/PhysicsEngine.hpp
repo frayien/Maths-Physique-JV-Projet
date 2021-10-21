@@ -2,9 +2,9 @@
 #define MPJVP_PHYSICSENGINE
 
 #include "GameState.hpp"
-#include "ParticleForceRegistry.hpp"
-#include "Particle.hpp"
-#include "ParticleForceGenerator.hpp"
+#include "physics/ParticleForceRegistry.hpp"
+#include "physics/ParticleContactResolver.hpp"
+#include "physics/ParticleContactGenerator.hpp"
 
 class PhysicsEngine
 {
@@ -18,8 +18,9 @@ public:
 
     inline ParticleForceRegistry & getParticleForceRegistry() { return m_particleForceRegistry; }
 
-private:
-	ParticleForceRegistry m_particleForceRegistry;
+private :
+	ParticleForceRegistry m_particleRegistry;
+	ParticleContactResolver m_particleContactResolver;
 };
 
 #endif // MPJVP_PHYSICSENGINE

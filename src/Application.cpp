@@ -545,6 +545,14 @@ void Application::createBlob()
     blobSpring = new ParticleSpring(particleBlob1, k, restLength);
     m_blobSprings.push_back(blobSpring);
     m_physicsEngine.getParticleRegistry().addForce(particleBlob6, blobSpring, 0.0);
+
+    float cableMaxLength = 2.0f;
+    float cableRestitution = 0.8f;
+    m_blobCables.push_back(new ParticleCable(particleBlob1, particleBlob2, cableMaxLength, cableRestitution));
+    m_blobCables.push_back(new ParticleCable(particleBlob2, particleBlob3, cableMaxLength, cableRestitution));
+    m_blobCables.push_back(new ParticleCable(particleBlob3, particleBlob4, cableMaxLength, cableRestitution));
+    m_blobCables.push_back(new ParticleCable(particleBlob4, particleBlob5, cableMaxLength, cableRestitution));
+    m_blobCables.push_back(new ParticleCable(particleBlob6, particleBlob1, cableMaxLength, cableRestitution));
     */
 }
 
