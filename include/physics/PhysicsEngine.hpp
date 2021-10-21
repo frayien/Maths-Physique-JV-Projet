@@ -10,7 +10,7 @@ public:
 	PhysicsEngine();
 	~PhysicsEngine();
 
-	void update(float deltaTime, std::vector<Particle> & particles);
+	void update(float deltaTime, std::vector<Particle *> & particles);
 
     inline ParticleForceRegistry & getParticleRegistry() { return m_particleRegistry; }
 

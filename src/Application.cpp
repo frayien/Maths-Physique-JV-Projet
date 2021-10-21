@@ -1,5 +1,13 @@
 #include "Application.hpp"
 
+Application::~Application()
+{
+    for (Particle * particle : m_particles)
+    {
+        delete(particle);
+    }
+}
+
 void Application::init(World & world)
 {
     Camera & cam = world.getCamera();
@@ -45,10 +53,9 @@ void Application::init(World & world)
     m_particleShapes.push_back(particuleShape);
 
     // Initialisation of the particle based on the data specified by the user in ImGui
-    Particle & particle = m_particles.emplace_back();
-    particle.setMass(1.0f);
-    particle.setPosition(m_positionInit);
-    particle.setVelocity(m_velocityInit);
+    Particle * particle = new Particle(m_positionInit, 1.0f, 0.999f);
+    particle->setVelocity(m_velocityInit);
+    m_particles.push_back(particle);
 
     m_particleAnchoredSpring.setK(20.0f);
     m_particleAnchoredSpring.setRestLength(2.0f);
@@ -57,9 +64,9 @@ void Application::init(World & world)
     m_particleDrag.setK1(0.0f);
     m_particleDrag.setK2(0.1f);
 
-    m_physicsEngine.getParticleRegistry().addForce(&particle, &m_particleGravity, 0.0);
-    m_physicsEngine.getParticleRegistry().addForce(&particle, &m_particleAnchoredSpring, 0.0f);
-    m_physicsEngine.getParticleRegistry().addForce(&particle, &m_particleDrag, 0.0f);
+    m_physicsEngine.getParticleRegistry().addForce(particle, &m_particleGravity, 0.0);
+    m_physicsEngine.getParticleRegistry().addForce(particle, &m_particleAnchoredSpring, 0.0f);
+    m_physicsEngine.getParticleRegistry().addForce(particle, &m_particleDrag, 0.0f);
 
 }
 
@@ -97,7 +104,7 @@ void Application::update(World & world, float deltaTime)
             {
                 m_countTimeStepMarks = 0;
                 std::shared_ptr<BufferedShape> tmpSphere = world.makeSphere({1.0f, 0.0f, 0.0f});
-                tmpSphere->setPosition(m_particles[0].getPosition());
+                tmpSphere->setPosition(m_particles[0]->getPosition());
                 tmpSphere->scale(0.03f);
 
                 m_marks.push_back(tmpSphere);
@@ -109,7 +116,7 @@ void Application::update(World & world, float deltaTime)
     }
 
     // update graphics
-    Vector3f particulePos = m_particles[0].getPosition();
+    Vector3f particulePos = m_particles[0]->getPosition();
     Vector3f anchorPos = m_particleAnchoredSpring.getAnchor();
     Vector3f springPos = (particulePos + anchorPos)/2.0f;
 
@@ -130,8 +137,9 @@ void Application::update(World & world, float deltaTime)
     // If we click on the reset button
     if(world.getWindow().isKeyPressed(GLFW_KEY_R))
     {
-        m_particles[0].setPosition(m_positionInit);
-        m_particles[0].setVelocity(m_velocityInit);
+        m_particles[0]->setPosition(m_positionInit);
+        m_particles[0]->setVelocity(m_velocityInit);
+
         m_resetMarks = true;
     }
 

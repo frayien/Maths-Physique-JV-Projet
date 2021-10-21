@@ -19,7 +19,7 @@ private:
     
     std::vector<std::shared_ptr<BufferedShape>> m_particleShapes;
 
-    std::vector<Particle> m_particles;
+    std::vector<Particle *> m_particles;
     ParticleGravity m_particleGravity;
     PhysicsEngine m_physicsEngine;
     ParticleAnchoredSpring m_particleAnchoredSpring;
@@ -34,12 +34,13 @@ private:
     bool m_resetMarks = false;
     
 public:
+    ~Application();
     virtual void init(World & world) override;
     virtual void update(World & world, float deltaTime) override;
 
     void updateCamera(World & world, float deltaTime);
 
-    inline Particle & getParticle(int index) { return m_particles[index]; }
+    inline Particle * getParticle(int index) { return m_particles[index]; }
 
     void setPositionInit(Vector3f positionInit);
     void setVelocityInit(Vector3f velocityInit);

@@ -12,12 +12,12 @@ PhysicsEngine::~PhysicsEngine()
 
 }
 
-void PhysicsEngine::update(float deltaTime, std::vector<Particle> & particles)
+void PhysicsEngine::update(float deltaTime, std::vector<Particle *> & particles)
 {
     m_particleRegistry.update(deltaTime);
 
-    for (Particle & p : particles)
+    for (Particle * p : particles)
     {
-        p.integrate(deltaTime);
+        p->integrate(deltaTime);
     }
 }
