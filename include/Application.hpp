@@ -17,6 +17,7 @@
 #include "physics/ParticleAnchoredSpring.hpp"
 #include "physics/ParticleDrag.hpp"
 #include "physics/ParticleSpring.hpp"
+#include "GameState.hpp"
 
 class Application : public IImGuiFrameGenerator
 {
@@ -25,12 +26,8 @@ private:
     
     std::vector<std::unique_ptr<IShapeGenerator>> m_particleShapes;
 
-    std::vector<Particle *> m_particles;
-    ParticleGravity m_particleGravity;
     PhysicsEngine m_physicsEngine;
-    ParticleAnchoredSpring m_particleAnchoredSpring;
-    ParticleDrag m_particleDrag;
-    std::vector<ParticleSpring *> m_blobSprings;
+    GameState m_gameState;
 
     Vector3f m_positionInit = {-8, -3, 0};
     Vector3f m_velocityInit = {0, 4, 7};
@@ -81,6 +78,8 @@ public:
     void createBlob(GraphicsEngine & graphics);
     void updateBlob();
     void resetBlob();
+
+    inline GameState & getGameState() { return m_gameState; }
 };
 
 #endif // MPJVP_APPLICATION
