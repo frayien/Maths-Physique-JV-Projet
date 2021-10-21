@@ -19,7 +19,7 @@ public:
     inline ParticleForceRegistry & getParticleForceRegistry() { return m_particleForceRegistry; }
 
 private :
-	ParticleForceRegistry m_particleRegistry;
+	ParticleForceRegistry m_particleForceRegistry;
 	ParticleContactResolver m_particleContactResolver;
 };
 

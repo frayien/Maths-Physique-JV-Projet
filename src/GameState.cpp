@@ -20,6 +20,11 @@ bool GameState::addParticleForceGenerator(const std::string & label, std::unique
     return m_particleForceGenerators.insert({label, std::move(particleForceGenerator)}).second;
 }
 
+bool GameState::addParticleContactGenerator(const std::string & label, std::unique_ptr<ParticleContactGenerator> && particleContactGenerator)
+{
+    return m_particleContactGenerators.insert({label, std::move(particleContactGenerator)}).second;
+}
+
 bool GameState::addShapeGenerator(const std::string & label, std::unique_ptr<IShapeGenerator> && shapeGenerator)
 {
     return m_shapeGenerators.insert({label, std::move(shapeGenerator)}).second;

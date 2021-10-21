@@ -103,6 +103,8 @@ void Application::init()
     m_physicsEngine.registerForce(m_gameState.getParticle("particle"), m_gameState.getParticleForceGenerator<ParticleGravity>("gravity"), 0.0f);
     m_physicsEngine.registerForce(m_gameState.getParticle("particle"), m_gameState.getParticleForceGenerator<ParticleDrag>("drag"), 0.0f);
     m_physicsEngine.registerForce(m_gameState.getParticle("particle"), m_gameState.getParticleForceGenerator<ParticleAnchoredSpring>("anchoredSpring"), 0.0f);
+
+    createBlob();
 }
 
 void Application::update(float deltaTime)
@@ -172,7 +174,7 @@ void Application::update(float deltaTime)
     spring->rotate(springAngle, springDir.crossProduct(springDefaultDir));
     spring->setScale({0.05f, 0.05f, springLen / 2.f});
 
-    //updateBlob();
+    updateBlob();
 
     // If we click on the reset button
     if(m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_R))
@@ -180,6 +182,8 @@ void Application::update(float deltaTime)
         m_gameState.getParticle("particle")->setPosition(m_positionInit);
         m_gameState.getParticle("particle")->setVelocity(m_velocityInit);
         m_resetMarks = true;
+
+        resetBlob();
     }
 
     // If we click on the pause button
@@ -359,6 +363,8 @@ void Application::createFrame()
                 particle->setMass    (currentMass);
 
                 m_resetMarks = true;
+
+                resetBlob();
             }
 
             ImGui::EndTabItem();
@@ -428,165 +434,112 @@ void Application::createFrame()
 
 void Application::createBlob()
 {
-    /*
-    Particle * particleBlob1 = new Particle(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(PI / 3.0f), 1.0f, 0.999f);
-    particleBlob1->setVelocity({0.0f, 0.0f, 0.0f});
-    m_particles.push_back(particleBlob1);
-    auto particuleShapeBlob1 = world.makeSphere({ 0.2f, 0.2f, 0.2f });
-    particuleShapeBlob1->scale(0.2f);
-    m_particleShapes.push_back(particuleShapeBlob1);
+    std::array<Vector3f, 6> particlePos
+    {
+        m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(PI / 3.0f)     + Vector3f{0.0f, 1.0f, 0.0f} * sin(PI / 3.0f),
+        m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(2 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(2 * PI / 3.0f),
+        m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(3 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(3 * PI / 3.0f),
+        m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(4 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(4 * PI / 3.0f),
+        m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(5 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(5 * PI / 3.0f),
+        m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(6 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(6 * PI / 3.0f),
+    };
 
-    Particle * particleBlob2 = new Particle(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(2 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(2 * PI / 3.0f), 1.0f, 0.999f);
-    particleBlob2->setVelocity({0.0f, 0.0f, 0.0f});
-    m_particles.push_back(particleBlob2);
-    auto particuleShapeBlob2 = world.makeSphere({ 0.2f, 0.2f, 0.2f });
-    particuleShapeBlob2->scale(0.2f);
-    m_particleShapes.push_back(particuleShapeBlob2);
+    for(std::size_t i = 0; i < particlePos.size(); ++i)
+    {
+        // Particle
+        auto particleBlob = std::make_unique<Particle>(particlePos[i], 1.0f, 0.999f);
+        particleBlob->setVelocity({0.0f, 0.0f, 0.0f});
+        m_gameState.addParticle("blob_" + std::to_string(i), std::move(particleBlob));
 
-    Particle * particleBlob3 = new Particle(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(3 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(3 * PI / 3.0f), 1.0f, 0.999f);
-    particleBlob3->setVelocity({0.0f, 0.0f, 0.0f});
-    m_particles.push_back(particleBlob3);
-    auto particuleShapeBlob3 = world.makeSphere({ 0.2f, 0.2f, 0.2f });
-    particuleShapeBlob3->scale(0.2f);
-    m_particleShapes.push_back(particuleShapeBlob3);
+        // Particle Shape
+        auto particuleShapeBlob = std::make_unique<SphereShapeGenerator>(glm::vec3{ 0.2f, 0.2f, 0.2f });
+        particuleShapeBlob->scale(0.2f);
+        m_gameState.addShapeGenerator("blob_" + std::to_string(i), std::move(particuleShapeBlob));
 
-    Particle * particleBlob4 = new Particle(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(4 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(4 * PI / 3.0f), 1.0f, 0.999f);
-    particleBlob4->setVelocity({0.0f, 0.0f, 0.0f});
-    m_particles.push_back(particleBlob4);
-    auto particuleShapeBlob4 = world.makeSphere({ 0.2f, 0.2f, 0.2f });
-    particuleShapeBlob4->scale(0.2f);
-    m_particleShapes.push_back(particuleShapeBlob4);
-
-    Particle * particleBlob5 = new Particle(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(5 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(5 * PI / 3.0f), 1.0f, 0.999f);
-    particleBlob5->setVelocity({0.0f, 0.0f, 0.0f});
-    m_particles.push_back(particleBlob5);
-    auto particuleShapeBlob5 = world.makeSphere({ 0.2f, 0.2f, 0.2f });
-    particuleShapeBlob5->scale(0.2f);
-    m_particleShapes.push_back(particuleShapeBlob5);
-
-    Particle * particleBlob6 = new Particle(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(6 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(6 * PI / 3.0f), 1.0f, 0.999f);
-    particleBlob6->setVelocity({0.0f, 0.0f, 0.0f});
-    m_particles.push_back(particleBlob6);
-    auto particuleShapeBlob6 = world.makeSphere({ 0.2f, 0.2f, 0.2f });
-    particuleShapeBlob6->scale(0.2f);
-    m_particleShapes.push_back(particuleShapeBlob6);
-
-    // Gravity
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob1, &m_particleGravity, 0.0);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob2, &m_particleGravity, 0.0);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob3, &m_particleGravity, 0.0);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob4, &m_particleGravity, 0.0);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob5, &m_particleGravity, 0.0);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob6, &m_particleGravity, 0.0);
+        // Gravity
+        m_physicsEngine.registerForce(m_gameState.getParticle("blob_" + std::to_string(i)), m_gameState.getParticleForceGenerator<ParticleGravity>("gravity"), 0.0f);
+    }
 
     // Anchored spring
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob1, &m_particleAnchoredSpring, 0.0);
+    m_physicsEngine.registerForce(m_gameState.getParticle("blob_0"), m_gameState.getParticleForceGenerator("anchoredSpring"), 0.0);
 
     // Springs between particles
     float k = 60.0f;
     float restLength = 1.0f;
 
-    // Spring of particle 2 on particle 1
-    ParticleSpring * blobSpring = new ParticleSpring(particleBlob2, k, restLength);
-    m_blobSprings.push_back(blobSpring);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob1, blobSpring, 0.0);
-
-    // Spring of particle 1 on particle 2
-    blobSpring = new ParticleSpring(particleBlob1, k, restLength);
-    m_blobSprings.push_back(blobSpring);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob2, blobSpring, 0.0);
-
-    // Spring of particle 3 on particle 2
-    blobSpring = new ParticleSpring(particleBlob3, k, restLength);
-    m_blobSprings.push_back(blobSpring);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob2, blobSpring, 0.0);
-
-    // Spring of particle 2 on particle 3
-    blobSpring = new ParticleSpring(particleBlob2, k, restLength);
-    m_blobSprings.push_back(blobSpring);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob3, blobSpring, 0.0);
-
-    // Spring of particle 4 on particle 3
-    blobSpring = new ParticleSpring(particleBlob4, k, restLength);
-    m_blobSprings.push_back(blobSpring);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob3, blobSpring, 0.0);
-
-    // Spring of particle 3 on particle 4
-    blobSpring = new ParticleSpring(particleBlob3, k, restLength);
-    m_blobSprings.push_back(blobSpring);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob4, blobSpring, 0.0);
-
-    // Spring of particle 5 on particle 4
-    blobSpring = new ParticleSpring(particleBlob5, k, restLength);
-    m_blobSprings.push_back(blobSpring);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob4, blobSpring, 0.0);
-
-    // Spring of particle 4 on particle 5
-    blobSpring = new ParticleSpring(particleBlob4, k, restLength);
-    m_blobSprings.push_back(blobSpring);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob5, blobSpring, 0.0);
-
-    // Spring of particle 6 on particle 5
-    blobSpring = new ParticleSpring(particleBlob6, k, restLength);
-    m_blobSprings.push_back(blobSpring);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob5, blobSpring, 0.0);
-
-    // Spring of particle 5 on particle 6
-    blobSpring = new ParticleSpring(particleBlob5, k, restLength);
-    m_blobSprings.push_back(blobSpring);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob6, blobSpring, 0.0);
-
-    // Spring of particle 6 on particle 1
-    blobSpring = new ParticleSpring(particleBlob6, k, restLength);
-    m_blobSprings.push_back(blobSpring);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob1, blobSpring, 0.0);
-
-    // Spring of particle 1 on particle 6
-    blobSpring = new ParticleSpring(particleBlob1, k, restLength);
-    m_blobSprings.push_back(blobSpring);
-    m_physicsEngine.getParticleRegistry().addForce(particleBlob6, blobSpring, 0.0);
-
+    // Cables between particles
     float cableMaxLength = 2.0f;
     float cableRestitution = 0.8f;
-    m_blobCables.push_back(new ParticleCable(particleBlob1, particleBlob2, cableMaxLength, cableRestitution));
-    m_blobCables.push_back(new ParticleCable(particleBlob2, particleBlob3, cableMaxLength, cableRestitution));
-    m_blobCables.push_back(new ParticleCable(particleBlob3, particleBlob4, cableMaxLength, cableRestitution));
-    m_blobCables.push_back(new ParticleCable(particleBlob4, particleBlob5, cableMaxLength, cableRestitution));
-    m_blobCables.push_back(new ParticleCable(particleBlob6, particleBlob1, cableMaxLength, cableRestitution));
-    */
+
+    std::array<std::pair<std::string, std::string>, 6> particleLinks
+    {{
+        {"blob_0", "blob_1"},
+        {"blob_1", "blob_2"},
+        {"blob_2", "blob_3"},
+        {"blob_3", "blob_4"},
+        {"blob_4", "blob_5"},
+        {"blob_5", "blob_1"},
+    }};
+
+    for(auto & [labelBlobA, labelBlobB] : particleLinks)
+    {
+        auto particleA = m_gameState.getParticle(labelBlobA);
+        auto particleB = m_gameState.getParticle(labelBlobB);
+
+        // Spring of particle B on particle A
+        auto blobSpring = std::make_unique<ParticleSpring>(particleB, k, restLength);
+        m_physicsEngine.registerForce(particleA, blobSpring.get(), 0.0);
+        m_gameState.addParticleForceGenerator("blobspring_" + labelBlobB + "_" + labelBlobA, std::move(blobSpring));
+
+        // Spring of particle A on particle B
+        blobSpring = std::make_unique<ParticleSpring>(particleA, k, restLength);
+        m_physicsEngine.registerForce(particleB, blobSpring.get(), 0.0);
+        m_gameState.addParticleForceGenerator("blobspring_" + labelBlobA + "_" + labelBlobB, std::move(blobSpring));
+    
+        // Cable
+        auto cable = std::make_unique<ParticleCable>(particleA, particleB, cableMaxLength, cableRestitution);
+        m_gameState.addParticleContactGenerator("blob_cable_" + labelBlobA + "_" + labelBlobB, std::move(cable));
+    }
 }
 
 void Application::updateBlob()
 {
-    /*
-    m_particleShapes[3]->setPosition(m_particles[1]->getPosition());
-    m_particleShapes[4]->setPosition(m_particles[2]->getPosition());
-    m_particleShapes[5]->setPosition(m_particles[3]->getPosition());
-    m_particleShapes[6]->setPosition(m_particles[4]->getPosition());
-    m_particleShapes[7]->setPosition(m_particles[5]->getPosition());
-    m_particleShapes[8]->setPosition(m_particles[6]->getPosition());
-    */
+    std::array<std::string, 6> blobLabels
+    {
+        "blob_0",
+        "blob_1",
+        "blob_2",
+        "blob_3",
+        "blob_4",
+        "blob_5",
+    };
+
+    for(auto & blobLabel : blobLabels)
+    {
+        auto shape = m_gameState.getShapeGenerator<SphereShapeGenerator>(blobLabel);
+        auto particle = m_gameState.getParticle(blobLabel);
+
+        shape->setPosition(particle->getPosition());
+    }
 }
 
 void Application::resetBlob()
 {
-    /*
-    m_particles[1]->setPosition(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(PI / 3.0f));
-    m_particles[1]->setVelocity({0.0f, 0.0f, 0.0f});
+    std::array<std::pair<std::string, Vector3f>, 6> blobPos
+    {{
+        {"blob_0", m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(PI / 3.0f)     + Vector3f{0.0f, 1.0f, 0.0f} * sin(PI / 3.0f)    },
+        {"blob_1", m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(2 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(2 * PI / 3.0f)},
+        {"blob_2", m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(3 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(3 * PI / 3.0f)},
+        {"blob_3", m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(4 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(4 * PI / 3.0f)},
+        {"blob_4", m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(5 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(5 * PI / 3.0f)},
+        {"blob_5", m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(6 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(6 * PI / 3.0f)},
+    }};
 
-    m_particles[2]->setPosition(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(2 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(2 * PI / 3.0f));
-    m_particles[2]->setVelocity({0.0f, 0.0f, 0.0f});
+    for(auto & [label, pos] : blobPos)
+    {
+        auto particle = m_gameState.getParticle(label);
 
-    m_particles[3]->setPosition(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(3 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(3 * PI / 3.0f));
-    m_particles[3]->setVelocity({0.0f, 0.0f, 0.0f});
-
-    m_particles[4]->setPosition(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(4 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(4 * PI / 3.0f));
-    m_particles[4]->setVelocity({0.0f, 0.0f, 0.0f});
-
-    m_particles[5]->setPosition(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(5 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(5 * PI / 3.0f));
-    m_particles[5]->setVelocity({0.0f, 0.0f, 0.0f});
-
-    m_particles[6]->setPosition(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(6 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(6 * PI / 3.0f));
-    m_particles[6]->setVelocity({0.0f, 0.0f, 0.0f});
-    */
+        particle->setPosition(pos);
+        particle->setVelocity({0.f, 0.f, 0.f});
+    }
 }

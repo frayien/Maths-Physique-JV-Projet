@@ -16,7 +16,7 @@ void PhysicsEngine::update(float deltaTime, GameState & gameState)
 {
     // Generate contacts
     std::vector<ParticleContact> contacts;
-    for(ParticleContactGenerator * contactGenerator : gameState.getContactGenerators())
+    for(auto & [label, contactGenerator] : gameState.getParticleContactGenerators())
     {
         contactGenerator->addContact(contacts);
     }
@@ -25,14 +25,12 @@ void PhysicsEngine::update(float deltaTime, GameState & gameState)
     m_particleContactResolver.resolveContacts(contacts, deltaTime);
 
     // Update forces
-    m_particleRegistry.update(deltaTime);
-
-    // Update particles
     m_particleForceRegistry.update(deltaTime);
 
-    for (auto & particleItem : gameState.getParticles())
+    // Update particles
+    for (auto & [label, particle] : gameState.getParticles())
     {
-        particleItem.second->integrate(deltaTime);
+        particle->integrate(deltaTime);
     }
 }
 

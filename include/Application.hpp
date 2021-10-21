@@ -18,6 +18,7 @@
 #include "physics/ParticleAnchoredSpring.hpp"
 #include "physics/ParticleDrag.hpp"
 #include "physics/ParticleSpring.hpp"
+#include "physics/ParticleCable.hpp"
 #include "GameState.hpp"
 
 class Application : public IImGuiFrameGenerator
