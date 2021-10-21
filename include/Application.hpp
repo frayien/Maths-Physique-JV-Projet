@@ -11,6 +11,7 @@
 #include "physics/PhysicsEngine.hpp"
 #include "physics/ParticleAnchoredSpring.hpp"
 #include "physics/ParticleDrag.hpp"
+#include "physics/ParticleSpring.hpp"
 
 class Application : public IApplication
 {
@@ -24,6 +25,7 @@ private:
     PhysicsEngine m_physicsEngine;
     ParticleAnchoredSpring m_particleAnchoredSpring;
     ParticleDrag m_particleDrag;
+    std::vector<ParticleSpring *> m_blobSprings;
 
     Vector3f m_positionInit = {-8, -3, 0};
     Vector3f m_velocityInit = {0, 4, 7};
@@ -49,6 +51,10 @@ public:
     void applyParticleDragSettings(float k1, float k2);
 
     void setResetMarks(bool resetMarks);
+
+    void createBlob(World & world);
+    void updateBlob();
+    void resetBlob();
 };
 
 #endif // FRAYIEN_APPLICATION

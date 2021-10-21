@@ -6,6 +6,11 @@ Application::~Application()
     {
         delete(particle);
     }
+
+    for (ParticleSpring * spring : m_blobSprings)
+    {
+        delete(spring);
+    }
 }
 
 void Application::init(World & world)
@@ -68,6 +73,8 @@ void Application::init(World & world)
     m_physicsEngine.getParticleRegistry().addForce(particle, &m_particleAnchoredSpring, 0.0f);
     m_physicsEngine.getParticleRegistry().addForce(particle, &m_particleDrag, 0.0f);
 
+    // Create blob
+    createBlob(world);
 }
 
 void Application::update(World & world, float deltaTime)
@@ -133,12 +140,15 @@ void Application::update(World & world, float deltaTime)
     m_particleShapes[2]->rotate(springAngle, springDir.crossProduct(springDefaultDir));
     m_particleShapes[2]->setScale({0.05f, 0.05f, springLen / 2.f});
 
+    updateBlob();
 
     // If we click on the reset button
     if(world.getWindow().isKeyPressed(GLFW_KEY_R))
     {
         m_particles[0]->setPosition(m_positionInit);
         m_particles[0]->setVelocity(m_velocityInit);
+
+        resetBlob();
 
         m_resetMarks = true;
     }
@@ -215,4 +225,155 @@ void Application::applyParticleDragSettings(float k1, float k2)
 {
     m_particleDrag.setK1(k1);
     m_particleDrag.setK2(k2);
+}
+
+void Application::createBlob(World & world)
+{
+    Particle * particleBlob1 = new Particle(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(PI / 3.0f), 1.0f, 0.999f);
+    particleBlob1->setVelocity({0.0f, 0.0f, 0.0f});
+    m_particles.push_back(particleBlob1);
+    auto particuleShapeBlob1 = world.makeSphere({ 0.2f, 0.2f, 0.2f });
+    particuleShapeBlob1->scale(0.2f);
+    m_particleShapes.push_back(particuleShapeBlob1);
+
+    Particle * particleBlob2 = new Particle(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(2 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(2 * PI / 3.0f), 1.0f, 0.999f);
+    particleBlob2->setVelocity({0.0f, 0.0f, 0.0f});
+    m_particles.push_back(particleBlob2);
+    auto particuleShapeBlob2 = world.makeSphere({ 0.2f, 0.2f, 0.2f });
+    particuleShapeBlob2->scale(0.2f);
+    m_particleShapes.push_back(particuleShapeBlob2);
+
+    Particle * particleBlob3 = new Particle(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(3 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(3 * PI / 3.0f), 1.0f, 0.999f);
+    particleBlob3->setVelocity({0.0f, 0.0f, 0.0f});
+    m_particles.push_back(particleBlob3);
+    auto particuleShapeBlob3 = world.makeSphere({ 0.2f, 0.2f, 0.2f });
+    particuleShapeBlob3->scale(0.2f);
+    m_particleShapes.push_back(particuleShapeBlob3);
+
+    Particle * particleBlob4 = new Particle(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(4 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(4 * PI / 3.0f), 1.0f, 0.999f);
+    particleBlob4->setVelocity({0.0f, 0.0f, 0.0f});
+    m_particles.push_back(particleBlob4);
+    auto particuleShapeBlob4 = world.makeSphere({ 0.2f, 0.2f, 0.2f });
+    particuleShapeBlob4->scale(0.2f);
+    m_particleShapes.push_back(particuleShapeBlob4);
+
+    Particle * particleBlob5 = new Particle(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(5 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(5 * PI / 3.0f), 1.0f, 0.999f);
+    particleBlob5->setVelocity({0.0f, 0.0f, 0.0f});
+    m_particles.push_back(particleBlob5);
+    auto particuleShapeBlob5 = world.makeSphere({ 0.2f, 0.2f, 0.2f });
+    particuleShapeBlob5->scale(0.2f);
+    m_particleShapes.push_back(particuleShapeBlob5);
+
+    Particle * particleBlob6 = new Particle(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(6 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(6 * PI / 3.0f), 1.0f, 0.999f);
+    particleBlob6->setVelocity({0.0f, 0.0f, 0.0f});
+    m_particles.push_back(particleBlob6);
+    auto particuleShapeBlob6 = world.makeSphere({ 0.2f, 0.2f, 0.2f });
+    particuleShapeBlob6->scale(0.2f);
+    m_particleShapes.push_back(particuleShapeBlob6);
+
+    // Gravity
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob1, &m_particleGravity, 0.0);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob2, &m_particleGravity, 0.0);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob3, &m_particleGravity, 0.0);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob4, &m_particleGravity, 0.0);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob5, &m_particleGravity, 0.0);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob6, &m_particleGravity, 0.0);
+
+    // Anchored spring
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob1, &m_particleAnchoredSpring, 0.0);
+
+    // Springs between particles
+    float k = 60.0f;
+    float restLength = 1.0f;
+
+    // Spring of particle 2 on particle 1
+    ParticleSpring * blobSpring = new ParticleSpring(particleBlob2, k, restLength);
+    m_blobSprings.push_back(blobSpring);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob1, blobSpring, 0.0);
+
+    // Spring of particle 1 on particle 2
+    blobSpring = new ParticleSpring(particleBlob1, k, restLength);
+    m_blobSprings.push_back(blobSpring);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob2, blobSpring, 0.0);
+
+    // Spring of particle 3 on particle 2
+    blobSpring = new ParticleSpring(particleBlob3, k, restLength);
+    m_blobSprings.push_back(blobSpring);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob2, blobSpring, 0.0);
+
+    // Spring of particle 2 on particle 3
+    blobSpring = new ParticleSpring(particleBlob2, k, restLength);
+    m_blobSprings.push_back(blobSpring);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob3, blobSpring, 0.0);
+
+    // Spring of particle 4 on particle 3
+    blobSpring = new ParticleSpring(particleBlob4, k, restLength);
+    m_blobSprings.push_back(blobSpring);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob3, blobSpring, 0.0);
+
+    // Spring of particle 3 on particle 4
+    blobSpring = new ParticleSpring(particleBlob3, k, restLength);
+    m_blobSprings.push_back(blobSpring);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob4, blobSpring, 0.0);
+
+    // Spring of particle 5 on particle 4
+    blobSpring = new ParticleSpring(particleBlob5, k, restLength);
+    m_blobSprings.push_back(blobSpring);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob4, blobSpring, 0.0);
+
+    // Spring of particle 4 on particle 5
+    blobSpring = new ParticleSpring(particleBlob4, k, restLength);
+    m_blobSprings.push_back(blobSpring);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob5, blobSpring, 0.0);
+
+    // Spring of particle 6 on particle 5
+    blobSpring = new ParticleSpring(particleBlob6, k, restLength);
+    m_blobSprings.push_back(blobSpring);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob5, blobSpring, 0.0);
+
+    // Spring of particle 5 on particle 6
+    blobSpring = new ParticleSpring(particleBlob5, k, restLength);
+    m_blobSprings.push_back(blobSpring);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob6, blobSpring, 0.0);
+
+    // Spring of particle 6 on particle 1
+    blobSpring = new ParticleSpring(particleBlob6, k, restLength);
+    m_blobSprings.push_back(blobSpring);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob1, blobSpring, 0.0);
+
+    // Spring of particle 1 on particle 6
+    blobSpring = new ParticleSpring(particleBlob1, k, restLength);
+    m_blobSprings.push_back(blobSpring);
+    m_physicsEngine.getParticleRegistry().addForce(particleBlob6, blobSpring, 0.0);
+}
+
+void Application::updateBlob()
+{
+    m_particleShapes[3]->setPosition(m_particles[1]->getPosition());
+    m_particleShapes[4]->setPosition(m_particles[2]->getPosition());
+    m_particleShapes[5]->setPosition(m_particles[3]->getPosition());
+    m_particleShapes[6]->setPosition(m_particles[4]->getPosition());
+    m_particleShapes[7]->setPosition(m_particles[5]->getPosition());
+    m_particleShapes[8]->setPosition(m_particles[6]->getPosition());
+}
+
+void Application::resetBlob()
+{
+    m_particles[1]->setPosition(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(PI / 3.0f));
+    m_particles[1]->setVelocity({0.0f, 0.0f, 0.0f});
+
+    m_particles[2]->setPosition(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(2 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(2 * PI / 3.0f));
+    m_particles[2]->setVelocity({0.0f, 0.0f, 0.0f});
+
+    m_particles[3]->setPosition(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(3 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(3 * PI / 3.0f));
+    m_particles[3]->setVelocity({0.0f, 0.0f, 0.0f});
+
+    m_particles[4]->setPosition(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(4 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(4 * PI / 3.0f));
+    m_particles[4]->setVelocity({0.0f, 0.0f, 0.0f});
+
+    m_particles[5]->setPosition(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(5 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(5 * PI / 3.0f));
+    m_particles[5]->setVelocity({0.0f, 0.0f, 0.0f});
+
+    m_particles[6]->setPosition(m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(6 * PI / 3.0f) + Vector3f(0.0f, 1.0f, 0.0f) * sin(6 * PI / 3.0f));
+    m_particles[6]->setVelocity({0.0f, 0.0f, 0.0f});
 }
