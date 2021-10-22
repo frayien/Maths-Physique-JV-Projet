@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <numeric>
 #include "physics/Vector3f.hpp"
 
 class Particle
@@ -29,8 +30,9 @@ public:
 	inline void addForce(Vector3f force) { m_totalForce += force; }
 
 	inline float getInverseMass() const { return m_inverseMass; }
-	inline float getMass() const { return 1.0f / m_inverseMass; }
+	inline float getMass() const { return m_inverseMass == 0.0f ? std::numeric_limits<float>().max() : (1.0f / m_inverseMass); }
 	inline void setMass(float mass) { m_inverseMass = 1.0f / mass; }
+	inline void setInverseMass(float inverseMass) { m_inverseMass = inverseMass; }
 
 	inline float getDamping() const { return m_damping; }
 	inline void setDamping(float damping) { m_damping = damping; }
