@@ -105,6 +105,7 @@ void Application::init()
     m_physicsEngine.registerForce(m_gameState.getParticle("particle"), m_gameState.getParticleForceGenerator<ParticleAnchoredSpring>("anchoredSpring"), 0.0f);
 
     createBlob();
+    createTestWall();
 }
 
 void Application::update(float deltaTime)
@@ -175,6 +176,7 @@ void Application::update(float deltaTime)
     spring->setScale({0.05f, 0.05f, springLen / 2.f});
 
     updateBlob();
+    updateTestWall();
 
     // If we click on the reset button
     if(m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_R))
@@ -184,6 +186,7 @@ void Application::update(float deltaTime)
         m_resetMarks = true;
 
         resetBlob();
+        resetTestWall();
     }
 
     // If we click on the pause button
@@ -542,4 +545,67 @@ void Application::resetBlob()
         particle->setPosition(pos);
         particle->setVelocity({0.f, 0.f, 0.f});
     }
+}
+
+void Application::createTestWall()
+{
+    // Particle
+    auto particleTestWall = std::make_unique<Particle>(Vector3f{0.0f, 10.0f, 10.0f}, 1.0f, 0.999f);
+    particleTestWall->setVelocity({0.0f, 0.0f, 0.0f});
+    m_gameState.addParticle("particleTestWall", std::move(particleTestWall));
+
+    // Particle Shape
+    auto particleShapeTestWall = std::make_unique<SphereShapeGenerator>(glm::vec3{ 0.2f, 0.2f, 0.2f });
+    particleShapeTestWall->scale(0.2f);
+    m_gameState.addShapeGenerator("particleTestWall", std::move(particleShapeTestWall));
+
+    // Gravity
+    m_physicsEngine.registerForce(m_gameState.getParticle("particleTestWall"), m_gameState.getParticleForceGenerator<ParticleGravity>("gravity"), 0.0f);
+
+    // Wall
+    auto wall = std::make_unique<Particle>(Vector3f{0.0f, 10.0f, 5.0f}, 1.0f, 0.999f);
+    wall->setInverseMass(0.0f);
+    wall->setVelocity({0.0f, 0.0f, 0.0f});
+
+    m_gameState.addParticle("wall", std::move(wall));
+
+    Vector3f normal{0.0f, 0.0f, 1.0f};
+    float length = 5.0f;
+    float width = 5.0f;
+    float thickness = 1.0f;
+
+    // Wall Shape
+    auto wallShape = std::make_unique<CubeShapeGenerator>(glm::vec3{ 0.2f, 0.2f, 0.2f });
+    wallShape->setScale({length, width, thickness / 2.0f});
+    m_gameState.addShapeGenerator("wall", std::move(wallShape));
+
+    // Wall contact
+    auto wallContact = std::make_unique<WallContactGenerator>(normal, length, width, thickness, m_gameState.getParticle("wall"), m_gameState.getParticle("particleTestWall"));
+    m_gameState.addParticleContactGenerator("testWallContact", std::move(wallContact));
+}
+
+void Application::updateTestWall()
+{
+    auto particleShapeTestWall = m_gameState.getShapeGenerator<SphereShapeGenerator>("particleTestWall");
+    auto particleTestWall = m_gameState.getParticle("particleTestWall");
+
+    particleShapeTestWall->setPosition(particleTestWall->getPosition());
+
+    auto wallShape = m_gameState.getShapeGenerator<SphereShapeGenerator>("wall");
+    auto wall = m_gameState.getParticle("wall");
+
+    wallShape->setPosition(wall->getPosition());
+}
+
+void Application::resetTestWall()
+{
+    auto particleTestWall = m_gameState.getParticle("particleTestWall");
+
+    particleTestWall->setPosition(Vector3f{0.0f, 10.0f, 10.0f});
+    particleTestWall->setVelocity({0.f, 0.f, 0.f});
+
+    auto wall = m_gameState.getParticle("wall");
+
+    wall->setPosition(Vector3f{0.0f, 10.0f, 5.0f});
+    wall->setVelocity({0.f, 0.f, 0.f});
 }

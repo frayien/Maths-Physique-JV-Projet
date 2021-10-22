@@ -20,6 +20,7 @@
 #include "physics/forces/ParticleSpring.hpp"
 #include "physics/contacts/ParticleCable.hpp"
 #include "GameState.hpp"
+#include "physics/contacts/WallContactGenerator.hpp"
 
 class Application : public IImGuiFrameGenerator
 {
@@ -79,6 +80,10 @@ private:
     void createBlob();
     void updateBlob();
     void resetBlob();
+
+    void createTestWall();
+    void updateTestWall();
+    void resetTestWall();
 };
 
 #endif // MPJVP_APPLICATION
