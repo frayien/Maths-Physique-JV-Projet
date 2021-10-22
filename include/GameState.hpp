@@ -5,8 +5,8 @@
 #include <memory>
 #include <unordered_map>
 #include "physics/Particle.hpp"
-#include "physics/ParticleForceGenerator.hpp"
-#include "physics/ParticleContactGenerator.hpp"
+#include "physics/forces/ParticleForceGenerator.hpp"
+#include "physics/contacts/ParticleContactGenerator.hpp"
 #include "render/shape/IShapeGenerator.hpp"
 
 class GameState

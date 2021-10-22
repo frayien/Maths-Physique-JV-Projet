@@ -1,4 +1,4 @@
-#include "physics/ParticleCable.hpp"
+#include "physics/contacts/ParticleCable.hpp"
 
 ParticleCable::ParticleCable(Particle* particleOne, Particle* particleTwo, float maxLength, float restitution) :
 	ParticleLink{particleOne, particleTwo},

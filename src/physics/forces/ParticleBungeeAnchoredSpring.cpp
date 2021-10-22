@@ -1,4 +1,4 @@
-#include "physics/ParticuleBungeeAnchoredSpring.hpp"
+#include "physics/forces/ParticuleBungeeAnchoredSpring.hpp"
 
 ParticleBungeeAnchoredSpring::ParticleBungeeAnchoredSpring() :
     ParticleAnchoredSpring{}

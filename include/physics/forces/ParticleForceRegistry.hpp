@@ -1,7 +1,7 @@
 #ifndef FRAYIEN_PARTICLEFORCEREGISTRY
 #define FRAYIEN_PARTICLEFORCEREGISTRY
 
-#include "physics/ParticleForceGenerator.hpp"
+#include "physics/forces/ParticleForceGenerator.hpp"
 
 class ParticleForceRegistry 
 {

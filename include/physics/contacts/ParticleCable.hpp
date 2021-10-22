@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "physics/ParticleLink.hpp"
+#include "physics/contacts/ParticleLink.hpp"
 
 class ParticleCable : public ParticleLink
 {

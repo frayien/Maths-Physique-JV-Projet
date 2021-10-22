@@ -1,4 +1,4 @@
-#include "physics/ParticleContact.hpp"
+#include "physics/contacts/ParticleContact.hpp"
 
 ParticleContact::ParticleContact(Particle* particleA, Particle* particleB, float penetration, Vector3f normal, float restitution) :
     m_particles { particleA, particleB },

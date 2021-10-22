@@ -1,4 +1,4 @@
-#include "physics/ParticleAnchoredSpring.hpp"
+#include "physics/forces/ParticleAnchoredSpring.hpp"
 
 ParticleAnchoredSpring::ParticleAnchoredSpring() :
     m_anchor{0.0f, 0.0f, 0.0f},

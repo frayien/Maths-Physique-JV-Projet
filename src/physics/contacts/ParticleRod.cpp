@@ -1,4 +1,4 @@
-#include "physics/ParticleRod.hpp"
+#include "physics/contacts/ParticleRod.hpp"
 
 ParticleRod::ParticleRod(Particle* particleOne, Particle* particleTwo, float length) :
 	ParticleLink{particleOne, particleTwo},

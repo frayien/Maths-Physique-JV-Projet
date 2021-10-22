@@ -1,7 +1,7 @@
 #ifndef MPJVP_PARTICLEDRAG
 #define MPJVP_PARTICLEDRAG
 
-#include "physics/ParticleForceGenerator.hpp"
+#include "physics/forces/ParticleForceGenerator.hpp"
 
 class ParticleDrag : public ParticleForceGenerator 
 {

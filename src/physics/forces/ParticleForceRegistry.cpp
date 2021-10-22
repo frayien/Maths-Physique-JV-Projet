@@ -1,4 +1,4 @@
-#include "physics/ParticleForceRegistry.hpp"
+#include "physics/forces/ParticleForceRegistry.hpp"
 
 ParticleForceRegistry::ParticleForceRegistry() 
 {

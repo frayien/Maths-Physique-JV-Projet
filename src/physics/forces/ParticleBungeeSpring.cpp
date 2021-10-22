@@ -1,4 +1,4 @@
-#include "physics/ParticleBungeeSpring.hpp"
+#include "physics/forces/ParticleBungeeSpring.hpp"
 
 ParticleBungeeSpring::ParticleBungeeSpring() :
     ParticleSpring{}

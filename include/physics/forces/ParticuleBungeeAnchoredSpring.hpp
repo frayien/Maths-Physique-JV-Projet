@@ -1,7 +1,7 @@
 #ifndef MPJVP_PARTICLEBUNGEEANCHOREDSPRING
 #define MPJVP_PARTICLEBUNGEEANCHOREDSPRING
 
-#include "ParticleAnchoredSpring.hpp"
+#include "physics/forces/ParticleAnchoredSpring.hpp"
 
 class ParticleBungeeAnchoredSpring : public ParticleAnchoredSpring 
 {

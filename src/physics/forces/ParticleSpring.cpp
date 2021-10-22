@@ -1,4 +1,4 @@
-#include "physics/ParticleSpring.hpp"
+#include "physics/forces/ParticleSpring.hpp"
 
 ParticleSpring::ParticleSpring() :
     m_otherParticle{nullptr},

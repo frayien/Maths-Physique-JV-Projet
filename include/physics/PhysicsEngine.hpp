@@ -2,9 +2,9 @@
 #define MPJVP_PHYSICSENGINE
 
 #include "GameState.hpp"
-#include "physics/ParticleForceRegistry.hpp"
-#include "physics/ParticleContactResolver.hpp"
-#include "physics/ParticleContactGenerator.hpp"
+#include "physics/forces/ParticleForceRegistry.hpp"
+#include "physics/contacts/ParticleContactResolver.hpp"
+#include "physics/contacts/ParticleContactGenerator.hpp"
 
 class PhysicsEngine
 {

@@ -1,4 +1,4 @@
-#include "physics/ParticleGravity.hpp"
+#include "physics/forces/ParticleGravity.hpp"
 
 ParticleGravity::ParticleGravity()
 {

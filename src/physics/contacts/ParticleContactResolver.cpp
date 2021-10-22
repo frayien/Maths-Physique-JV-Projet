@@ -1,4 +1,4 @@
-#include "physics/ParticleContactResolver.hpp"
+#include "physics/contacts/ParticleContactResolver.hpp"
 
 ParticleContactResolver::ParticleContactResolver()
 {

@@ -1,4 +1,4 @@
-#include "physics/ParticleDrag.hpp"
+#include "physics/forces/ParticleDrag.hpp"
 
 ParticleDrag::ParticleDrag(float k1, float k2) :
     m_k1{k1},

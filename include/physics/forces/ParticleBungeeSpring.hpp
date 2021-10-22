@@ -1,7 +1,7 @@
 #ifndef MPJVP_PARTICLEBUNGEESPRING
 #define MPJVP_PARTICLEBUNGEESPRING
 
-#include "ParticleSpring.hpp"
+#include "physics/forces/ParticleSpring.hpp"
 
 class ParticleBungeeSpring : public ParticleSpring 
 {

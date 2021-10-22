@@ -1,7 +1,7 @@
 #ifndef MPJVP_PARTICLESPRING
 #define MPJVP_PARTICLESPRING
 
-#include "physics/ParticleForceGenerator.hpp"
+#include "physics/forces/ParticleForceGenerator.hpp"
 #include "physics/Particle.hpp"
 
 class ParticleSpring : public ParticleForceGenerator 

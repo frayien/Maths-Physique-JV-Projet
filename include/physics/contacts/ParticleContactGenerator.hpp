@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "physics/ParticleContact.hpp"
+#include "physics/contacts/ParticleContact.hpp"
 
 class ParticleContactGenerator
 {

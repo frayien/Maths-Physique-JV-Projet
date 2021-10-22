@@ -1,4 +1,4 @@
-#include "physics/ParticleLink.hpp"
+#include "physics/contacts/ParticleLink.hpp"
 
 ParticleLink::ParticleLink(Particle* particleOne, Particle* particleTwo){
 	m_particles[0] = particleOne;

@@ -3,7 +3,7 @@
 
 #include <array>
 #include <cmath>
-#include "physics/ParticleContactGenerator.hpp"
+#include "physics/contacts/ParticleContactGenerator.hpp"
 
 class ParticleLink : public ParticleContactGenerator
 {

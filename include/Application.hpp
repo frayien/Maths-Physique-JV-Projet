@@ -13,12 +13,12 @@
 #include "render/shape/CubeShapeGenerator.hpp"
 
 #include "physics/Particle.hpp"
-#include "physics/ParticleGravity.hpp"
+#include "physics/forces/ParticleGravity.hpp"
 #include "physics/PhysicsEngine.hpp"
-#include "physics/ParticleAnchoredSpring.hpp"
-#include "physics/ParticleDrag.hpp"
-#include "physics/ParticleSpring.hpp"
-#include "physics/ParticleCable.hpp"
+#include "physics/forces/ParticleAnchoredSpring.hpp"
+#include "physics/forces/ParticleDrag.hpp"
+#include "physics/forces/ParticleSpring.hpp"
+#include "physics/contacts/ParticleCable.hpp"
 #include "GameState.hpp"
 
 class Application : public IImGuiFrameGenerator

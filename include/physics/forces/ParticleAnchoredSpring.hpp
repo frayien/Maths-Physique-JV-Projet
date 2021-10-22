@@ -1,7 +1,7 @@
 #ifndef MPJVP_PARTICLEANCHOREDSPRING
 #define MPJVP_PARTICLEANCHOREDSPRING
 
-#include "physics/ParticleForceGenerator.hpp"
+#include "physics/forces/ParticleForceGenerator.hpp"
 
 class ParticleAnchoredSpring : public ParticleForceGenerator 
 {
