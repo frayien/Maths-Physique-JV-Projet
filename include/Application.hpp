@@ -6,6 +6,7 @@
 #include <memory>
 #include <functional>
 #include <iomanip>
+#include <string>
 
 #include "render/GraphicsEngine.hpp"
 
@@ -80,6 +81,7 @@ private:
     void createBlob();
     void updateBlob();
     void resetBlob();
+    void moveBlob(Vector3f moveVector);
 
     void createTestWall();
     void updateTestWall();
