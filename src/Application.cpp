@@ -174,7 +174,8 @@ void Application::update(float deltaTime)
     spring->rotate(springAngle, springDir.crossProduct(springDefaultDir));
     spring->setScale({0.05f, 0.05f, springLen / 2.f});
 
-    updateBlob();
+
+    
 
     // If we click on the reset button
     if(m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_R))
@@ -184,6 +185,33 @@ void Application::update(float deltaTime)
         m_resetMarks = true;
 
         resetBlob();
+    }
+
+    // Map avec l'aide de laquelle nous appellons la fonction moveBlob()
+    static std::unordered_map<std::string, std::function<void()>> blobMouvementMap =
+    {
+        { "Up", [&]() { moveBlob(Vector3f {0,0,0.2}); } },
+        { "Down", [&]() { moveBlob(Vector3f {0,0,-0.2}); } },
+        { "Left", [&]() { moveBlob(Vector3f {0,-0.2,0}); } },
+        { "Right", [&]() { moveBlob(Vector3f {0,0.2,0}); } },
+    };
+
+    // Mouvements du blob
+    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_KP_4)) 
+    {
+        blobMouvementMap.at("Left")();
+    }
+    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_KP_5))
+    {
+        blobMouvementMap.at("Down")();
+    }
+    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_KP_6))
+    {
+        blobMouvementMap.at("Right")();
+    }
+    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_KP_8))
+    {
+        blobMouvementMap.at("Up")();
     }
 
     // If we click on the pause button
@@ -197,6 +225,7 @@ void Application::update(float deltaTime)
         canPressPause = true;
     }
 
+    updateBlob();
     updateCamera(deltaTime);
 }
 
@@ -520,6 +549,26 @@ void Application::updateBlob()
         auto particle = m_gameState.getParticle(blobLabel);
 
         shape->setPosition(particle->getPosition());
+    }
+}
+
+void Application::moveBlob(Vector3f moveVector)
+{
+    std::array<std::string, 6> blobLabels
+    {
+        "blob_0",
+        "blob_1",
+        "blob_2",
+        "blob_3",
+        "blob_4",
+        "blob_5",
+    };
+    
+
+    for (auto& blobLabel : blobLabels)
+    {
+        Particle* particle = m_gameState.getParticle(blobLabel);
+        particle->setPosition(particle->getPosition() + moveVector);
     }
 }
 
