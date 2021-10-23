@@ -83,9 +83,7 @@ private:
     void resetBlob();
     void moveBlob(Vector3f moveVector);
 
-    void createTestWall();
-    void updateTestWall();
-    void resetTestWall();
+    void createGround();
 };
 
 #endif // MPJVP_APPLICATION

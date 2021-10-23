@@ -9,10 +9,12 @@ class WallContactGenerator : public ParticleContactGenerator
 {
 private:
     // Wall properties
-    Vector3f m_normal;
+    Vector3f m_directionWidth;
+    Vector3f m_directionLength;
     float m_length;
     float m_width;
     float m_thickness;
+    float m_restitution;
     Particle * m_wallParticle;
 
     // Particle affected by the wall
@@ -20,7 +22,7 @@ private:
 
 public:
     WallContactGenerator() = default;
-    WallContactGenerator(Vector3f normal, float length, float width, float thickness, Particle * wallParticle, Particle * otherParticle);
+    WallContactGenerator(Vector3f directionWidth, Vector3f directionLength, float length, float width, float thickness, Particle * wallParticle, Particle * otherParticle, float restitution = 1.0f);
     virtual ~WallContactGenerator() = default;
 
     virtual void addContact(std::vector<ParticleContact>& contacts) const;
