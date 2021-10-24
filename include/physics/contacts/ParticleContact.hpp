@@ -45,7 +45,7 @@ public:
     inline Vector3f getNormal() { return m_normal; }
 
 private:
-    void resolveVelocity();
+    void resolveVelocity(float deltaTime);
     void resolveInterpenetration();
 };
 

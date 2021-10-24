@@ -22,6 +22,11 @@ void ParticleGravity::setGravity(float value)
 
 void ParticleGravity::updateForce(Particle* particle, float duration)
 {
+	if (particle->getIsResting())
+	{
+		return;
+	}
+
 	if (particle->getInverseMass() == 0)
 	{
 		// Infinite mass

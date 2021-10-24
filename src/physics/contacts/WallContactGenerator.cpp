@@ -22,11 +22,11 @@ void WallContactGenerator::addContact(std::vector<ParticleContact>& contacts) co
 
     // TODO : move particle radius inside Particle class
     float particleRadius = 0.2f;
-    float normalDistance = normalComponentNorm - particleRadius - m_thickness / 2.0f;
+    float penetration = normalComponentNorm - particleRadius - m_thickness / 2.0f;
 
-    if (abs(normalDistance) <= m_thickness / 2.0f && abs(tangentComponent.dotProduct(m_directionLength)) <= m_length / 2.0f && abs(tangentComponent.dotProduct(m_directionWidth)) <= m_width / 2.0f)
+    if (penetration < 0.0f && abs(tangentComponent.dotProduct(m_directionLength)) <= m_length / 2.0f && abs(tangentComponent.dotProduct(m_directionWidth)) <= m_width / 2.0f)
     {
         // Contact with the wall
-        contacts.emplace_back(m_otherParticle, m_wallParticle, -normalDistance, wallNormal, m_restitution);
+        contacts.emplace_back(m_otherParticle, nullptr, -penetration, wallNormal, m_restitution);
     }
 }

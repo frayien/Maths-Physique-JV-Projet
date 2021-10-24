@@ -22,6 +22,8 @@ void ParticleBungeeAnchoredSpring::updateForce(Particle* particle, float duratio
     Vector3f distance = particle->getPosition() - m_anchor;
     if (distance.norm() > m_restLength)
     {
+        particle->setIsResting(false);
+
         // Apply force only if the distance is greater than the rest length
         Vector3f force = - m_k * (distance.norm() - m_restLength) * distance.normalize();
         particle->addForce(force);

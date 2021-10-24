@@ -38,6 +38,8 @@ void ParticleAnchoredSpring::setAnchor(Vector3f anchor)
 
 void ParticleAnchoredSpring::updateForce(Particle* particle, float duration)
 {
+    particle->setIsResting(false);
+
     Vector3f distance = particle->getPosition() - m_anchor;
     Vector3f force = - m_k * (distance.norm() - m_restLength) * distance.normalize();
     particle->addForce(force);

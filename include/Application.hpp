@@ -84,6 +84,10 @@ private:
     void moveBlob(Vector3f moveVector);
 
     void createGround();
+
+    void createTestRestingContact();
+    void updateTestRestingContact();
+    void resetTestRestingContact();
 };
 
 #endif // MPJVP_APPLICATION

@@ -12,7 +12,7 @@ class Particle
 
 public:
 	Particle();
-	Particle(Vector3f position, float mass, float damping);
+	Particle(Vector3f position, float mass, float damping, bool isResting = false);
 	~Particle();
 
 	void integrate(float deltaTime);
@@ -37,6 +37,9 @@ public:
 	inline float getDamping() const { return m_damping; }
 	inline void setDamping(float damping) { m_damping = damping; }
 
+	inline bool getIsResting() const { return m_isResting; }
+	inline void setIsResting(bool isResting) { m_isResting = isResting; }
+
 	friend std::ostream& operator<<(std::ostream& out, const Particle& a);
 
 private :
@@ -45,6 +48,7 @@ private :
 	Vector3f m_totalForce;
 	float m_inverseMass;
 	float m_damping;
+	bool m_isResting;
 };
 
 #endif // MPJVP_PARTICLE

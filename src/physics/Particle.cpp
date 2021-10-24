@@ -6,9 +6,10 @@ Particle::Particle()
 	m_damping = 0.999f;
 }
 
-Particle::Particle(Vector3f position, float mass, float damping) : 
+Particle::Particle(Vector3f position, float mass, float damping, bool isResting) :
 	m_damping(damping), 
-	m_position(position)
+	m_position(position),
+	m_isResting(isResting)
 {
 	m_inverseMass = 1.0f / mass;
 }

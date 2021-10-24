@@ -14,7 +14,13 @@ ParticleContact::~ParticleContact()
 
 void ParticleContact::resolve(float deltaTime)
 {
-    resolveVelocity();
+    m_particleA->setIsResting(false);
+    if (m_particleB)
+    {
+        m_particleB->setIsResting(false);
+    }
+
+    resolveVelocity(deltaTime);
     resolveInterpenetration();
 }
 
@@ -29,23 +35,65 @@ float ParticleContact::calculateSeparatingVelocity() const
     return relativeVelocity.dotProduct(m_normal);
 }
 
-void ParticleContact::resolveVelocity()
+void ParticleContact::resolveVelocity(float deltaTime)
 {
-    float sumInvMass = m_particleA->getInverseMass();
+    float sepVelocity = calculateSeparatingVelocity();
 
-    if (m_particleB)
+    if (sepVelocity > 0.0f)
     {
-        sumInvMass += m_particleB->getInverseMass();
+        return;
     }
 
-    float sepVel = calculateSeparatingVelocity();
-    float k = (m_restitution + 1.0f) * sepVel / sumInvMass;
+    float newSepVelocity = -sepVelocity * m_restitution;
 
-    m_particleA->addVelocity(-k*m_particleA->getInverseMass() * m_normal);
+    // /!\ Only consider gravity acceleration for resting contact for the moment
+
+    Vector3f accelVelocity{0.0f, 0.0f, -9.81f};
+    if (m_particleB)
+    {
+        accelVelocity -= Vector3f{0.0f, 0.0f, -9.81f};
+    }
+
+    float accelSepVelocity = accelVelocity.dotProduct(m_normal) * deltaTime;
+
+    if (accelSepVelocity < 0.0f)
+    {
+        newSepVelocity += m_restitution * accelSepVelocity;
+        if (newSepVelocity < 0.0f)
+        {
+            newSepVelocity = 0.0f;
+        }
+    }
+
+    float deltaVelocity = newSepVelocity - sepVelocity;
+    float totalInvMass = m_particleA->getInverseMass();
 
     if (m_particleB)
     {
-        m_particleB->addVelocity( k*m_particleB->getInverseMass() * m_normal);
+        totalInvMass += m_particleB->getInverseMass();
+    }
+
+    Vector3f impulse = m_normal * (deltaVelocity / totalInvMass);
+
+    m_particleA->setVelocity(m_particleA->getVelocity() + impulse * m_particleA->getInverseMass());
+
+    if (9.81f * deltaTime >= abs(m_particleA->getVelocity().dotProduct(m_normal)))
+    {
+        // Velocity caused by gravity : resting
+        m_particleA->setIsResting(true);
+        m_particleA->addVelocity(-m_normal * m_particleA->getVelocity().dotProduct(m_normal));
+    }
+
+    if (m_particleB)
+    {
+        m_particleB->setVelocity(m_particleB->getVelocity() - impulse * m_particleB->getInverseMass());
+
+        if (9.81f * deltaTime >= abs(m_particleB->getVelocity().dotProduct(m_normal)))
+        {
+            // Velocity caused by gravity : resting
+            m_particleB->setIsResting(true);
+            m_particleB->addVelocity(-m_normal * m_particleB->getVelocity().dotProduct(m_normal));
+        }
     }
 }
 
