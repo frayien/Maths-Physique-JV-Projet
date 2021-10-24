@@ -43,7 +43,7 @@ void GraphicsEngine::clear()
     m_shapes.clear();
 }
 
-void GraphicsEngine::draw(const IShapeGenerator & shape)
+void GraphicsEngine::draw(IShapeGenerator & shape)
 {
     shape.addShape(m_shapes);
 }
