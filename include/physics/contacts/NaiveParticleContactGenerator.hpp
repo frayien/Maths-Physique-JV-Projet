@@ -1,16 +1,19 @@
 #ifndef MPJVP_NAIVEPARTICLECONTACTGENERATOR
 #define MPJVP_NAIVEPARTICLECONTACTGENERATOR
 
-#include "physics/contacts/ParticleLink.hpp"
+#include "physics/contacts/ParticleContactGenerator.hpp"
 #include <vector>
 
-class NaiveParticleContactGenerator : public ParticleLink
+class NaiveParticleContactGenerator : public ParticleContactGenerator
 {
 private:
 
+    std::vector<Particle*> m_particles;
+    float getCurrentDistance(Particle* particleOne, Particle* particleTwo) const;
+
 public:
     NaiveParticleContactGenerator() = default;
-    NaiveParticleContactGenerator(Particle* particleOne, Particle* particleTwo);
+    NaiveParticleContactGenerator(std::vector<Particle*> particles);
     virtual ~NaiveParticleContactGenerator() = default;
 
     void addContact(std::vector<ParticleContact>& contacts) const;
