@@ -171,199 +171,81 @@ void Application::createFrame()
 {
     ImGui::Begin("Settings");
 
-    // Default size
-    float imGuiWidth = 330.0f;
-    float imGuiHeight = 400.0f;
-    ImGui::SetWindowSize(ImVec2(imGuiWidth, imGuiHeight));
-
     if (ImGui::BeginTabBar("SettingsTabBar", ImGuiTabBarFlags_None))
     {
-        // Tab to select the projectile, see its properties and set initial position, initial acceleration and damping
-        if (ImGui::BeginTabItem("Projectile"))
+        // Tab to edit blob data
+        if (ImGui::BeginTabItem("Blob"))
         {
-            ImGui::Text("Choose the projectile :");
-
-            // Add a combo box to select the projectile
-            if (ImGui::BeginCombo("##combo", m_currentProjectile))
-            {
-                for (int n = 0; n < IM_ARRAYSIZE(m_projectiles); n++)
-                {
-                    bool isSelected = (m_currentProjectile == m_projectiles[n]);
-                    if (ImGui::Selectable(m_projectiles[n], isSelected))
-                    {
-                        m_currentProjectile = m_projectiles[n];
-                        m_currentIndex = n;
-                        currentInitialVelocity = m_projectilesInitialVelocity[m_currentIndex];
-                        currentMass = m_projectilesMass[m_currentIndex];
-                    }
-
-                    if (isSelected)
-                    {
-                        ImGui::SetItemDefaultFocus();
-                    }
-
-                }
-                ImGui::EndCombo();
-            }
-
-            ImGui::NewLine();
-
-            ImGui::Text("Projectile's properties : ");
-
-            // Add a table to display projectile's properties (initial velocity and mass)
-            if (ImGui::BeginTable("informationTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
-            {
-                std::stringstream ss;
-                for (int row = 0; row < 2; row++)
-                {
-                    ImGui::TableNextRow();
-                    for (int column = 0; column < 2; column++)
-                    {
-                        ImGui::TableSetColumnIndex(column);
-
-                        if (column == 0)
-                        {
-                            // First column : display properties' name
-                            if (row == 0)
-                            {
-                                // First row : initial velocity
-                                ImGui::Text("Initial velocity");
-                            }
-                            else
-                            {
-                                // Second row : mass
-                                ImGui::Text("Mass");
-                            }
-                        }
-                        else
-                        {
-                            // Second column : display properties' value
-                            if (row == 0)
-                            {
-                                // First row : initial velocity
-                                std::stringstream().swap(ss); // clear ss
-                                ss << "{";
-                                ss << std::fixed << std::setprecision(2) << m_projectilesInitialVelocity[m_currentIndex][0];
-                                ss << " ; ";
-                                ss << std::fixed << std::setprecision(2) << m_projectilesInitialVelocity[m_currentIndex][1];
-                                ss << " ; ";
-                                ss << std::fixed << std::setprecision(2) << m_projectilesInitialVelocity[m_currentIndex][2];
-                                ss << "}";
-                                ImGui::Text(ss.str().c_str());
-                            }
-                            else
-                            {
-                                // Second row : mass
-                                std::stringstream().swap(ss); // clear ss
-                                ss << std::fixed << std::setprecision(2) << m_projectilesMass[m_currentIndex];
-                                ImGui::Text(ss.str().c_str());
-                            }
-                        }
-                    }
-                }
-                ImGui::EndTable();
-            }
-
-            ImGui::NewLine();
-
-            ImGui::Text("Adjustable settings :");
-
-            ImGui::Indent(10.0f);
-
-            // Input for the initial position
+            // Initial position
             ImGui::Text("Initial position (X ; Y ; Z) :");
-            ImGui::InputFloat3("##Position", currentInitialPosition.data(), "%.1f");
+            ImGui::InputFloat3("##BlobInitPosition", currentBlobInitialPosition.data(), "%.1f");
 
-            // Input for the initial velocity
-            ImGui::Text("Initial velocity (X ; Y ; Z) :");
-            ImGui::InputFloat3("##Velocity", currentInitialVelocity.data(), "%.1f");
+            // Particles radius
+            ImGui::Text("Particles' radius : ");
+            ImGui::InputFloat("##Radius", &m_blobParticleRadius, 0.1f, 1.0f, "%.1f");
 
-            // Input for the mass
-            ImGui::Text("Mass : ");
-            ImGui::InputFloat("##Mass", &currentMass, 0.5f, 5.0f, "%.1f");
+            // Edges length
+            ImGui::Text("Edges length : ");
+            ImGui::InputFloat("##EdgesLength", &m_blobEdgeLength, 0.01f, 0.1f, "%.2f");
 
-            // Input for the damping
-            ImGui::Text("Damping : ");
-            ImGui::InputFloat("##Damping", &damping, 0.001f, 0.01f, "%.3f");
+            // Distance between center and vertices
+            ImGui::Text("Center-to-Vertices length : ");
+            ImGui::InputFloat("##CenterToVerticesLength", &m_blobCenterToVerticesLength, 0.01f, 0.1f, "%.2f");
 
-            ImGui::Unindent(10.0f);
+            // Springs constant
+            ImGui::Text("Springs stiffness : ");
+            ImGui::InputFloat("##SpringStiffness", &m_blobK, 1.0f, 5.0f, "%.2f");
 
-            // Button to confirm selection
-            ImGui::NewLine();
-            ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.4f);
-            if (ImGui::Button("Select"))
-            {
-                Particle * particle = m_gameState.getParticle("particle");
-                particle->setPosition(currentInitialPosition);
-                particle->setVelocity(currentInitialVelocity);
-                particle->setDamping (damping);
-                particle->setMass    (currentMass);
-
-                resetBlob();
-            }
+            // Cables restitution
+            ImGui::Text("Cables restitution : ");
+            ImGui::SliderFloat("##CablesRestitution", &m_blobCableRestitution, 0.0f, 1.0f, "%.1f");
 
             ImGui::EndTabItem();
         }
 
-        // Tab to edit and add forces
-        if (ImGui::BeginTabItem("Forces"))
+        // Tab to edit ground data
+        if (ImGui::BeginTabItem("Ground"))
         {
-            // Edit anchored spring force
-            ImGui::Text("Anchored spring settings : ");
+            // Length
+            ImGui::Text("Ground length : ");
+            ImGui::InputFloat("##GroundLength", &m_groundLength, 2.0f, 10.0f, "%.1f");
 
-            ImGui::Indent(10.0f);
+            // Width
+            ImGui::Text("Ground width : ");
+            ImGui::InputFloat("##GroundWidth", &m_groundWidth, 2.0f, 10.0f, "%.1f");
 
-            // Input for the anchor position
-            ImGui::Text("Anchor position (X ; Y ; Z) :");
-            ImGui::InputFloat3("##AnchorPosition", currentAnchorPosition.data(), "%.1f");
+            // Thickness
+            ImGui::Text("Ground thickness : ");
+            ImGui::InputFloat("##GroundThickness", &m_groundThickness, 0.1f, 1.0f, "%.1f");
 
-            // Input for spring stiffness (k)
-            ImGui::Text("Spring stiffness :");
-            ImGui::InputFloat("##SpringStiffness", &currentSpringStiffness, 0.5f, 5.0f, "%.1f");
+            // Restitution
+            ImGui::Text("Ground restitution : ");
+            ImGui::SliderFloat("##GroundRestitution", &m_groundRestitution, 0.0f, 1.0f, "%.1f");
 
-            // Input for spring rest length
-            ImGui::Text("Spring rest length :");
-            ImGui::InputFloat("##SpringRestLength", &currentSpringRestLength, 0.2f, 2.0f, "%.1f");
-
-            ImGui::Unindent(10.0f);
-
-            ImGui::Separator();
-
-            // Edit drag force
-            ImGui::Text("Drag settings : ");
-
-            ImGui::Indent(10.0f);
-
-            // Input for the first drag coefficient (k1)
-            ImGui::Text("First drag coefficient (k1) :");
-            ImGui::InputFloat("##k1DragCoef", &currentK1DragCoef, 0.01f, 0.5f, "%.2f");
-
-            // Input for the second drag coefficient (k2)
-            ImGui::Text("Second drag coefficient (k2) :");
-            ImGui::InputFloat("##k2DragCoef", &currentK2DragCoef, 0.01f, 0.5f, "%.2f");
-
-            ImGui::Unindent(10.0f);
-
-            // Button to apply forces
-            ImGui::NewLine();
-            ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.4f);
-            if (ImGui::Button("Apply"))
-            {
-                auto anchoredSpring = m_gameState.getParticleForceGenerator<ParticleAnchoredSpring>("anchoredSpring");
-                anchoredSpring->setAnchor(currentAnchorPosition);
-                anchoredSpring->setK(currentSpringStiffness);
-                anchoredSpring->setRestLength(currentSpringRestLength);
-
-                auto drag = m_gameState.getParticleForceGenerator<ParticleDrag>("drag");
-                drag->setK1(currentK1DragCoef);
-                drag->setK2(currentK2DragCoef);
-            }
+            // Center position
+            ImGui::Text("Center position (X ; Y ; Z) :");
+            ImGui::InputFloat3("##GroundCenterPosition", currentGroundCenterPosition.data(), "%.1f");
 
             ImGui::EndTabItem();
         }
-        ImGui::EndTabBar();
-    }
 
+        ImGui::EndTabBar();
+
+        ImGui::NewLine();
+
+
+        ImGui::Separator();
+
+        // Apply
+        ImGui::NewLine();
+        ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.45f);
+        ImGui::SetCursorPosY((ImGui::GetWindowSize().y) * 0.9f);
+        if (ImGui::Button("Apply"))
+        {
+            changeBlobSettings();
+            changeGroundSettings();
+        }
+    }
     ImGui::End();
 }
 
@@ -773,4 +655,134 @@ void Application::jumpBlob()
         newVelocity.setZ(jumpVelocity);
         particle->setVelocity(newVelocity);
     }
+}
+
+void Application::changeBlobSettings()
+{
+    // Update initial position
+    m_blobCenterInitPos = currentBlobInitialPosition;
+
+    std::array<std::string, 21> blobLabels
+    {
+        "blob_0",
+        "blob_1",
+        "blob_2",
+        "blob_3",
+        "blob_4",
+        "blob_5",
+        "blob_6",
+        "blob_7",
+        "blob_8",
+        "blob_9",
+        "blob_10",
+        "blob_11",
+        "blob_12",
+        "blob_13",
+        "blob_14",
+        "blob_15",
+        "blob_16",
+        "blob_17",
+        "blob_18",
+        "blob_19",
+        "blob_20",
+    };
+
+    for(auto & blobLabel : blobLabels)
+    {
+        auto particle = m_gameState.getParticle(blobLabel);
+        auto shape = m_gameState.getShapeGenerator<ParticleShapeGenerator>(blobLabel);
+
+        // ----- Update radius -----
+        particle->setRadius(m_blobParticleRadius);
+        shape->getSphere().setScale(m_blobParticleRadius);
+    }
+
+    // ----- Update links between particles -----
+    std::array<std::tuple<std::string, std::string, float>, 50> allBlobLinks
+    {{
+        // Between center and vertices
+        {"blob_0", "blob_1", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_2", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_3", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_4", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_5", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_6", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_7", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_8", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_9", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_10", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_11", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_12", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_13", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_14", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_15", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_16", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_17", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_18", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_19", m_blobCenterToVerticesLength},
+        {"blob_0", "blob_20", m_blobCenterToVerticesLength},
+
+        // Edges
+        {"blob_1", "blob_9", m_blobEdgeLength},
+        {"blob_1", "blob_13", m_blobEdgeLength},
+        {"blob_1", "blob_17", m_blobEdgeLength},
+        {"blob_2", "blob_9", m_blobEdgeLength},
+        {"blob_2", "blob_14", m_blobEdgeLength},
+        {"blob_2", "blob_18", m_blobEdgeLength},
+        {"blob_3", "blob_10", m_blobEdgeLength},
+        {"blob_3", "blob_13", m_blobEdgeLength},
+        {"blob_3", "blob_19", m_blobEdgeLength},
+        {"blob_4", "blob_11", m_blobEdgeLength},
+        {"blob_4", "blob_15", m_blobEdgeLength},
+        {"blob_4", "blob_17", m_blobEdgeLength},
+        {"blob_5", "blob_10", m_blobEdgeLength},
+        {"blob_5", "blob_14", m_blobEdgeLength},
+        {"blob_5", "blob_20", m_blobEdgeLength},
+        {"blob_6", "blob_11", m_blobEdgeLength},
+        {"blob_6", "blob_16", m_blobEdgeLength},
+        {"blob_6", "blob_18", m_blobEdgeLength},
+        {"blob_7", "blob_12", m_blobEdgeLength},
+        {"blob_7", "blob_15", m_blobEdgeLength},
+        {"blob_7", "blob_19", m_blobEdgeLength},
+        {"blob_8", "blob_12", m_blobEdgeLength},
+        {"blob_8", "blob_16", m_blobEdgeLength},
+        {"blob_8", "blob_20", m_blobEdgeLength},
+        {"blob_9", "blob_11", m_blobEdgeLength},
+        {"blob_10", "blob_12", m_blobEdgeLength},
+        {"blob_13", "blob_14", m_blobEdgeLength},
+        {"blob_15", "blob_16", m_blobEdgeLength},
+        {"blob_17", "blob_19", m_blobEdgeLength},
+        {"blob_18", "blob_20", m_blobEdgeLength},
+    }};
+
+    for(auto & [labelBlobA, labelBlobB, length] : allBlobLinks)
+    {
+        // ----- Springs -----
+        ParticleSpring* springBA = static_cast<ParticleSpring*>(m_gameState.getParticleForceGenerator("blobSpring_" + labelBlobB + "_" + labelBlobA));
+        ParticleSpring* springAB = static_cast<ParticleSpring*>(m_gameState.getParticleForceGenerator("blobSpring_" + labelBlobA + "_" + labelBlobB));
+
+        // Stifness
+        springBA->setK(m_blobK);
+        springAB->setK(m_blobK);
+
+        // Rest length
+        springBA->setRestLength(length);
+        springAB->setRestLength(length);
+
+        // ----- Cables -----
+        ParticleCable* cable = static_cast<ParticleCable*>(m_gameState.getParticleContactGenerator("blobCable_" + labelBlobA + "_" + labelBlobB));
+
+        // Restitution
+        cable->setRestitution(m_blobCableRestitution);
+
+        // Max length
+        cable->setMaxLength(length);
+    }
+}
+
+void Application::changeGroundSettings()
+{
+    auto groundShape = m_gameState.getShapeGenerator<CubeShapeGenerator>("ground");
+    groundShape->setPosition({currentGroundCenterPosition[0], currentGroundCenterPosition[1], currentGroundCenterPosition[2]});
+    groundShape->setScale({m_groundLength / 2.0f, m_groundWidth / 2.0f, m_groundThickness / 2.0f});
 }

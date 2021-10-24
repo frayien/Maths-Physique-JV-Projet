@@ -17,6 +17,8 @@ public:
     virtual ~ParticleShapeGenerator();
 
     virtual void addShape(std::vector<Shape> & shapes) override;
+
+    inline SphereShapeGenerator & getSphere() { return m_sphere; }
 };
 
 #endif // MPJVP_PARTICLESHAPEGENERATOR

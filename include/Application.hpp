@@ -52,30 +52,10 @@ private:
     Vector3f m_groundDirectionWidth{1.0f, 0.0f, 0.0f};  // X+ axis
     Vector3f m_groundDirectionLength{0.0f, 1.0f, 0.0f}; // Y+ axis
 
-    // ImGui
-    char* m_projectiles[4] = { "Ball", "Heavy ball", "Laser", "Fireball" };
-    std::vector<std::array<float, 3>> m_projectilesInitialVelocity =
-    {
-        {0.0f, 4.0f, 7.0f},
-        {0.0f, 2.0f, 6.0f},
-        {0.0f, 16.0f, 6.0f},
-        {0.0f, 4.0f, 4.0f}
-    };
-    std::vector<float> m_projectilesMass = {4.0f, 12.0f, 0.2f, 2.0f};
+    // ImGui data
+    std::array<float, 3> currentBlobInitialPosition = {-8.0f, -3.0f,  0.0f};
+    std::array<float, 3> currentGroundCenterPosition = {0.0f, 0.0f, -6.0f};
 
-    int m_currentIndex = 0;
-    char* m_currentProjectile = m_projectiles[m_currentIndex];
-
-    float currentMass = 1.0f;
-    std::array<float, 3> currentInitialVelocity = { 0.0f,  4.0f,  7.0f};
-    std::array<float, 3> currentInitialPosition = {-8.0f, -3.0f,  0.0f};
-    float damping = 0.999f;
-    std::array<float, 3> currentAnchorPosition = { -8.0f,  0.0f,  0.0f};
-    float currentSpringStiffness = 20.0f;
-    float currentSpringRestLength = 2.0f;
-    float currentK1DragCoef = 0.0f;
-    float currentK2DragCoef = 0.1f;
-    
 public:
     Application();
     virtual ~Application();
@@ -93,8 +73,10 @@ private:
     void resetBlob();
     void moveBlob(Vector3f moveDirection, float deltaTime);
     void jumpBlob();
+    void changeBlobSettings();
 
     void createGround();
+    void changeGroundSettings();
 };
 
 #endif // MPJVP_APPLICATION
