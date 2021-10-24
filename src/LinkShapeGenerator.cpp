@@ -26,6 +26,6 @@ void LinkShapeGenerator::addShape(std::vector<Shape> & shapes)
     m_cube.setPosition(pos);
     m_cube.resetRotation();
     m_cube.rotate(angle, dir.crossProduct(defaultDir));
-    m_cube.setScale({0.05f, 0.05f, len / 2.f});
+    m_cube.setScale({m_width, m_width, len / 2.f});
     m_cube.addShape(shapes);
 }

@@ -12,12 +12,16 @@ private:
     Particle* m_particleA;
     Particle* m_particleB;
     CubeShapeGenerator m_cube;
+
+    float m_width = 0.05f;
     
 public:
     LinkShapeGenerator(Particle* particleA, Particle* particleB, color_t color = Color::GRAY);
     virtual ~LinkShapeGenerator();
 
     virtual void addShape(std::vector<Shape> & shapes) override;
+
+    inline void setWidth(float width) { m_width = width; }
 };
 
 
