@@ -401,7 +401,7 @@ void Application::createBlob()
         m_gameState.addParticle("blob_" + std::to_string(i), std::move(particleBlob));
 
         // Particle Shape
-        auto particuleShapeBlob = std::make_unique<SphereShapeGenerator>(glm::vec3{ 0.2f, 0.2f, 0.2f });
+        auto particuleShapeBlob = std::make_unique<SphereShapeGenerator>(Color::DARK_GRAY);
         particuleShapeBlob->scale(0.2f);
         m_gameState.addShapeGenerator("blob_" + std::to_string(i), std::move(particuleShapeBlob));
 
@@ -537,7 +537,7 @@ void Application::createGround()
     float restitution = 0.3f;
 
     // Ground Shape
-    auto groundShape = std::make_unique<CubeShapeGenerator>(glm::vec3{ 0.2f, 0.2f, 0.2f });
+    auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
     groundShape->setScale({length / 2.0f, width / 2.0f, thickness / 2.0f});
     groundShape->setPosition(m_gameState.getParticle("ground")->getPosition());
     m_gameState.addShapeGenerator("ground", std::move(groundShape));
@@ -569,7 +569,7 @@ void Application::createTestRestingContact()
     m_gameState.addParticle("particleRest", std::move(particle));
 
     // Particle Shape
-    auto particuleShape = std::make_unique<SphereShapeGenerator>(glm::vec3{ 0.2f, 0.2f, 0.2f });
+    auto particuleShape = std::make_unique<SphereShapeGenerator>(Color::DARK_GRAY);
     particuleShape->scale(0.2f);
     m_gameState.addShapeGenerator("particleRest", std::move(particuleShape));
 

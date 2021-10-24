@@ -8,7 +8,7 @@
 
 #include <vector>
 #include <memory>
-
+ 
 #include "render/Shape.hpp"
 
 class IShapeGenerator
@@ -17,7 +17,7 @@ public:
     IShapeGenerator() = default;
     virtual ~IShapeGenerator() = default;
 
-    virtual void addShape(std::vector<Shape> & shapes) const = 0;
+    virtual void addShape(std::vector<Shape> & shapes) = 0;
 };
 
 

@@ -4,18 +4,20 @@
 #include "render/shape/IShapeGenerator.hpp"
 #include "render/shape/Transformable.hpp"
 
+#include "render/Color.hpp"
+
 class SphereShapeGenerator : public IShapeGenerator, public Transformable
 {
 public:
-    SphereShapeGenerator(glm::vec3 color = { 0.5f, 0.5f, 0.5f });
+    SphereShapeGenerator(color_t color = Color::GRAY);
     ~SphereShapeGenerator();
 
-    virtual void addShape(std::vector<Shape> & shapes) const override;
+    virtual void addShape(std::vector<Shape> & shapes) override;
 
 private:
     void constructVertices();
 
-    glm::vec3 m_color;
+    color_t m_color;
     float m_radius = 1.0f;
 
     std::vector<Vertex> m_vertices;

@@ -1,6 +1,6 @@
 #include "render/shape/SphereShapeGenerator.hpp"
 
-SphereShapeGenerator::SphereShapeGenerator(glm::vec3 color) :
+SphereShapeGenerator::SphereShapeGenerator(color_t color) :
     m_color{color}
 {
     constructVertices();
@@ -10,7 +10,7 @@ SphereShapeGenerator::~SphereShapeGenerator()
 {
 }
 
-void SphereShapeGenerator::addShape(std::vector<Shape> & shapes) const
+void SphereShapeGenerator::addShape(std::vector<Shape> & shapes)
 {
     shapes.push_back({m_vertices, m_indices, getTransform()});
 }
