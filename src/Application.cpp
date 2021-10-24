@@ -41,17 +41,11 @@ void Application::init()
     Camera & cam = m_graphicsEngine.getCamera();
     LightSource & sun = m_graphicsEngine.getLightSource();
 
-    cam.setPosition({0.0f, 0.0f, 0.0f});
+    cam.setPosition({20.0f, 0.0f, 0.0f});
     // rotate cam to look at X- (this way Y+ and Z+ looks more natural for a 2D environment, aka. Y+ is on the right)
     cam.rotateYaw(PI);
 
     sun.setPosition({0.0f, 0.0f, 0.0f});
-
-    // Creation of the background
-    auto cube = std::make_unique<CubeShapeGenerator>(glm::vec3{0.9f, 0.9f, 0.9f});
-    cube->setPosition({-10.0f, 0.0f, 0.0f});
-    cube->scale({0.1f, 15.0f, 10.0f});
-    m_gameState.addShapeGenerator("background", std::move(cube));
 
     // Create force generators
     std::unique_ptr<ParticleForceGenerator> particleGravity = std::make_unique<ParticleGravity>(9.81f);
@@ -303,6 +297,14 @@ void Application::createBlob()
         // Ground contact
         auto groundContact = m_gameState.getParticleContactGenerator<WallContactGenerator>("groundContact");
         groundContact->addParticle(m_gameState.getParticle("blob_" + std::to_string(i)));
+
+        // Wall 1 contact
+        auto wall1Contact = m_gameState.getParticleContactGenerator<WallContactGenerator>("wall1Contact");
+        wall1Contact->addParticle(m_gameState.getParticle("blob_" + std::to_string(i)));
+
+        // Wall 2 contact
+        auto wall2Contact = m_gameState.getParticleContactGenerator<WallContactGenerator>("wall2Contact");
+        wall2Contact->addParticle(m_gameState.getParticle("blob_" + std::to_string(i)));
     }
 
     // Link shape between blob's particles
@@ -616,8 +618,34 @@ void Application::createGround()
     m_gameState.addShapeGenerator("ground", std::move(groundShape));
 
     // Ground contact
-    auto wallContact = std::make_unique<WallContactGenerator>(m_groundDirectionWidth, m_groundDirectionLength, m_groundLength, m_groundWidth, m_groundThickness, m_groundCenterPosition, m_groundRestitution);
-    m_gameState.addParticleContactGenerator("groundContact", std::move(wallContact));
+    auto groundContact = std::make_unique<WallContactGenerator>(m_groundDirectionWidth, m_groundDirectionLength, m_groundLength, m_groundWidth, m_groundThickness, m_groundCenterPosition, m_groundRestitution);
+    m_gameState.addParticleContactGenerator("groundContact", std::move(groundContact));
+
+    // Create walls on the ground
+
+    // Wall 1 shape
+    auto wall1 = std::make_unique<CubeShapeGenerator>(glm::vec3{0.9f, 0.9f, 0.9f});
+    wall1->setPosition(m_groundCenterPosition + Vector3f{-m_wallsLength / 2.0f, 0.0f, m_wallsWidth / 2.0f});
+    wall1->scale({m_wallsThickness, m_wallsLength / 2.0f, m_wallsWidth / 2.0f});
+    m_gameState.addShapeGenerator("wall1", std::move(wall1));
+
+    // Wall 1 contact
+    Vector3f directionWidthWall1{0.0f, 0.0f, -1.0f}; // Z-
+    Vector3f directionLengthWall1{0.0f, 1.0f, 0.0f}; // Y+
+    auto wall1Contact = std::make_unique<WallContactGenerator>(directionWidthWall1, directionLengthWall1, m_wallsLength, m_wallsWidth, m_wallsThickness, m_groundCenterPosition + Vector3f{-m_wallsLength / 2.0f, 0.0f, m_wallsWidth / 2.0f}, m_wallsRestitution);
+    m_gameState.addParticleContactGenerator("wall1Contact", std::move(wall1Contact));
+
+    // Wall 2 shape
+    auto wall2 = std::make_unique<CubeShapeGenerator>(glm::vec3{0.9f, 0.9f, 0.9f});
+    wall2->setPosition(m_groundCenterPosition + Vector3f{0.0f, m_wallsLength / 2.0f, m_wallsWidth / 2.0f});
+    wall2->scale({m_wallsLength / 2.0f, m_wallsThickness, m_wallsWidth / 2.0f});
+    m_gameState.addShapeGenerator("wall2", std::move(wall2));
+
+    // Wall 2 contact
+    Vector3f directionWidthWall2{0.0f, 0.0f, -1.0f}; // Z-
+    Vector3f directionLengthWall2{1.0f, 0.0f, 0.0f}; // X+
+    auto wall2Contact = std::make_unique<WallContactGenerator>(directionWidthWall2, directionLengthWall2, m_wallsLength, m_wallsWidth, m_wallsThickness, m_groundCenterPosition + Vector3f{0.0f, m_wallsLength / 2.0f, m_wallsWidth / 2.0f}, m_wallsRestitution);
+    m_gameState.addParticleContactGenerator("wall2Contact", std::move(wall2Contact));
 }
 
 void Application::jumpBlob()
@@ -787,8 +815,9 @@ void Application::changeBlobSettings()
 void Application::changeGroundSettings()
 {
     // Ground shape
+    m_groundCenterPosition = currentGroundCenterPosition;
     auto groundShape = m_gameState.getShapeGenerator<CubeShapeGenerator>("ground");
-    groundShape->setPosition({currentGroundCenterPosition[0], currentGroundCenterPosition[1], currentGroundCenterPosition[2]});
+    groundShape->setPosition(m_groundCenterPosition);
     groundShape->setScale({m_groundLength / 2.0f, m_groundWidth / 2.0f, m_groundThickness / 2.0f});
 
     // Ground contact
@@ -797,5 +826,24 @@ void Application::changeGroundSettings()
     groundContact->setWidth(m_groundWidth);
     groundContact->setThickness(m_groundThickness);
     groundContact->setRestitution(m_groundRestitution);
-    groundContact->setCenterPosition(currentGroundCenterPosition);
+    groundContact->setCenterPosition(m_groundCenterPosition);
+
+
+    // Walls
+
+    // Wall 1 shape
+    auto wall1Shape = m_gameState.getShapeGenerator<CubeShapeGenerator>("wall1");
+    wall1Shape->setPosition(m_groundCenterPosition + Vector3f{-m_wallsLength / 2.0f, 0.0f, m_wallsWidth / 2.0f});
+
+    // Wall 1 contact
+    auto wall1Contact = m_gameState.getParticleContactGenerator<WallContactGenerator>("wall1Contact");
+    wall1Contact->setCenterPosition(m_groundCenterPosition + Vector3f{-m_wallsLength / 2.0f, 0.0f, m_wallsWidth / 2.0f});
+
+    // Wall 2 shape
+    auto wall2Shape = m_gameState.getShapeGenerator<CubeShapeGenerator>("wall2");
+    wall2Shape->setPosition(m_groundCenterPosition + Vector3f{0.0f, m_wallsLength / 2.0f, m_wallsWidth / 2.0f});
+
+    // Wall 2 contact
+    auto wall2Contact = m_gameState.getParticleContactGenerator<WallContactGenerator>("wall2Contact");
+    wall2Contact->setCenterPosition(m_groundCenterPosition + Vector3f{0.0f, m_wallsLength / 2.0f, m_wallsWidth / 2.0f});
 }
