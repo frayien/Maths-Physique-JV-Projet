@@ -143,8 +143,6 @@ void Application::update(float deltaTime)
     }
 
     // update graphics
-    updateBlob();
-    updateTestRestingContact();
     updateCamera(deltaTime);
 }
 
@@ -398,11 +396,11 @@ void Application::createBlob()
         // Particle
         auto particleBlob = std::make_unique<Particle>(particlePos[i], 1.0f, 0.999f);
         particleBlob->setVelocity({0.0f, 0.0f, 0.0f});
-        m_gameState.addParticle("blob_" + std::to_string(i), std::move(particleBlob));
 
         // Particle Shape
-        auto particuleShapeBlob = std::make_unique<SphereShapeGenerator>(Color::DARK_GRAY);
-        particuleShapeBlob->scale(0.2f);
+        auto particuleShapeBlob = std::make_unique<ParticleShapeGenerator>(particleBlob.get(), Color::DARK_GRAY);
+        
+        m_gameState.addParticle("blob_" + std::to_string(i), std::move(particleBlob));
         m_gameState.addShapeGenerator("blob_" + std::to_string(i), std::move(particuleShapeBlob));
 
         // Gravity
@@ -464,28 +462,6 @@ void Application::createBlob()
         blobSpring = std::make_unique<ParticleSpring>(particleA, k, restLength);
         m_physicsEngine.registerForce(particleB, blobSpring.get(), 0.0);
         m_gameState.addParticleForceGenerator("blobspring_" + labelBlobA + "_" + labelBlobB, std::move(blobSpring));
-    }
-}
-
-void Application::updateBlob()
-{
-    std::array<std::string, 7> blobLabels
-    {
-        "blob_0",
-        "blob_1",
-        "blob_2",
-        "blob_3",
-        "blob_4",
-        "blob_5",
-        "blob_6",
-    };
-
-    for(auto & blobLabel : blobLabels)
-    {
-        auto shape = m_gameState.getShapeGenerator<SphereShapeGenerator>(blobLabel);
-        auto particle = m_gameState.getParticle(blobLabel);
-
-        shape->setPosition(particle->getPosition());
     }
 }
 
@@ -566,11 +542,11 @@ void Application::createTestRestingContact()
     // Particle
     auto particle = std::make_unique<Particle>(m_positionInit + Vector3f{0.0f, 5.0f, 0.0f}, 1.0f, 0.999f);
     particle->setVelocity({0.0f, 0.0f, 0.0f});
-    m_gameState.addParticle("particleRest", std::move(particle));
 
     // Particle Shape
-    auto particuleShape = std::make_unique<SphereShapeGenerator>(Color::DARK_GRAY);
-    particuleShape->scale(0.2f);
+    auto particuleShape = std::make_unique<ParticleShapeGenerator>(particle.get(), Color::DARK_GRAY);
+
+    m_gameState.addParticle("particleRest", std::move(particle));
     m_gameState.addShapeGenerator("particleRest", std::move(particuleShape));
 
     // Gravity
@@ -586,14 +562,6 @@ void Application::createTestRestingContact()
 
     auto wallContact = std::make_unique<WallContactGenerator>(directionWidth, directionLength, length, width, thickness, m_gameState.getParticle("ground"), m_gameState.getParticle("particleRest"), restitution);
     m_gameState.addParticleContactGenerator("wallContact_ground_particleRest", std::move(wallContact));
-}
-
-void Application::updateTestRestingContact()
-{
-    auto shape = m_gameState.getShapeGenerator<SphereShapeGenerator>("particleRest");
-    auto particle = m_gameState.getParticle("particleRest");
-
-    shape->setPosition(particle->getPosition());
 }
 
 void Application::resetTestRestingContact()

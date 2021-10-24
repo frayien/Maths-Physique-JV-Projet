@@ -13,6 +13,9 @@
 #include "render/shape/SphereShapeGenerator.hpp"
 #include "render/shape/CubeShapeGenerator.hpp"
 
+#include "ParticleShapeGenerator.hpp"
+#include "LinkShapeGenerator.hpp"
+
 #include "physics/Particle.hpp"
 #include "physics/forces/ParticleGravity.hpp"
 #include "physics/PhysicsEngine.hpp"
@@ -79,14 +82,12 @@ private:
     void updateCamera(float deltaTime);
 
     void createBlob();
-    void updateBlob();
     void resetBlob();
     void moveBlob(Vector3f moveVector);
 
     void createGround();
 
     void createTestRestingContact();
-    void updateTestRestingContact();
     void resetTestRestingContact();
 };
 
