@@ -301,8 +301,8 @@ void Application::createBlob()
         m_physicsEngine.registerForce(m_gameState.getParticle("blob_" + std::to_string(i)), m_gameState.getParticleForceGenerator<ParticleDrag>("drag"), 0.0f);
 
         // Ground contact
-        auto wallContact = std::make_unique<WallContactGenerator>(m_groundDirectionWidth, m_groundDirectionLength, m_groundLength, m_groundWidth, m_groundThickness, m_groundCenterPosition, m_gameState.getParticle("blob_" + std::to_string(i)), m_groundRestitution);
-        m_gameState.addParticleContactGenerator("wallContact_ground_blob_" + std::to_string(i), std::move(wallContact));
+        auto groundContact = m_gameState.getParticleContactGenerator<WallContactGenerator>("groundContact");
+        groundContact->addParticle(m_gameState.getParticle("blob_" + std::to_string(i)));
     }
 
     // Link shape between blob's particles
@@ -614,6 +614,10 @@ void Application::createGround()
     groundShape->setScale({m_groundLength / 2.0f, m_groundWidth / 2.0f, m_groundThickness / 2.0f});
     groundShape->setPosition(m_groundCenterPosition);
     m_gameState.addShapeGenerator("ground", std::move(groundShape));
+
+    // Ground contact
+    auto wallContact = std::make_unique<WallContactGenerator>(m_groundDirectionWidth, m_groundDirectionLength, m_groundLength, m_groundWidth, m_groundThickness, m_groundCenterPosition, m_groundRestitution);
+    m_gameState.addParticleContactGenerator("groundContact", std::move(wallContact));
 }
 
 void Application::jumpBlob()
@@ -782,7 +786,16 @@ void Application::changeBlobSettings()
 
 void Application::changeGroundSettings()
 {
+    // Ground shape
     auto groundShape = m_gameState.getShapeGenerator<CubeShapeGenerator>("ground");
     groundShape->setPosition({currentGroundCenterPosition[0], currentGroundCenterPosition[1], currentGroundCenterPosition[2]});
     groundShape->setScale({m_groundLength / 2.0f, m_groundWidth / 2.0f, m_groundThickness / 2.0f});
+
+    // Ground contact
+    auto groundContact = m_gameState.getParticleContactGenerator<WallContactGenerator>("groundContact");
+    groundContact->setLength(m_groundLength);
+    groundContact->setWidth(m_groundWidth);
+    groundContact->setThickness(m_groundThickness);
+    groundContact->setRestitution(m_groundRestitution);
+    groundContact->setCenterPosition(currentGroundCenterPosition);
 }
