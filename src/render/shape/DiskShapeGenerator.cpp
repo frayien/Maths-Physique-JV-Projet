@@ -1,6 +1,6 @@
 #include "render/shape/DiskShapeGenerator.hpp"
 
-DiskShapeGenerator::DiskShapeGenerator(glm::vec3 color) :
+DiskShapeGenerator::DiskShapeGenerator(color_t color) :
     m_color{color}
 {
 }
@@ -9,7 +9,7 @@ DiskShapeGenerator::~DiskShapeGenerator()
 {
 }
 
-void DiskShapeGenerator::addShape(std::vector<Shape> & shapes) const
+void DiskShapeGenerator::addShape(std::vector<Shape> & shapes)
 {
     const size_t VERTEX_N = 50;
     std::vector<Vertex> vertices = { {{0.0f, 0.0f, 0.0f}, m_color, {0.0f, 0.0f, 1.0f}} };

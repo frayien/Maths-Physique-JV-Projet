@@ -4,16 +4,18 @@
 #include "render/shape/IShapeGenerator.hpp"
 #include "render/shape/Transformable.hpp"
 
+#include "render/Color.hpp"
+
 class SquareShapeGenerator : public IShapeGenerator, public Transformable
 {
 public:
-    SquareShapeGenerator(glm::vec3 color = { 0.5f, 0.5f, 0.5f });
+    SquareShapeGenerator(color_t color = Color::GRAY);
     ~SquareShapeGenerator();
 
-    virtual void addShape(std::vector<Shape> & shapes) const override;
+    virtual void addShape(std::vector<Shape> & shapes) override;
 
 private:
-    glm::vec3 m_color;
+    color_t m_color;
 };
 
 #endif // MPJVP_SQUARESHAPEGENERATOR

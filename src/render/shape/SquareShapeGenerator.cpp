@@ -1,6 +1,6 @@
 #include "render/shape/SquareShapeGenerator.hpp"
 
-SquareShapeGenerator::SquareShapeGenerator(glm::vec3 color) :
+SquareShapeGenerator::SquareShapeGenerator(color_t color) :
     m_color{color}
 {
 }
@@ -9,7 +9,7 @@ SquareShapeGenerator::~SquareShapeGenerator()
 {
 }
 
-void SquareShapeGenerator::addShape(std::vector<Shape> & shapes) const
+void SquareShapeGenerator::addShape(std::vector<Shape> & shapes)
 {
     std::vector<Vertex> vertices = 
     {

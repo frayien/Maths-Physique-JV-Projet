@@ -120,7 +120,7 @@ public:
     void windowPollEvents();
 
     void clear();
-    void draw(const IShapeGenerator & shape);
+    void draw(IShapeGenerator & shape);
     void display();
 
     inline Camera & getCamera() { return m_camera; }

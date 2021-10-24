@@ -1,6 +1,6 @@
 #include "render/shape/CubeShapeGenerator.hpp"
 
-CubeShapeGenerator::CubeShapeGenerator(glm::vec3 color) :
+CubeShapeGenerator::CubeShapeGenerator(color_t color) :
     m_color{color}
 {
 }
@@ -9,7 +9,7 @@ CubeShapeGenerator::~CubeShapeGenerator()
 {
 }
 
-void CubeShapeGenerator::addShape(std::vector<Shape> & shapes) const
+void CubeShapeGenerator::addShape(std::vector<Shape> & shapes)
 {
     std::vector<Vertex> vertices = 
     {

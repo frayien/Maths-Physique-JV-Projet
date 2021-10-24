@@ -31,6 +31,7 @@ public:
 
     // Implicit conversion to glm::vec3
     inline operator glm::vec3() { return {m_x, m_y, m_z}; }
+    inline operator const glm::vec3() const { return {m_x, m_y, m_z}; }
 
     friend Vector3f operator+(Vector3f a, const Vector3f & b);
     friend Vector3f operator-(Vector3f a, const Vector3f & b);
