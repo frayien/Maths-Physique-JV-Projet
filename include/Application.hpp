@@ -25,6 +25,7 @@
 #include "physics/contacts/ParticleCable.hpp"
 #include "GameState.hpp"
 #include "physics/contacts/WallContactGenerator.hpp"
+#include "physics/contacts/NaiveParticleContactGenerator.hpp"
 
 class Application : public IImGuiFrameGenerator
 {
