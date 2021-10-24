@@ -17,15 +17,24 @@ private:
     float m_restitution;
     Vector3f m_centerPosition;
 
-    // Particle affected by the wall
-    Particle * m_otherParticle;
+    // Particles affected by the wall
+    std::vector<Particle *> m_particles;
 
 public:
     WallContactGenerator() = default;
-    WallContactGenerator(Vector3f directionWidth, Vector3f directionLength, float length, float width, float thickness, Vector3f centerPosition, Particle * otherParticle, float restitution = 1.0f);
+    WallContactGenerator(Vector3f directionWidth, Vector3f directionLength, float length, float width, float thickness, Vector3f centerPosition, float restitution = 1.0f);
     virtual ~WallContactGenerator() = default;
 
     virtual void addContact(std::vector<ParticleContact>& contacts) const;
+
+    inline void setLength(float length) { m_length = length; }
+    inline void setWidth(float width) { m_width = width; }
+    inline void setThickness(float thickness) { m_thickness = thickness; }
+    inline void setRestitution(float restitution) { m_restitution = restitution; }
+    inline void setCenterPosition(Vector3f centerPosition) { m_centerPosition = centerPosition; }
+
+    void addParticle(Particle * particle) { m_particles.push_back(particle); }
+    void removeParticle(Particle * particle);
 };
 
 #endif // MPJVPWALLCONTACTGENERATORN

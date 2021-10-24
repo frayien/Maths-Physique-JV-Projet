@@ -17,6 +17,9 @@ public:
     virtual ~ParticleCable() = default;
 
     void addContact(std::vector<ParticleContact>& contacts) const;
+
+    inline void setRestitution(float restitution) { m_restitution = restitution; }
+    inline void setMaxLength(float maxLength) { m_maxLength = maxLength; }
 };
 
 #endif // FRAYIEN_PARTICLECABLE
