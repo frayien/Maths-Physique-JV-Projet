@@ -41,7 +41,7 @@ void Application::init()
     Camera & cam = m_graphicsEngine.getCamera();
     LightSource & sun = m_graphicsEngine.getLightSource();
 
-    cam.setPosition({20.0f, 0.0f, 0.0f});
+    cam.setPosition({40.0f, 0.0f, 0.0f});
     // rotate cam to look at X- (this way Y+ and Z+ looks more natural for a 2D environment, aka. Y+ is on the right)
     cam.rotateYaw(PI);
 
@@ -56,7 +56,8 @@ void Application::init()
 
     // Create ground and blob
     createGround();
-    createBlob();
+    createExample();
+    // createBlob();
 }
 
 void Application::update(float deltaTime)
@@ -242,6 +243,73 @@ void Application::createFrame()
         }
     }
     ImGui::End();
+}
+
+void Application::createExample()
+{
+    // Particle
+    auto particle1 = std::make_unique<Particle>(Vector3f{0, -2.5, 2}, 1.0f, 0.999f, false);
+    particle1->setVelocity({ 0.0f, 0.0f, 0.0f });
+    m_gameState.addParticle("particle_1", std::move(particle1));
+
+    // Particle Shape
+    auto particuleShape1 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_1"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    m_gameState.addShapeGenerator("particle_1", std::move(particuleShape1));
+
+    // Gravity
+    m_physicsEngine.registerForce(m_gameState.getParticle("particle_1"), m_gameState.getParticleForceGenerator<ParticleGravity>("gravity"), 0.0f);
+
+    // Drag
+    m_physicsEngine.registerForce(m_gameState.getParticle("particle_1"), m_gameState.getParticleForceGenerator<ParticleDrag>("drag"), 0.0f);
+
+
+
+    // Particle
+    auto particle2 = std::make_unique<Particle>(Vector3f{ 0, -1.5, 2 }, 1.0f, 0.999f, false);
+    particle2->setVelocity({ 0.0f, 0.0f, 0.0f });
+    m_gameState.addParticle("particle_2", std::move(particle2));
+
+    // Particle Shape
+    auto particuleShape2 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_2"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    m_gameState.addShapeGenerator("particle_2", std::move(particuleShape2));
+
+    // Gravity
+    m_physicsEngine.registerForce(m_gameState.getParticle("particle_2"), m_gameState.getParticleForceGenerator<ParticleGravity>("gravity"), 0.0f);
+
+    // Drag
+    m_physicsEngine.registerForce(m_gameState.getParticle("particle_2"), m_gameState.getParticleForceGenerator<ParticleDrag>("drag"), 0.0f);
+
+
+
+    // Particle
+    auto particle3 = std::make_unique<Particle>(Vector3f{ 0, -2, 2 }, 100000000000.0f, 0.999f, false);
+    particle3->setVelocity({ 0.0f, 0.0f, 0.0f });
+    m_gameState.addParticle("particle_3", std::move(particle3));
+
+    // Particle Shape
+    auto particuleShape3 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_3"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    m_gameState.addShapeGenerator("particle_3", std::move(particuleShape3));
+
+
+
+    // Cable
+    auto cable1 = std::make_unique<ParticleCable>(m_gameState.getParticle("particle_1"), m_gameState.getParticle("particle_3"), 1.0f, 0.5f);
+    m_gameState.addParticleContactGenerator("cable_1_3", std::move(cable1));
+
+    // Cable
+    auto cable2 = std::make_unique<ParticleCable>(m_gameState.getParticle("particle_2"), m_gameState.getParticle("particle_3"), 1.0f, 0.5f);
+    m_gameState.addParticleContactGenerator("cable_2_3", std::move(cable2));
+
+
+
+    std::vector<Particle*> particleToTest;
+
+    particleToTest.push_back(m_gameState.getParticle("particle_1"));
+    particleToTest.push_back(m_gameState.getParticle("particle_2"));
+
+    // Contact
+    auto contact = std::make_unique<NaiveParticleContactGenerator>(particleToTest);
+    m_gameState.addParticleContactGenerator("contact_1_2", std::move(contact));
 }
 
 void Application::createBlob()

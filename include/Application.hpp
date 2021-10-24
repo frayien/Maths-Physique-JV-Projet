@@ -75,6 +75,7 @@ private:
     void updateCamera(float deltaTime);
 
     void createBlob();
+    void createExample();
     void resetBlob();
     void moveBlob(Vector3f moveDirection, float deltaTime);
     void jumpBlob();
