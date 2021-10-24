@@ -83,12 +83,10 @@ private:
 
     void createBlob();
     void resetBlob();
-    void moveBlob(Vector3f moveVector);
+    void moveBlob(Vector3f moveDirection, float deltaTime);
+    void jumpBlob();
 
     void createGround();
-
-    void createTestRestingContact();
-    void resetTestRestingContact();
 };
 
 #endif // MPJVP_APPLICATION

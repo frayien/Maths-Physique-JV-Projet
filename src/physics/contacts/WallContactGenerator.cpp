@@ -1,13 +1,13 @@
 #include "physics/contacts/WallContactGenerator.hpp"
 
-WallContactGenerator::WallContactGenerator(Vector3f directionWidth, Vector3f directionLength, float length, float width, float thickness, Particle * wallParticle, Particle * otherParticle, float restitution) :
+WallContactGenerator::WallContactGenerator(Vector3f directionWidth, Vector3f directionLength, float length, float width, float thickness, Vector3f centerPosition, Particle * otherParticle, float restitution) :
     m_directionWidth{directionWidth.normalize()},
     m_directionLength{directionLength.normalize()},
     m_length{length},
     m_width{width},
     m_thickness{thickness},
     m_restitution{restitution},
-    m_wallParticle{wallParticle},
+    m_centerPosition{centerPosition},
     m_otherParticle{otherParticle}
 {
 
@@ -15,7 +15,7 @@ WallContactGenerator::WallContactGenerator(Vector3f directionWidth, Vector3f dir
 
 void WallContactGenerator::addContact(std::vector<ParticleContact>& contacts) const
 {
-    Vector3f vectWallToParticle = m_otherParticle->getPosition() - m_wallParticle->getPosition();
+    Vector3f vectWallToParticle = m_otherParticle->getPosition() - m_centerPosition;
     Vector3f wallNormal = m_directionWidth.crossProduct(m_directionLength).normalize();
     float normalComponentNorm = vectWallToParticle.dotProduct(wallNormal);
     Vector3f tangentComponent = vectWallToParticle - normalComponentNorm * wallNormal;

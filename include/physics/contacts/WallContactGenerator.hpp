@@ -15,14 +15,14 @@ private:
     float m_width;
     float m_thickness;
     float m_restitution;
-    Particle * m_wallParticle;
+    Vector3f m_centerPosition;
 
     // Particle affected by the wall
     Particle * m_otherParticle;
 
 public:
     WallContactGenerator() = default;
-    WallContactGenerator(Vector3f directionWidth, Vector3f directionLength, float length, float width, float thickness, Particle * wallParticle, Particle * otherParticle, float restitution = 1.0f);
+    WallContactGenerator(Vector3f directionWidth, Vector3f directionLength, float length, float width, float thickness, Vector3f centerPosition, Particle * otherParticle, float restitution = 1.0f);
     virtual ~WallContactGenerator() = default;
 
     virtual void addContact(std::vector<ParticleContact>& contacts) const;

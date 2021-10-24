@@ -60,9 +60,8 @@ void Application::init()
     std::unique_ptr<ParticleForceGenerator> particleDrag = std::make_unique<ParticleDrag>(0.0f, 0.1f);
     m_gameState.addParticleForceGenerator("drag", std::move(particleDrag));
 
-    createBlob();
     createGround();
-    createTestRestingContact();
+    createBlob();
 }
 
 void Application::update(float deltaTime)
@@ -89,16 +88,16 @@ void Application::update(float deltaTime)
     if(m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_R))
     {
         resetBlob();
-        resetTestRestingContact();
     }
 
     // Map avec l'aide de laquelle nous appellons la fonction moveBlob()
     static std::unordered_map<std::string, std::function<void()>> blobMouvementMap =
     {
-        { "Up", [&]() { moveBlob(Vector3f {0,0,0.2}); } },
-        { "Down", [&]() { moveBlob(Vector3f {0,0,-0.2}); } },
-        { "Left", [&]() { moveBlob(Vector3f {0,-0.2,0}); } },
-        { "Right", [&]() { moveBlob(Vector3f {0,0.2,0}); } },
+        { "Up", [&]()    { moveBlob(Vector3f{-1.0f,  0.0f, 0.0f}, deltaTime); } },
+        { "Down", [&]()  { moveBlob(Vector3f{ 1.0f,  0.0f, 0.0f}, deltaTime); } },
+        { "Left", [&]()  { moveBlob(Vector3f{ 0.0f, -1.0f, 0.0f}, deltaTime); } },
+        { "Right", [&]() { moveBlob(Vector3f{ 0.0f,  1.0f, 0.0f}, deltaTime); } },
+        { "Jump", [&]()  { jumpBlob();                                        } },
     };
 
     // Mouvements du blob
@@ -117,6 +116,10 @@ void Application::update(float deltaTime)
     if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_KP_8))
     {
         blobMouvementMap.at("Up")();
+    }
+    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_SPACE))
+    {
+        blobMouvementMap.at("Jump")();
     }
 
     // If we click on the pause button
@@ -380,27 +383,49 @@ void Application::createFrame()
 
 void Application::createBlob()
 {
-    std::array<Vector3f, 7> particlePos
+    float phi = (1.0f + sqrt(5.0f)) / 2.0f;
+    Vector3f blobCenter = m_positionInit;
+    float blobParticleRadius = 0.2f;
+
+    // Dodecahedron shape
+    std::array<Vector3f, 21> particlePos
     {
-        m_positionInit,
-        m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(PI / 3.0f)     + Vector3f{0.0f, 1.0f, 0.0f} * sin(PI / 3.0f),
-        m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(2 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(2 * PI / 3.0f),
-        m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(3 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(3 * PI / 3.0f),
-        m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(4 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(4 * PI / 3.0f),
-        m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(5 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(5 * PI / 3.0f),
-        m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(6 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(6 * PI / 3.0f),
+        blobCenter,
+
+        blobCenter + Vector3f{1.0f, 1.0f, 1.0f},
+        blobCenter + Vector3f{-1.0f, 1.0f, 1.0f},
+        blobCenter + Vector3f{1.0f, -1.0f, 1.0f},
+        blobCenter + Vector3f{1.0f, 1.0f, -1.0f},
+        blobCenter + Vector3f{-1.0f, -1.0f, 1.0f},
+        blobCenter + Vector3f{-1.0f, 1.0f, -1.0f},
+        blobCenter + Vector3f{1.0f, -1.0f, -1.0f},
+        blobCenter + Vector3f{-1.0f, -1.0f, -1.0f},
+
+        blobCenter + Vector3f{0.0f, phi, 1.0f / phi},
+        blobCenter + Vector3f{0.0f, -phi, 1.0f / phi},
+        blobCenter + Vector3f{0.0f, phi, -1.0f / phi},
+        blobCenter + Vector3f{0.0f, -phi, -1.0f / phi},
+
+        blobCenter + Vector3f{1.0f / phi, 0.0f, phi},
+        blobCenter + Vector3f{-1.0f / phi, 0.0f, phi},
+        blobCenter + Vector3f{1.0f / phi, 0.0f, -phi},
+        blobCenter + Vector3f{-1.0f / phi, 0.0f, -phi},
+
+        blobCenter + Vector3f{phi, 1.0f / phi, 0.0f},
+        blobCenter + Vector3f{-phi, 1.0f / phi, 0.0f},
+        blobCenter + Vector3f{phi, -1.0f / phi, 0.0f},
+        blobCenter + Vector3f{-phi, -1.0f / phi, 0.0f}
     };
 
     for(std::size_t i = 0; i < particlePos.size(); ++i)
     {
         // Particle
-        auto particleBlob = std::make_unique<Particle>(particlePos[i], 1.0f, 0.999f);
+        auto particleBlob = std::make_unique<Particle>(particlePos[i], 1.0f, 0.999f, false, blobParticleRadius);
         particleBlob->setVelocity({0.0f, 0.0f, 0.0f});
+        m_gameState.addParticle("blob_" + std::to_string(i), std::move(particleBlob));
 
         // Particle Shape
-        auto particuleShapeBlob = std::make_unique<ParticleShapeGenerator>(particleBlob.get(), Color::DARK_GRAY);
-        
-        m_gameState.addParticle("blob_" + std::to_string(i), std::move(particleBlob));
+        auto particuleShapeBlob = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("blob_" + std::to_string(i)), glm::vec3{ 0.2f, 0.2f, 0.2f });
         m_gameState.addShapeGenerator("blob_" + std::to_string(i), std::move(particuleShapeBlob));
 
         // Gravity
@@ -408,122 +433,140 @@ void Application::createBlob()
 
         // Drag
         m_physicsEngine.registerForce(m_gameState.getParticle("blob_" + std::to_string(i)), m_gameState.getParticleForceGenerator<ParticleDrag>("drag"), 0.0f);
+
+        // Ground contact
+        Vector3f directionWidth{1.0f, 0.0f, 0.0f}; // X+ axis
+        Vector3f directionLength{0.0f, 1.0f, 0.0f}; // Y+ axis
+        float length = 100.0f;
+        float width = 100.0f;
+        float thickness = 0.5f;
+        Vector3f groundCenterPosition{0.0f, 0.0f, -6.0f};
+        float restitution = 0.4f;
+
+        auto wallContact = std::make_unique<WallContactGenerator>(directionWidth, directionLength, length, width, thickness, groundCenterPosition, m_gameState.getParticle("blob_" + std::to_string(i)), restitution);
+        m_gameState.addParticleContactGenerator("wallContact_ground_blob_" + std::to_string(i), std::move(wallContact));
     }
 
-    // Springs between particles
-    float k = 60.0f;
-    float restLength = 1.0f;
-
-    // Cables between particles
-    float cableMaxLength = 1.0f;
+    // Properties of cables and springs
+    float dodecahedronEdgeLength = sqrt(5.0f) - 1.0f;
+    float dodecahedronCircumradius = sqrt(3.0f);
+    float k = 200.0f;
     float cableRestitution = 0.3f;
 
-    //We define which pair of particles will be cables
-    std::array<std::pair<std::string, std::string>, 6> particleCables
+    std::array<std::pair<std::string, std::string>, 20> centerToVertices
     {{
         {"blob_0", "blob_1"},
         {"blob_0", "blob_2"},
         {"blob_0", "blob_3"},
         {"blob_0", "blob_4"},
         {"blob_0", "blob_5"},
-        {"blob_0", "blob_6"}
+        {"blob_0", "blob_6"},
+        {"blob_0", "blob_7"},
+        {"blob_0", "blob_8"},
+        {"blob_0", "blob_9"},
+        {"blob_0", "blob_10"},
+        {"blob_0", "blob_11"},
+        {"blob_0", "blob_12"},
+        {"blob_0", "blob_13"},
+        {"blob_0", "blob_14"},
+        {"blob_0", "blob_15"},
+        {"blob_0", "blob_16"},
+        {"blob_0", "blob_17"},
+        {"blob_0", "blob_18"},
+        {"blob_0", "blob_19"},
+        {"blob_0", "blob_20"},
     }};
 
-    // We add the cable contacts between each particle
-    for(auto & [labelBlobA, labelBlobB] : particleCables)
-    {
-        auto particleA = m_gameState.getParticle(labelBlobA);
-        auto particleB = m_gameState.getParticle(labelBlobB);
-
-        // Cable
-        auto cable = std::make_unique<ParticleCable>(particleA, particleB, cableMaxLength, cableRestitution);
-        m_gameState.addParticleContactGenerator("blob_cable_" + labelBlobA + "_" + labelBlobB, std::move(cable));
-    }
-
-    //We define which pair of particles will be springs
-    std::array<std::pair<std::string, std::string>, 6> particleSprings
-    {{
-        {"blob_1", "blob_2"},
-        {"blob_2", "blob_3"},
-        {"blob_3", "blob_4"},
-        {"blob_4", "blob_5"},
-        {"blob_5", "blob_6"},
-        {"blob_6", "blob_1"}
-    }};
-
-    // We add the spring forces between each particle
-    for(auto & [labelBlobA, labelBlobB] : particleSprings)
+    for(auto & [labelBlobA, labelBlobB] : centerToVertices)
     {
         auto particleA = m_gameState.getParticle(labelBlobA);
         auto particleB = m_gameState.getParticle(labelBlobB);
 
         // Spring of particle B on particle A
-        auto blobSpring = std::make_unique<ParticleSpring>(particleB, k, restLength);
+        auto blobSpring = std::make_unique<ParticleSpring>(particleB, k, dodecahedronCircumradius);
         m_physicsEngine.registerForce(particleA, blobSpring.get(), 0.0);
-        m_gameState.addParticleForceGenerator("blobspring_" + labelBlobB + "_" + labelBlobA, std::move(blobSpring));
+        m_gameState.addParticleForceGenerator("blobSpring_" + labelBlobB + "_" + labelBlobA, std::move(blobSpring));
 
         // Spring of particle A on particle B
-        blobSpring = std::make_unique<ParticleSpring>(particleA, k, restLength);
+        blobSpring = std::make_unique<ParticleSpring>(particleA, k, dodecahedronCircumradius);
         m_physicsEngine.registerForce(particleB, blobSpring.get(), 0.0);
-        m_gameState.addParticleForceGenerator("blobspring_" + labelBlobA + "_" + labelBlobB, std::move(blobSpring));
+        m_gameState.addParticleForceGenerator("blobSpring_" + labelBlobA + "_" + labelBlobB, std::move(blobSpring));
     }
-}
 
-void Application::moveBlob(Vector3f moveVector)
-{
-    // Only move the center of the blob
-    Particle* particle = m_gameState.getParticle("blob_0");
-    particle->setVelocity(particle->getVelocity() + moveVector*10.0f);
-    particle->setIsResting(false);
-}
+    for(auto & [labelBlobA, labelBlobB] : centerToVertices)
+    {
+        auto particleA = m_gameState.getParticle(labelBlobA);
+        auto particleB = m_gameState.getParticle(labelBlobB);
 
-void Application::resetBlob()
-{
-    std::array<std::pair<std::string, Vector3f>, 7> blobPos
+        // Cable
+        auto blobCable = std::make_unique<ParticleCable>(particleA, particleB, dodecahedronCircumradius, cableRestitution);
+        m_gameState.addParticleContactGenerator("blobCable_" + labelBlobA + "_" + labelBlobB, std::move(blobCable));
+    }
+
+    std::array<std::pair<std::string, std::string>, 30> edges
     {{
-        {"blob_0", m_positionInit},
-        {"blob_1", m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(PI / 3.0f)     + Vector3f{0.0f, 1.0f, 0.0f} * sin(PI / 3.0f)    },
-        {"blob_2", m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(2 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(2 * PI / 3.0f)},
-        {"blob_3", m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(3 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(3 * PI / 3.0f)},
-        {"blob_4", m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(4 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(4 * PI / 3.0f)},
-        {"blob_5", m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(5 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(5 * PI / 3.0f)},
-        {"blob_6", m_positionInit + Vector3f{0.0f, 0.0f, 1.0f} * cos(6 * PI / 3.0f) + Vector3f{0.0f, 1.0f, 0.0f} * sin(6 * PI / 3.0f)},
+        {"blob_1", "blob_9"},
+        {"blob_1", "blob_13"},
+        {"blob_1", "blob_17"},
+        {"blob_2", "blob_9"},
+        {"blob_2", "blob_14"},
+        {"blob_2", "blob_18"},
+        {"blob_3", "blob_10"},
+        {"blob_3", "blob_13"},
+        {"blob_3", "blob_19"},
+        {"blob_4", "blob_11"},
+        {"blob_4", "blob_15"},
+        {"blob_4", "blob_17"},
+        {"blob_5", "blob_10"},
+        {"blob_5", "blob_14"},
+        {"blob_5", "blob_20"},
+        {"blob_6", "blob_11"},
+        {"blob_6", "blob_16"},
+        {"blob_6", "blob_18"},
+        {"blob_7", "blob_12"},
+        {"blob_7", "blob_15"},
+        {"blob_7", "blob_19"},
+        {"blob_8", "blob_12"},
+        {"blob_8", "blob_16"},
+        {"blob_8", "blob_20"},
+        {"blob_9", "blob_11"},
+        {"blob_10", "blob_12"},
+        {"blob_13", "blob_14"},
+        {"blob_15", "blob_16"},
+        {"blob_17", "blob_19"},
+        {"blob_18", "blob_20"},
     }};
 
-    for(auto & [label, pos] : blobPos)
+    for(auto & [labelBlobA, labelBlobB] : edges)
     {
-        auto particle = m_gameState.getParticle(label);
+        auto particleA = m_gameState.getParticle(labelBlobA);
+        auto particleB = m_gameState.getParticle(labelBlobB);
 
-        particle->setPosition(pos);
-        particle->setVelocity({0.f, 0.f, 0.f});
-        particle->setIsResting(false);
+        // Spring of particle B on particle A
+        auto blobSpring = std::make_unique<ParticleSpring>(particleB, k, dodecahedronEdgeLength);
+        m_physicsEngine.registerForce(particleA, blobSpring.get(), 0.0);
+        m_gameState.addParticleForceGenerator("blobSpring_" + labelBlobB + "_" + labelBlobA, std::move(blobSpring));
+
+        // Spring of particle A on particle B
+        blobSpring = std::make_unique<ParticleSpring>(particleA, k, dodecahedronEdgeLength);
+        m_physicsEngine.registerForce(particleB, blobSpring.get(), 0.0);
+        m_gameState.addParticleForceGenerator("blobSpring_" + labelBlobA + "_" + labelBlobB, std::move(blobSpring));
+    }
+
+    for(auto & [labelBlobA, labelBlobB] : edges)
+    {
+        auto particleA = m_gameState.getParticle(labelBlobA);
+        auto particleB = m_gameState.getParticle(labelBlobB);
+
+        // Cable
+        auto blobCable = std::make_unique<ParticleCable>(particleA, particleB, dodecahedronEdgeLength, cableRestitution);
+        m_gameState.addParticleContactGenerator("blobCable_" + labelBlobA + "_" + labelBlobB, std::move(blobCable));
     }
 }
 
-void Application::createGround()
+void Application::moveBlob(Vector3f moveDirection, float deltaTime)
 {
-    // Ground particle (center)
-    auto ground = std::make_unique<Particle>(Vector3f{0.0f, 0.0f, -6.0f}, 1.0f, 0.999f);
-    ground->setInverseMass(0.0f);
-    ground->setVelocity({0.0f, 0.0f, 0.0f});
-
-    m_gameState.addParticle("ground", std::move(ground));
-
-    Vector3f directionWidth{1.0f, 0.0f, 0.0f}; // X+ axis
-    Vector3f directionLength{0.0f, 1.0f, 0.0f}; // Y+ axis
-    float length = 20.0f;
-    float width = 20.0f;
-    float thickness = 0.5f;
-    float restitution = 0.3f;
-
-    // Ground Shape
-    auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
-    groundShape->setScale({length / 2.0f, width / 2.0f, thickness / 2.0f});
-    groundShape->setPosition(m_gameState.getParticle("ground")->getPosition());
-    m_gameState.addShapeGenerator("ground", std::move(groundShape));
-
-    // Wall contact between blob's particles and the ground
-    std::array<std::string, 7> blobLabels
+    std::array<std::string, 21> blobLabels
     {
         "blob_0",
         "blob_1",
@@ -532,47 +575,170 @@ void Application::createGround()
         "blob_4",
         "blob_5",
         "blob_6",
+        "blob_7",
+        "blob_8",
+        "blob_9",
+        "blob_10",
+        "blob_11",
+        "blob_12",
+        "blob_13",
+        "blob_14",
+        "blob_15",
+        "blob_16",
+        "blob_17",
+        "blob_18",
+        "blob_19",
+        "blob_20",
     };
 
-    for (auto& blobLabel : blobLabels)
+    float moveForce = 100.0f;
+    float maxVelocity = 10.0f;
+    moveDirection = moveDirection.normalize();
+
+    // Find particle with highest altitude
+    float maxAltitude = std::numeric_limits<float>().lowest();
+    Particle * particleHighestAltitude = nullptr;
+
+    for(auto & blobLabel : blobLabels)
     {
-        auto wallContact = std::make_unique<WallContactGenerator>(directionWidth, directionLength, length, width, thickness, m_gameState.getParticle("ground"), m_gameState.getParticle(blobLabel), restitution);
-        m_gameState.addParticleContactGenerator("wallContact_ground_" + blobLabel, std::move(wallContact));
+        auto particle = m_gameState.getParticle(blobLabel);
+
+        if (maxAltitude < particle->getPosition().getZ())
+        {
+            maxAltitude = particle->getPosition().getZ();
+            particleHighestAltitude = particle;
+        }
+    }
+
+    // Find particle with lowest altitude
+    float minAltitude = std::numeric_limits<float>().max();
+    Particle * particleLowestAltitude = nullptr;
+
+    for(auto & blobLabel : blobLabels)
+    {
+        auto particle = m_gameState.getParticle(blobLabel);
+
+        if (minAltitude > particle->getPosition().getZ())
+        {
+            minAltitude = particle->getPosition().getZ();
+            particleLowestAltitude = particle;
+        }
+    }
+
+    Particle * blobCentre = m_gameState.getParticle("blob_0");
+    Vector3f currentVelocity = blobCentre->getVelocity();
+    float currentVelocityInMovementDirection = currentVelocity.dotProduct(moveDirection);
+
+    float velocityToAdd = moveForce * deltaTime;
+
+    if (currentVelocityInMovementDirection + velocityToAdd > maxVelocity)
+    {
+        velocityToAdd = std::max(0.0f, maxVelocity - currentVelocityInMovementDirection);
+    }
+
+    // Move highest and lowest particles for the rotation
+    particleHighestAltitude->addVelocity( moveDirection * velocityToAdd);
+    particleLowestAltitude->addVelocity( -moveDirection * velocityToAdd);
+
+    // Move the center for global movement
+    blobCentre->addVelocity( moveDirection * velocityToAdd);
+}
+
+void Application::resetBlob()
+{
+    float phi = (1.0f + sqrt(5.0f)) / 2.0f;
+    Vector3f blobCenter = m_positionInit;
+
+    std::array<std::pair<std::string, Vector3f>, 21> blobPos
+    {{
+        {"blob_0", blobCenter},
+
+        {"blob_1",  blobCenter + Vector3f{1.0f, 1.0f, 1.0f}},
+        {"blob_2",  blobCenter + Vector3f{-1.0f, 1.0f, 1.0f}},
+        {"blob_3",  blobCenter + Vector3f{1.0f, -1.0f, 1.0f}},
+        {"blob_4",  blobCenter + Vector3f{1.0f, 1.0f, -1.0f}},
+        {"blob_5",  blobCenter + Vector3f{-1.0f, -1.0f, 1.0f}},
+        {"blob_6",  blobCenter + Vector3f{-1.0f, 1.0f, -1.0f}},
+        {"blob_7",  blobCenter + Vector3f{1.0f, -1.0f,-1.0f}},
+        {"blob_8",  blobCenter + Vector3f{-1.0f, -1.0f, -1.0f}},
+
+        {"blob_9",  blobCenter + Vector3f{0.0f, phi, 1.0f / phi}},
+        {"blob_10", blobCenter + Vector3f{0.0f, -phi, 1.0f / phi}},
+        {"blob_11", blobCenter + Vector3f{0.0f, phi, -1.0f / phi}},
+        {"blob_12", blobCenter + Vector3f{0.0f, -phi, -1.0f / phi}},
+
+        {"blob_13", blobCenter + Vector3f{1.0f / phi, 0.0f, phi}},
+        {"blob_14", blobCenter + Vector3f{-1.0f / phi, 0.0f, phi}},
+        {"blob_15", blobCenter + Vector3f{1.0f / phi, 0.0f, -phi}},
+        {"blob_16", blobCenter + Vector3f{-1.0f / phi, 0.0f, -phi}},
+
+        {"blob_17", blobCenter + Vector3f{phi, 1.0f / phi, 0.0f}},
+        {"blob_18", blobCenter + Vector3f{-phi, 1.0f / phi, 0.0f}},
+        {"blob_19", blobCenter + Vector3f{phi, -1.0f / phi, 0.0f}},
+        {"blob_20", blobCenter + Vector3f{-phi, -1.0f / phi, 0.0f}}
+    }};
+
+    for(auto & [label, pos] : blobPos)
+    {
+        auto particle = m_gameState.getParticle(label);
+
+        particle->setPosition(pos);
+        particle->setVelocity({0.0f, 0.0f, 0.0f});
+        particle->setIsResting(false);
     }
 }
 
-void Application::createTestRestingContact()
+void Application::createGround()
 {
-    // Particle
-    auto particle = std::make_unique<Particle>(m_positionInit + Vector3f{0.0f, 5.0f, 0.0f}, 1.0f, 0.999f);
-    particle->setVelocity({0.0f, 0.0f, 0.0f});
-
-    // Particle Shape
-    auto particuleShape = std::make_unique<ParticleShapeGenerator>(particle.get(), Color::DARK_GRAY);
-
-    m_gameState.addParticle("particleRest", std::move(particle));
-    m_gameState.addShapeGenerator("particleRest", std::move(particuleShape));
-
-    // Gravity
-    m_physicsEngine.registerForce(m_gameState.getParticle("particleRest"), m_gameState.getParticleForceGenerator<ParticleGravity>("gravity"), 0.0f);
-
-    // Ground contact
-    Vector3f directionWidth{1.0f, 0.0f, 0.0f}; // X+ axis
-    Vector3f directionLength{0.0f, 1.0f, 0.0f}; // Y+ axis
-    float length = 20.0f;
-    float width = 20.0f;
+    float length = 100.0f;
+    float width = 100.0f;
     float thickness = 0.5f;
-    float restitution = 0.3f;
+    Vector3f groundCenterPosition{0.0f, 0.0f, -6.0f};
 
-    auto wallContact = std::make_unique<WallContactGenerator>(directionWidth, directionLength, length, width, thickness, m_gameState.getParticle("ground"), m_gameState.getParticle("particleRest"), restitution);
-    m_gameState.addParticleContactGenerator("wallContact_ground_particleRest", std::move(wallContact));
+    // Ground Shape
+    auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
+    groundShape->setScale({length / 2.0f, width / 2.0f, thickness / 2.0f});
+    groundShape->setPosition(groundCenterPosition);
+    m_gameState.addShapeGenerator("ground", std::move(groundShape));
 }
 
-void Application::resetTestRestingContact()
+void Application::jumpBlob()
 {
-    auto particle = m_gameState.getParticle("particleRest");
+    std::array<std::string, 21> blobLabels
+    {
+        "blob_0",
+        "blob_1",
+        "blob_2",
+        "blob_3",
+        "blob_4",
+        "blob_5",
+        "blob_6",
+        "blob_7",
+        "blob_8",
+        "blob_9",
+        "blob_10",
+        "blob_11",
+        "blob_12",
+        "blob_13",
+        "blob_14",
+        "blob_15",
+        "blob_16",
+        "blob_17",
+        "blob_18",
+        "blob_19",
+        "blob_20",
+    };
 
-    particle->setPosition(m_positionInit + Vector3f{0.0f, 5.0f, 0.0f});
-    particle->setVelocity({0.0f, 0.0f, 0.0f});
-    particle->setIsResting(false);
+    float jumpHeight = 10.0f;
+
+    float jumpVelocity = sqrt(2.0f * 9.81f * jumpHeight);
+
+    for(auto & blobLabel : blobLabels)
+    {
+        auto particle = m_gameState.getParticle(blobLabel);
+
+        Vector3f newVelocity = particle->getVelocity();
+        newVelocity.setZ(jumpVelocity);
+        particle->setVelocity(newVelocity);
+    }
 }
