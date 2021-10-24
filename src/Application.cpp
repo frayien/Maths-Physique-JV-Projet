@@ -402,14 +402,14 @@ void Application::createBlob()
 
         // Particle Shape
         auto particuleShapeBlob = std::make_unique<SphereShapeGenerator>(glm::vec3{ 0.2f, 0.2f, 0.2f });
-        particuleShapeBlob->scale(0.2f);
+        particuleShapeBlob->scale(m_gameState.getParticle("blob_" + std::to_string(i))->getRadius());
         m_gameState.addShapeGenerator("blob_" + std::to_string(i), std::move(particuleShapeBlob));
 
         // Gravity
         m_physicsEngine.registerForce(m_gameState.getParticle("blob_" + std::to_string(i)), m_gameState.getParticleForceGenerator<ParticleGravity>("gravity"), 0.0f);
 
         // Drag
-        m_physicsEngine.registerForce(m_gameState.getParticle("blob_" + std::to_string(i)), m_gameState.getParticleForceGenerator<ParticleGravity>("drag"), 0.0f);
+        m_physicsEngine.registerForce(m_gameState.getParticle("blob_" + std::to_string(i)), m_gameState.getParticleForceGenerator<ParticleDrag>("drag"), 0.0f);
     }
 
     // Springs between particles
@@ -420,6 +420,7 @@ void Application::createBlob()
     float cableMaxLength = 1.0f;
     float cableRestitution = 0.3f;
 
+    //We define which pair of particles will be cables
     std::array<std::pair<std::string, std::string>, 6> particleCables
     {{
         {"blob_0", "blob_1"},
@@ -430,6 +431,7 @@ void Application::createBlob()
         {"blob_0", "blob_6"}
     }};
 
+    // We add the cable contacts between each particle
     for(auto & [labelBlobA, labelBlobB] : particleCables)
     {
         auto particleA = m_gameState.getParticle(labelBlobA);
@@ -440,6 +442,7 @@ void Application::createBlob()
         m_gameState.addParticleContactGenerator("blob_cable_" + labelBlobA + "_" + labelBlobB, std::move(cable));
     }
 
+    //We define which pair of particles will be springs
     std::array<std::pair<std::string, std::string>, 6> particleSprings
     {{
         {"blob_1", "blob_2"},
@@ -450,6 +453,7 @@ void Application::createBlob()
         {"blob_6", "blob_1"}
     }};
 
+    // We add the spring forces between each particle
     for(auto & [labelBlobA, labelBlobB] : particleSprings)
     {
         auto particleA = m_gameState.getParticle(labelBlobA);
@@ -493,7 +497,7 @@ void Application::moveBlob(Vector3f moveVector)
 {
     // Only move the center of the blob
     Particle* particle = m_gameState.getParticle("blob_0");
-    particle->setPosition(particle->getPosition() + moveVector);
+    particle->setVelocity(particle->getVelocity() + moveVector*10.0f);
     particle->setIsResting(false);
 }
 

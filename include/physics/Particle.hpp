@@ -12,7 +12,7 @@ class Particle
 
 public:
 	Particle();
-	Particle(Vector3f position, float mass, float damping, bool isResting = false);
+	Particle(Vector3f position, float mass, float damping, bool isResting = false, float radius = 0.2f);
 	~Particle();
 
 	void integrate(float deltaTime);
@@ -34,6 +34,9 @@ public:
 	inline void setMass(float mass) { m_inverseMass = 1.0f / mass; }
 	inline void setInverseMass(float inverseMass) { m_inverseMass = inverseMass; }
 
+	inline float getRadius() const { return m_radius; }
+	inline void setRadius(float radius) { m_radius = radius; }
+
 	inline float getDamping() const { return m_damping; }
 	inline void setDamping(float damping) { m_damping = damping; }
 
@@ -48,6 +51,7 @@ private :
 	Vector3f m_totalForce;
 	float m_inverseMass;
 	float m_damping;
+	float m_radius;
 	bool m_isResting;
 };
 

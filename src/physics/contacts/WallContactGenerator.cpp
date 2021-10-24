@@ -20,8 +20,8 @@ void WallContactGenerator::addContact(std::vector<ParticleContact>& contacts) co
     float normalComponentNorm = vectWallToParticle.dotProduct(wallNormal);
     Vector3f tangentComponent = vectWallToParticle - normalComponentNorm * wallNormal;
 
-    // TODO : move particle radius inside Particle class
-    float particleRadius = 0.2f;
+    // We get the particle's radius and its penetration inside the wall
+    float particleRadius = m_otherParticle->getRadius();
     float penetration = normalComponentNorm - particleRadius - m_thickness / 2.0f;
 
     if (penetration < 0.0f && abs(tangentComponent.dotProduct(m_directionLength)) <= m_length / 2.0f && abs(tangentComponent.dotProduct(m_directionWidth)) <= m_width / 2.0f)

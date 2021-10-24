@@ -8,15 +8,15 @@ ParticleRod::ParticleRod(Particle* particleOne, Particle* particleTwo, float len
 
 void ParticleRod::addContact(std::vector<ParticleContact>& contacts) const {
 
-	if (getCurrentLength() > m_lengthConstraint) {
+	if (getCurrentDistance() > m_lengthConstraint) {
 		Vector3f vectorToNormalize{ m_particles[1]->getPosition() - m_particles[0]->getPosition() };
 
-		contacts.emplace_back(m_particles[0], m_particles[1], std::abs(getCurrentLength() - m_lengthConstraint), vectorToNormalize.normalize());
+		contacts.emplace_back(m_particles[0], m_particles[1], std::abs(getCurrentDistance() - m_lengthConstraint), vectorToNormalize.normalize());
 	}
-	else if (getCurrentLength() < m_lengthConstraint) {
+	else if (getCurrentDistance() < m_lengthConstraint) {
 		Vector3f vectorToNormalize{ m_particles[0]->getPosition() - m_particles[1]->getPosition() };
 
-		contacts.emplace_back(m_particles[0], m_particles[1], std::abs(getCurrentLength() - m_lengthConstraint), vectorToNormalize.normalize());
+		contacts.emplace_back(m_particles[0], m_particles[1], std::abs(getCurrentDistance() - m_lengthConstraint), vectorToNormalize.normalize());
 	}
 
 	

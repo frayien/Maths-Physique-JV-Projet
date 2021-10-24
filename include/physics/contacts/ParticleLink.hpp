@@ -17,7 +17,7 @@ public:
     ParticleLink(Particle* particleOne, Particle* particleTwo);
     virtual ~ParticleLink() = default;
 
-    float getCurrentLength() const;
+    float getCurrentDistance() const;
 
     virtual void addContact(std::vector<ParticleContact>& contacts) const = 0;
 };

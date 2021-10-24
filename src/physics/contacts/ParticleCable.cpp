@@ -9,10 +9,10 @@ ParticleCable::ParticleCable(Particle* particleOne, Particle* particleTwo, float
 
 void ParticleCable::addContact(std::vector<ParticleContact>& contacts) const {
 
-	if (getCurrentLength() > m_maxLength) {
+	if (getCurrentDistance() > m_maxLength) {
 		Vector3f vectorToNormalize{ m_particles[1]->getPosition() - m_particles[0]->getPosition() };
 
-		contacts.emplace_back(m_particles[0], m_particles[1], std::abs(getCurrentLength() - m_maxLength), vectorToNormalize.normalize(), m_restitution);
+		contacts.emplace_back(m_particles[0], m_particles[1], std::abs(getCurrentDistance() - m_maxLength), vectorToNormalize.normalize(), m_restitution);
 	}
 
 }
