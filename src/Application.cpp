@@ -447,6 +447,74 @@ void Application::createBlob()
         m_gameState.addParticleContactGenerator("wallContact_ground_blob_" + std::to_string(i), std::move(wallContact));
     }
 
+    // Link shape between blob's particles
+    std::array<std::pair<std::string, std::string>, 50> allBlobLinks
+    {{
+        // Between center and vertices
+        {"blob_0", "blob_1"},
+        {"blob_0", "blob_2"},
+        {"blob_0", "blob_3"},
+        {"blob_0", "blob_4"},
+        {"blob_0", "blob_5"},
+        {"blob_0", "blob_6"},
+        {"blob_0", "blob_7"},
+        {"blob_0", "blob_8"},
+        {"blob_0", "blob_9"},
+        {"blob_0", "blob_10"},
+        {"blob_0", "blob_11"},
+        {"blob_0", "blob_12"},
+        {"blob_0", "blob_13"},
+        {"blob_0", "blob_14"},
+        {"blob_0", "blob_15"},
+        {"blob_0", "blob_16"},
+        {"blob_0", "blob_17"},
+        {"blob_0", "blob_18"},
+        {"blob_0", "blob_19"},
+        {"blob_0", "blob_20"},
+
+        // Edges
+        {"blob_1", "blob_9"},
+        {"blob_1", "blob_13"},
+        {"blob_1", "blob_17"},
+        {"blob_2", "blob_9"},
+        {"blob_2", "blob_14"},
+        {"blob_2", "blob_18"},
+        {"blob_3", "blob_10"},
+        {"blob_3", "blob_13"},
+        {"blob_3", "blob_19"},
+        {"blob_4", "blob_11"},
+        {"blob_4", "blob_15"},
+        {"blob_4", "blob_17"},
+        {"blob_5", "blob_10"},
+        {"blob_5", "blob_14"},
+        {"blob_5", "blob_20"},
+        {"blob_6", "blob_11"},
+        {"blob_6", "blob_16"},
+        {"blob_6", "blob_18"},
+        {"blob_7", "blob_12"},
+        {"blob_7", "blob_15"},
+        {"blob_7", "blob_19"},
+        {"blob_8", "blob_12"},
+        {"blob_8", "blob_16"},
+        {"blob_8", "blob_20"},
+        {"blob_9", "blob_11"},
+        {"blob_10", "blob_12"},
+        {"blob_13", "blob_14"},
+        {"blob_15", "blob_16"},
+        {"blob_17", "blob_19"},
+        {"blob_18", "blob_20"},
+    }};
+
+    for(auto & [labelBlobA, labelBlobB] : allBlobLinks)
+    {
+        auto particleA = m_gameState.getParticle(labelBlobA);
+        auto particleB = m_gameState.getParticle(labelBlobB);
+
+        // Link Shape
+        auto linkShapeBlob = std::make_unique<LinkShapeGenerator>(particleA, particleB, glm::vec3{ 0.0f, 0.0f, 1.0f });
+        m_gameState.addShapeGenerator("blobLink_" + labelBlobA + "_" + labelBlobB, std::move(linkShapeBlob));
+    }
+
     // Properties of cables and springs
     float dodecahedronEdgeLength = sqrt(5.0f) - 1.0f;
     float dodecahedronCircumradius = sqrt(3.0f);
