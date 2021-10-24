@@ -84,19 +84,19 @@ void Application::update(float deltaTime)
     };
 
     // Movements of the blob
-    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_KP_4)) 
+    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_G))
     {
         blobMouvementMap.at("Left")();
     }
-    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_KP_5))
+    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_H))
     {
         blobMouvementMap.at("Down")();
     }
-    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_KP_6))
+    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_J))
     {
         blobMouvementMap.at("Right")();
     }
-    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_KP_8))
+    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_Y))
     {
         blobMouvementMap.at("Up")();
     }
@@ -152,8 +152,8 @@ void Application::updateCamera(float deltaTime)
         { GLFW_KEY_RIGHT, [&](){ cam.move(-moveSpeed * glm::vec3{0.0f, 1.0f, 0.0f}); } },
         { GLFW_KEY_UP   , [&](){ cam.move( moveSpeed * glm::vec3{1.0f, 0.0f, 0.0f}); } },
         { GLFW_KEY_DOWN , [&](){ cam.move(-moveSpeed * glm::vec3{1.0f, 0.0f, 0.0f}); } },
-        { GLFW_KEY_O    , [&](){ cam.move( moveSpeed * glm::vec3{0.0f, 0.0f, 1.0f}); } },
-        { GLFW_KEY_L    , [&](){ cam.move(-moveSpeed * glm::vec3{0.0f, 0.0f, 1.0f}); } },
+        { GLFW_KEY_Q    , [&](){ cam.move( moveSpeed * glm::vec3{0.0f, 0.0f, 1.0f}); } },
+        { GLFW_KEY_E    , [&](){ cam.move(-moveSpeed * glm::vec3{0.0f, 0.0f, 1.0f}); } },
     };
 
     for(const auto & [key, fun] : keymap)
