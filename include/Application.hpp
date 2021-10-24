@@ -37,7 +37,7 @@ private:
     GameState m_gameState;
 
     // Blob data
-    Vector3f m_blobCenterInitPos = {-8.0f, -3.0f, 0.0f};
+    Vector3f m_blobCenterInitPos = {-2.0f, -3.0f, 0.0f};
     float m_blobParticleRadius = 0.2f;
     float m_blobEdgeLength = sqrt(5.0f) - 1.0f; // dodecahedron edge length
     float m_blobCenterToVerticesLength = sqrt(3.0f); // dodecahedron circumradius
@@ -45,13 +45,17 @@ private:
     float m_blobCableRestitution = 0.3f;
 
     // Ground data
-    float m_groundLength = 100.0f;
-    float m_groundWidth = 100.0f;
+    float m_groundLength = 25.0f;
+    float m_groundWidth = 25.0f;
     float m_groundThickness = 0.5f;
     float m_groundRestitution = 0.4f;
     Vector3f m_groundCenterPosition{0.0f, 0.0f, -6.0f};
     Vector3f m_groundDirectionWidth{1.0f, 0.0f, 0.0f};  // X+ axis
     Vector3f m_groundDirectionLength{0.0f, 1.0f, 0.0f}; // Y+ axis
+    float m_wallsLength = 10.0f;
+    float m_wallsWidth = 7.0f;
+    float m_wallsThickness = 0.4f;
+    float m_wallsRestitution = 0.0f;
 
     // ImGui data
     std::array<float, 3> currentBlobInitialPosition = {-8.0f, -3.0f,  0.0f};
