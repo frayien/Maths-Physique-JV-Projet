@@ -53,13 +53,14 @@ void Application::init()
     cube->scale({0.1f, 15.0f, 10.0f});
     m_gameState.addShapeGenerator("background", std::move(cube));
 
-    // Create force generators
+    // Create force generators of gravity and drag
     std::unique_ptr<ParticleForceGenerator> particleGravity = std::make_unique<ParticleGravity>(9.81f);
     m_gameState.addParticleForceGenerator("gravity", std::move(particleGravity));
 
     std::unique_ptr<ParticleForceGenerator> particleDrag = std::make_unique<ParticleDrag>(0.0f, 0.1f);
     m_gameState.addParticleForceGenerator("drag", std::move(particleDrag));
 
+    // Create ground and blob
     createGround();
     createBlob();
 }
@@ -78,7 +79,7 @@ void Application::update(float deltaTime)
         resetBlob();
     }
 
-    // Map avec l'aide de laquelle nous appellons la fonction moveBlob()
+    // Map with which we will call moveBlob, giving it different parameters according to the keys pressed
     static std::unordered_map<std::string, std::function<void()>> blobMouvementMap =
     {
         { "Up", [&]()    { moveBlob(Vector3f{-1.0f,  0.0f, 0.0f}, deltaTime); } },
@@ -88,7 +89,7 @@ void Application::update(float deltaTime)
         { "Jump", [&]()  { jumpBlob();                                        } },
     };
 
-    // Mouvements du blob
+    // Movements of the blob
     if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_KP_4)) 
     {
         blobMouvementMap.at("Left")();
@@ -283,6 +284,7 @@ void Application::createBlob()
         m_blobCenterInitPos + Vector3f{-phi, -1.0f / phi, 0.0f}
     };
 
+    // For each particle we create the particle, its shape and apply to it gravity and drag forces + ground contact
     for(std::size_t i = 0; i < particlePos.size(); ++i)
     {
         // Particle
@@ -304,6 +306,7 @@ void Application::createBlob()
         auto groundContact = m_gameState.getParticleContactGenerator<WallContactGenerator>("groundContact");
         groundContact->addParticle(m_gameState.getParticle("blob_" + std::to_string(i)));
     }
+
 
     // Link shape between blob's particles
     std::array<std::pair<std::string, std::string>, 50> allBlobLinks
@@ -363,6 +366,7 @@ void Application::createBlob()
         {"blob_18", "blob_20"},
     }};
 
+    // We draw the links between particles
     for(auto & [labelBlobA, labelBlobB] : allBlobLinks)
     {
         auto particleA = m_gameState.getParticle(labelBlobA);
@@ -372,6 +376,7 @@ void Application::createBlob()
         auto linkShapeBlob = std::make_unique<LinkShapeGenerator>(particleA, particleB, glm::vec3{ 0.0f, 0.0f, 1.0f });
         m_gameState.addShapeGenerator("blobLink_" + labelBlobA + "_" + labelBlobB, std::move(linkShapeBlob));
     }
+
 
     std::array<std::pair<std::string, std::string>, 20> centerToVertices
     {{
@@ -397,6 +402,7 @@ void Application::createBlob()
         {"blob_0", "blob_20"},
     }};
 
+    // For each link between the center and the vertices, we create spring forces
     for(auto & [labelBlobA, labelBlobB] : centerToVertices)
     {
         auto particleA = m_gameState.getParticle(labelBlobA);
@@ -413,6 +419,7 @@ void Application::createBlob()
         m_gameState.addParticleForceGenerator("blobSpring_" + labelBlobA + "_" + labelBlobB, std::move(blobSpring));
     }
 
+    // For each link between the center and the vertices, we create cable contacts
     for(auto & [labelBlobA, labelBlobB] : centerToVertices)
     {
         auto particleA = m_gameState.getParticle(labelBlobA);
@@ -422,6 +429,7 @@ void Application::createBlob()
         auto blobCable = std::make_unique<ParticleCable>(particleA, particleB, m_blobCenterToVerticesLength, m_blobCableRestitution);
         m_gameState.addParticleContactGenerator("blobCable_" + labelBlobA + "_" + labelBlobB, std::move(blobCable));
     }
+
 
     std::array<std::pair<std::string, std::string>, 30> edges
     {{
@@ -457,6 +465,7 @@ void Application::createBlob()
         {"blob_18", "blob_20"},
     }};
 
+    // For each edge, we create spring forces
     for(auto & [labelBlobA, labelBlobB] : edges)
     {
         auto particleA = m_gameState.getParticle(labelBlobA);
@@ -473,6 +482,7 @@ void Application::createBlob()
         m_gameState.addParticleForceGenerator("blobSpring_" + labelBlobA + "_" + labelBlobB, std::move(blobSpring));
     }
 
+    // For each edge, we create cable contacts
     for(auto & [labelBlobA, labelBlobB] : edges)
     {
         auto particleA = m_gameState.getParticle(labelBlobA);
