@@ -35,16 +35,24 @@ private:
     PhysicsEngine m_physicsEngine;
     GameState m_gameState;
 
-    Vector3f m_positionInit = {-8, -3, 0};
-    Vector3f m_velocityInit = {0, 4, 7};
+    // Blob data
+    Vector3f m_blobCenterInitPos = {-8.0f, -3.0f, 0.0f};
+    float m_blobParticleRadius = 0.2f;
+    float m_blobEdgeLength = sqrt(5.0f) - 1.0f; // dodecahedron edge length
+    float m_blobCenterToVerticesLength = sqrt(3.0f); // dodecahedron circumradius
+    float m_blobK = 200.0f;
+    float m_blobCableRestitution = 0.3f;
 
-    int m_countTimeStepMarks = 0;
-    int m_countTimeStepMarksMax = 15;
-    std::size_t m_markN = 0;
-    bool m_resetMarks = false;
+    // Ground data
+    float m_groundLength = 100.0f;
+    float m_groundWidth = 100.0f;
+    float m_groundThickness = 0.5f;
+    float m_groundRestitution = 0.4f;
+    Vector3f m_groundCenterPosition{0.0f, 0.0f, -6.0f};
+    Vector3f m_groundDirectionWidth{1.0f, 0.0f, 0.0f};  // X+ axis
+    Vector3f m_groundDirectionLength{0.0f, 1.0f, 0.0f}; // Y+ axis
 
     // ImGui
-
     char* m_projectiles[4] = { "Ball", "Heavy ball", "Laser", "Fireball" };
     std::vector<std::array<float, 3>> m_projectilesInitialVelocity =
     {

@@ -72,18 +72,6 @@ void Application::update(float deltaTime)
     static float elapsedTime = 0.0f;
     elapsedTime += deltaTime;
 
-    // If we want to reset the world and the pause isn't active
-    if (m_resetMarks && !pause)
-    {
-        for(std::size_t i = 0; i < m_markN; ++i)
-        {
-            m_gameState.removeShapeGenerator("mark_" + std::to_string(i));
-        }
-        m_markN = 0;
-
-        m_resetMarks = false;
-    }
-
     // If we click on the reset button
     if(m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_R))
     {
@@ -311,8 +299,6 @@ void Application::createFrame()
                 particle->setDamping (damping);
                 particle->setMass    (currentMass);
 
-                m_resetMarks = true;
-
                 resetBlob();
             }
 
@@ -384,43 +370,41 @@ void Application::createFrame()
 void Application::createBlob()
 {
     float phi = (1.0f + sqrt(5.0f)) / 2.0f;
-    Vector3f blobCenter = m_positionInit;
-    float blobParticleRadius = 0.2f;
 
     // Dodecahedron shape
     std::array<Vector3f, 21> particlePos
     {
-        blobCenter,
+        m_blobCenterInitPos,
 
-        blobCenter + Vector3f{1.0f, 1.0f, 1.0f},
-        blobCenter + Vector3f{-1.0f, 1.0f, 1.0f},
-        blobCenter + Vector3f{1.0f, -1.0f, 1.0f},
-        blobCenter + Vector3f{1.0f, 1.0f, -1.0f},
-        blobCenter + Vector3f{-1.0f, -1.0f, 1.0f},
-        blobCenter + Vector3f{-1.0f, 1.0f, -1.0f},
-        blobCenter + Vector3f{1.0f, -1.0f, -1.0f},
-        blobCenter + Vector3f{-1.0f, -1.0f, -1.0f},
+        m_blobCenterInitPos + Vector3f{1.0f, 1.0f, 1.0f},
+        m_blobCenterInitPos + Vector3f{-1.0f, 1.0f, 1.0f},
+        m_blobCenterInitPos + Vector3f{1.0f, -1.0f, 1.0f},
+        m_blobCenterInitPos + Vector3f{1.0f, 1.0f, -1.0f},
+        m_blobCenterInitPos + Vector3f{-1.0f, -1.0f, 1.0f},
+        m_blobCenterInitPos + Vector3f{-1.0f, 1.0f, -1.0f},
+        m_blobCenterInitPos + Vector3f{1.0f, -1.0f, -1.0f},
+        m_blobCenterInitPos + Vector3f{-1.0f, -1.0f, -1.0f},
 
-        blobCenter + Vector3f{0.0f, phi, 1.0f / phi},
-        blobCenter + Vector3f{0.0f, -phi, 1.0f / phi},
-        blobCenter + Vector3f{0.0f, phi, -1.0f / phi},
-        blobCenter + Vector3f{0.0f, -phi, -1.0f / phi},
+        m_blobCenterInitPos + Vector3f{0.0f, phi, 1.0f / phi},
+        m_blobCenterInitPos + Vector3f{0.0f, -phi, 1.0f / phi},
+        m_blobCenterInitPos + Vector3f{0.0f, phi, -1.0f / phi},
+        m_blobCenterInitPos + Vector3f{0.0f, -phi, -1.0f / phi},
 
-        blobCenter + Vector3f{1.0f / phi, 0.0f, phi},
-        blobCenter + Vector3f{-1.0f / phi, 0.0f, phi},
-        blobCenter + Vector3f{1.0f / phi, 0.0f, -phi},
-        blobCenter + Vector3f{-1.0f / phi, 0.0f, -phi},
+        m_blobCenterInitPos + Vector3f{1.0f / phi, 0.0f, phi},
+        m_blobCenterInitPos + Vector3f{-1.0f / phi, 0.0f, phi},
+        m_blobCenterInitPos + Vector3f{1.0f / phi, 0.0f, -phi},
+        m_blobCenterInitPos + Vector3f{-1.0f / phi, 0.0f, -phi},
 
-        blobCenter + Vector3f{phi, 1.0f / phi, 0.0f},
-        blobCenter + Vector3f{-phi, 1.0f / phi, 0.0f},
-        blobCenter + Vector3f{phi, -1.0f / phi, 0.0f},
-        blobCenter + Vector3f{-phi, -1.0f / phi, 0.0f}
+        m_blobCenterInitPos + Vector3f{phi, 1.0f / phi, 0.0f},
+        m_blobCenterInitPos + Vector3f{-phi, 1.0f / phi, 0.0f},
+        m_blobCenterInitPos + Vector3f{phi, -1.0f / phi, 0.0f},
+        m_blobCenterInitPos + Vector3f{-phi, -1.0f / phi, 0.0f}
     };
 
     for(std::size_t i = 0; i < particlePos.size(); ++i)
     {
         // Particle
-        auto particleBlob = std::make_unique<Particle>(particlePos[i], 1.0f, 0.999f, false, blobParticleRadius);
+        auto particleBlob = std::make_unique<Particle>(particlePos[i], 1.0f, 0.999f, false, m_blobParticleRadius);
         particleBlob->setVelocity({0.0f, 0.0f, 0.0f});
         m_gameState.addParticle("blob_" + std::to_string(i), std::move(particleBlob));
 
@@ -435,15 +419,7 @@ void Application::createBlob()
         m_physicsEngine.registerForce(m_gameState.getParticle("blob_" + std::to_string(i)), m_gameState.getParticleForceGenerator<ParticleDrag>("drag"), 0.0f);
 
         // Ground contact
-        Vector3f directionWidth{1.0f, 0.0f, 0.0f}; // X+ axis
-        Vector3f directionLength{0.0f, 1.0f, 0.0f}; // Y+ axis
-        float length = 100.0f;
-        float width = 100.0f;
-        float thickness = 0.5f;
-        Vector3f groundCenterPosition{0.0f, 0.0f, -6.0f};
-        float restitution = 0.4f;
-
-        auto wallContact = std::make_unique<WallContactGenerator>(directionWidth, directionLength, length, width, thickness, groundCenterPosition, m_gameState.getParticle("blob_" + std::to_string(i)), restitution);
+        auto wallContact = std::make_unique<WallContactGenerator>(m_groundDirectionWidth, m_groundDirectionLength, m_groundLength, m_groundWidth, m_groundThickness, m_groundCenterPosition, m_gameState.getParticle("blob_" + std::to_string(i)), m_groundRestitution);
         m_gameState.addParticleContactGenerator("wallContact_ground_blob_" + std::to_string(i), std::move(wallContact));
     }
 
@@ -515,12 +491,6 @@ void Application::createBlob()
         m_gameState.addShapeGenerator("blobLink_" + labelBlobA + "_" + labelBlobB, std::move(linkShapeBlob));
     }
 
-    // Properties of cables and springs
-    float dodecahedronEdgeLength = sqrt(5.0f) - 1.0f;
-    float dodecahedronCircumradius = sqrt(3.0f);
-    float k = 200.0f;
-    float cableRestitution = 0.3f;
-
     std::array<std::pair<std::string, std::string>, 20> centerToVertices
     {{
         {"blob_0", "blob_1"},
@@ -551,12 +521,12 @@ void Application::createBlob()
         auto particleB = m_gameState.getParticle(labelBlobB);
 
         // Spring of particle B on particle A
-        auto blobSpring = std::make_unique<ParticleSpring>(particleB, k, dodecahedronCircumradius);
+        auto blobSpring = std::make_unique<ParticleSpring>(particleB, m_blobK, m_blobCenterToVerticesLength);
         m_physicsEngine.registerForce(particleA, blobSpring.get(), 0.0);
         m_gameState.addParticleForceGenerator("blobSpring_" + labelBlobB + "_" + labelBlobA, std::move(blobSpring));
 
         // Spring of particle A on particle B
-        blobSpring = std::make_unique<ParticleSpring>(particleA, k, dodecahedronCircumradius);
+        blobSpring = std::make_unique<ParticleSpring>(particleA, m_blobK, m_blobCenterToVerticesLength);
         m_physicsEngine.registerForce(particleB, blobSpring.get(), 0.0);
         m_gameState.addParticleForceGenerator("blobSpring_" + labelBlobA + "_" + labelBlobB, std::move(blobSpring));
     }
@@ -567,7 +537,7 @@ void Application::createBlob()
         auto particleB = m_gameState.getParticle(labelBlobB);
 
         // Cable
-        auto blobCable = std::make_unique<ParticleCable>(particleA, particleB, dodecahedronCircumradius, cableRestitution);
+        auto blobCable = std::make_unique<ParticleCable>(particleA, particleB, m_blobCenterToVerticesLength, m_blobCableRestitution);
         m_gameState.addParticleContactGenerator("blobCable_" + labelBlobA + "_" + labelBlobB, std::move(blobCable));
     }
 
@@ -611,12 +581,12 @@ void Application::createBlob()
         auto particleB = m_gameState.getParticle(labelBlobB);
 
         // Spring of particle B on particle A
-        auto blobSpring = std::make_unique<ParticleSpring>(particleB, k, dodecahedronEdgeLength);
+        auto blobSpring = std::make_unique<ParticleSpring>(particleB, m_blobK, m_blobEdgeLength);
         m_physicsEngine.registerForce(particleA, blobSpring.get(), 0.0);
         m_gameState.addParticleForceGenerator("blobSpring_" + labelBlobB + "_" + labelBlobA, std::move(blobSpring));
 
         // Spring of particle A on particle B
-        blobSpring = std::make_unique<ParticleSpring>(particleA, k, dodecahedronEdgeLength);
+        blobSpring = std::make_unique<ParticleSpring>(particleA, m_blobK, m_blobEdgeLength);
         m_physicsEngine.registerForce(particleB, blobSpring.get(), 0.0);
         m_gameState.addParticleForceGenerator("blobSpring_" + labelBlobA + "_" + labelBlobB, std::move(blobSpring));
     }
@@ -627,7 +597,7 @@ void Application::createBlob()
         auto particleB = m_gameState.getParticle(labelBlobB);
 
         // Cable
-        auto blobCable = std::make_unique<ParticleCable>(particleA, particleB, dodecahedronEdgeLength, cableRestitution);
+        auto blobCable = std::make_unique<ParticleCable>(particleA, particleB, m_blobEdgeLength, m_blobCableRestitution);
         m_gameState.addParticleContactGenerator("blobCable_" + labelBlobA + "_" + labelBlobB, std::move(blobCable));
     }
 }
@@ -715,35 +685,34 @@ void Application::moveBlob(Vector3f moveDirection, float deltaTime)
 void Application::resetBlob()
 {
     float phi = (1.0f + sqrt(5.0f)) / 2.0f;
-    Vector3f blobCenter = m_positionInit;
 
     std::array<std::pair<std::string, Vector3f>, 21> blobPos
     {{
-        {"blob_0", blobCenter},
+        {"blob_0", m_blobCenterInitPos},
 
-        {"blob_1",  blobCenter + Vector3f{1.0f, 1.0f, 1.0f}},
-        {"blob_2",  blobCenter + Vector3f{-1.0f, 1.0f, 1.0f}},
-        {"blob_3",  blobCenter + Vector3f{1.0f, -1.0f, 1.0f}},
-        {"blob_4",  blobCenter + Vector3f{1.0f, 1.0f, -1.0f}},
-        {"blob_5",  blobCenter + Vector3f{-1.0f, -1.0f, 1.0f}},
-        {"blob_6",  blobCenter + Vector3f{-1.0f, 1.0f, -1.0f}},
-        {"blob_7",  blobCenter + Vector3f{1.0f, -1.0f,-1.0f}},
-        {"blob_8",  blobCenter + Vector3f{-1.0f, -1.0f, -1.0f}},
+        {"blob_1",  m_blobCenterInitPos + Vector3f{1.0f, 1.0f, 1.0f}},
+        {"blob_2",  m_blobCenterInitPos + Vector3f{-1.0f, 1.0f, 1.0f}},
+        {"blob_3",  m_blobCenterInitPos + Vector3f{1.0f, -1.0f, 1.0f}},
+        {"blob_4",  m_blobCenterInitPos + Vector3f{1.0f, 1.0f, -1.0f}},
+        {"blob_5",  m_blobCenterInitPos + Vector3f{-1.0f, -1.0f, 1.0f}},
+        {"blob_6",  m_blobCenterInitPos + Vector3f{-1.0f, 1.0f, -1.0f}},
+        {"blob_7",  m_blobCenterInitPos + Vector3f{1.0f, -1.0f,-1.0f}},
+        {"blob_8",  m_blobCenterInitPos + Vector3f{-1.0f, -1.0f, -1.0f}},
 
-        {"blob_9",  blobCenter + Vector3f{0.0f, phi, 1.0f / phi}},
-        {"blob_10", blobCenter + Vector3f{0.0f, -phi, 1.0f / phi}},
-        {"blob_11", blobCenter + Vector3f{0.0f, phi, -1.0f / phi}},
-        {"blob_12", blobCenter + Vector3f{0.0f, -phi, -1.0f / phi}},
+        {"blob_9",  m_blobCenterInitPos + Vector3f{0.0f, phi, 1.0f / phi}},
+        {"blob_10", m_blobCenterInitPos + Vector3f{0.0f, -phi, 1.0f / phi}},
+        {"blob_11", m_blobCenterInitPos + Vector3f{0.0f, phi, -1.0f / phi}},
+        {"blob_12", m_blobCenterInitPos + Vector3f{0.0f, -phi, -1.0f / phi}},
 
-        {"blob_13", blobCenter + Vector3f{1.0f / phi, 0.0f, phi}},
-        {"blob_14", blobCenter + Vector3f{-1.0f / phi, 0.0f, phi}},
-        {"blob_15", blobCenter + Vector3f{1.0f / phi, 0.0f, -phi}},
-        {"blob_16", blobCenter + Vector3f{-1.0f / phi, 0.0f, -phi}},
+        {"blob_13", m_blobCenterInitPos + Vector3f{1.0f / phi, 0.0f, phi}},
+        {"blob_14", m_blobCenterInitPos + Vector3f{-1.0f / phi, 0.0f, phi}},
+        {"blob_15", m_blobCenterInitPos + Vector3f{1.0f / phi, 0.0f, -phi}},
+        {"blob_16", m_blobCenterInitPos + Vector3f{-1.0f / phi, 0.0f, -phi}},
 
-        {"blob_17", blobCenter + Vector3f{phi, 1.0f / phi, 0.0f}},
-        {"blob_18", blobCenter + Vector3f{-phi, 1.0f / phi, 0.0f}},
-        {"blob_19", blobCenter + Vector3f{phi, -1.0f / phi, 0.0f}},
-        {"blob_20", blobCenter + Vector3f{-phi, -1.0f / phi, 0.0f}}
+        {"blob_17", m_blobCenterInitPos + Vector3f{phi, 1.0f / phi, 0.0f}},
+        {"blob_18", m_blobCenterInitPos + Vector3f{-phi, 1.0f / phi, 0.0f}},
+        {"blob_19", m_blobCenterInitPos + Vector3f{phi, -1.0f / phi, 0.0f}},
+        {"blob_20", m_blobCenterInitPos + Vector3f{-phi, -1.0f / phi, 0.0f}}
     }};
 
     for(auto & [label, pos] : blobPos)
@@ -758,15 +727,10 @@ void Application::resetBlob()
 
 void Application::createGround()
 {
-    float length = 100.0f;
-    float width = 100.0f;
-    float thickness = 0.5f;
-    Vector3f groundCenterPosition{0.0f, 0.0f, -6.0f};
-
     // Ground Shape
     auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
-    groundShape->setScale({length / 2.0f, width / 2.0f, thickness / 2.0f});
-    groundShape->setPosition(groundCenterPosition);
+    groundShape->setScale({m_groundLength / 2.0f, m_groundWidth / 2.0f, m_groundThickness / 2.0f});
+    groundShape->setPosition(m_groundCenterPosition);
     m_gameState.addShapeGenerator("ground", std::move(groundShape));
 }
 
