@@ -4,8 +4,7 @@ ParticleShapeGenerator::ParticleShapeGenerator(Particle* particle, color_t color
     m_sphere{color},
     m_particle{particle}
 {
-    m_sphere.scale(0.2f);
-    //m_sphere.scale(particle->getRadius());
+    m_sphere.setScale(particle->getRadius());
 }
 
 ParticleShapeGenerator::~ParticleShapeGenerator()
