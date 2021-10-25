@@ -56,8 +56,8 @@ void Application::init()
 
     // Create ground and blob
     createGround();
-    createExample();
-    // createBlob();
+    //createExample();
+    createBlob();
 }
 
 void Application::update(float deltaTime)
