@@ -253,11 +253,6 @@ void ImGuiVulkan::createFrame(IImGuiFrameGenerator* generator)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    // Default size
-    float imGuiWidth = 330.0f;
-    float imGuiHeight = 400.0f;
-    ImGui::SetWindowSize(ImVec2(imGuiWidth, imGuiHeight));
-
     generator->createFrame();
 }
 

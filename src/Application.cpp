@@ -164,10 +164,82 @@ void Application::createFrame()
 {
     ImGui::Begin("Settings");
 
+    if (ImGui::BeginCombo("##combo", m_modes[m_selected_mode].c_str()))
+    {
+        for (int n = 0; n < m_modes.size(); n++)
+        {
+            bool isSelected = n == m_selected_mode;
+            if (ImGui::Selectable(m_modes[n].c_str(), isSelected))
+            {
+                m_selected_mode = n;
+
+                m_physicsEngine.getParticleForceRegistry().clear();
+                m_gameState.clear();
+
+                // Create force generators
+                std::unique_ptr<ParticleForceGenerator> particleGravity = std::make_unique<ParticleGravity>(9.81f);
+                m_gameState.addParticleForceGenerator("gravity", std::move(particleGravity));
+
+                std::unique_ptr<ParticleForceGenerator> particleDrag = std::make_unique<ParticleDrag>(0.0f, 0.1f);
+                m_gameState.addParticleForceGenerator("drag", std::move(particleDrag));
+
+                switch(m_selected_mode)
+                {
+                case 0:
+                    createGround();
+                    createBlob();
+                    break;
+                case 1:
+                    createGround();
+                    createExample();
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+
+        }
+        ImGui::EndCombo();
+    }
+
+    ImGui::Separator();
+    ImGui::NewLine();
+
     if (ImGui::BeginTabBar("SettingsTabBar", ImGuiTabBarFlags_None))
     {
+        // Tab to edit ground data
+        if (ImGui::BeginTabItem("Ground"))
+        {
+            // Length
+            ImGui::Text("Ground length : ");
+            ImGui::InputFloat("##GroundLength", &m_groundLength, 2.0f, 10.0f, "%.1f");
+
+            // Width
+            ImGui::Text("Ground width : ");
+            ImGui::InputFloat("##GroundWidth", &m_groundWidth, 2.0f, 10.0f, "%.1f");
+
+            // Thickness
+            ImGui::Text("Ground thickness : ");
+            ImGui::InputFloat("##GroundThickness", &m_groundThickness, 0.1f, 1.0f, "%.1f");
+
+            // Restitution
+            ImGui::Text("Ground restitution : ");
+            ImGui::SliderFloat("##GroundRestitution", &m_groundRestitution, 0.0f, 1.0f, "%.1f");
+
+            // Center position
+            ImGui::Text("Center position (X ; Y ; Z) :");
+            ImGui::InputFloat3("##GroundCenterPosition", currentGroundCenterPosition.data(), "%.1f");
+
+            ImGui::EndTabItem();
+        }
+
         // Tab to edit blob data
-        if (ImGui::BeginTabItem("Blob"))
+        if (m_selected_mode == 0 && ImGui::BeginTabItem("Blob"))
         {
             // Initial position
             ImGui::Text("Initial position (X ; Y ; Z) :");
@@ -196,91 +268,22 @@ void Application::createFrame()
             ImGui::EndTabItem();
         }
 
-        // Tab to edit ground data
-        if (ImGui::BeginTabItem("Ground"))
-        {
-            // Length
-            ImGui::Text("Ground length : ");
-            ImGui::InputFloat("##GroundLength", &m_groundLength, 2.0f, 10.0f, "%.1f");
-
-            // Width
-            ImGui::Text("Ground width : ");
-            ImGui::InputFloat("##GroundWidth", &m_groundWidth, 2.0f, 10.0f, "%.1f");
-
-            // Thickness
-            ImGui::Text("Ground thickness : ");
-            ImGui::InputFloat("##GroundThickness", &m_groundThickness, 0.1f, 1.0f, "%.1f");
-
-            // Restitution
-            ImGui::Text("Ground restitution : ");
-            ImGui::SliderFloat("##GroundRestitution", &m_groundRestitution, 0.0f, 1.0f, "%.1f");
-
-            // Center position
-            ImGui::Text("Center position (X ; Y ; Z) :");
-            ImGui::InputFloat3("##GroundCenterPosition", currentGroundCenterPosition.data(), "%.1f");
-
-            ImGui::EndTabItem();
-        }
-
         ImGui::EndTabBar();
 
         ImGui::NewLine();
 
 
-        ImGui::Separator();
-
-        if (ImGui::BeginCombo("##combo", m_modes[m_selected_mode].c_str()))
-        {
-            for (int n = 0; n < m_modes.size(); n++)
-            {
-                bool isSelected = n == m_selected_mode;
-                if (ImGui::Selectable(m_modes[n].c_str(), isSelected))
-                {
-                    m_selected_mode = n;
-
-                    m_physicsEngine.getParticleForceRegistry().clear();
-                    m_gameState.clear();
-
-                    // Create force generators
-                    std::unique_ptr<ParticleForceGenerator> particleGravity = std::make_unique<ParticleGravity>(9.81f);
-                    m_gameState.addParticleForceGenerator("gravity", std::move(particleGravity));
-
-                    std::unique_ptr<ParticleForceGenerator> particleDrag = std::make_unique<ParticleDrag>(0.0f, 0.1f);
-                    m_gameState.addParticleForceGenerator("drag", std::move(particleDrag));
-
-                    switch(m_selected_mode)
-                    {
-                    case 0:
-                        createGround();
-                        createBlob();
-                        break;
-                    case 1:
-                        createGround();
-                        createExample();
-                        break;
-                    default:
-                        break;
-                    }
-                }
-
-                if (isSelected)
-                {
-                    ImGui::SetItemDefaultFocus();
-                }
-
-            }
-            ImGui::EndCombo();
-        }
-
-        
+        ImGui::Separator();        
 
         // Apply
-        ImGui::NewLine();
-        ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.45f);
-        ImGui::SetCursorPosY((ImGui::GetWindowSize().y) * 0.9f);
+        ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.40f);
+        // ImGui::SetCursorPosY((ImGui::GetWindowSize().y) - 25.0f);
         if (ImGui::Button("Apply"))
         {
-            changeBlobSettings();
+            if (m_selected_mode == 0)
+            {
+                changeBlobSettings();
+            }
             changeGroundSettings();
         }
     }
