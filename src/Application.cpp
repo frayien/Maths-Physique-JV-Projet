@@ -56,8 +56,8 @@ void Application::init()
 
     // Create ground and blob
     createGround();
-    //createExample();
-    createBlob();
+    createExample();
+    //createBlob();
 }
 
 void Application::update(float deltaTime)
@@ -255,7 +255,7 @@ void Application::createExample()
     m_gameState.addParticle("particle_1", std::move(particle1));
 
     // Particle Shape
-    auto particuleShape1 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_1"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    auto particuleShape1 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_1"), Color::DARK_GRAY);
     m_gameState.addShapeGenerator("particle_1", std::move(particuleShape1));
 
     // Gravity
@@ -272,7 +272,7 @@ void Application::createExample()
     m_gameState.addParticle("particle_2", std::move(particle2));
 
     // Particle Shape
-    auto particuleShape2 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_2"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    auto particuleShape2 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_2"), Color::DARK_GRAY);
     m_gameState.addShapeGenerator("particle_2", std::move(particuleShape2));
 
     // Gravity
@@ -289,7 +289,7 @@ void Application::createExample()
     m_gameState.addParticle("particle_3", std::move(particle3));
 
     // Particle Shape
-    auto particuleShape3 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_3"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    auto particuleShape3 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_3"), Color::DARK_GRAY);
     m_gameState.addShapeGenerator("particle_3", std::move(particuleShape3));
 
 
@@ -298,11 +298,13 @@ void Application::createExample()
     auto cable1 = std::make_unique<ParticleCable>(m_gameState.getParticle("particle_1"), m_gameState.getParticle("particle_3"), 1.0f, 0.5f);
     m_gameState.addParticleContactGenerator("cable_1_3", std::move(cable1));
 
+    m_gameState.addShapeGenerator("cable_1_3", std::make_unique<LinkShapeGenerator>(m_gameState.getParticle("particle_1"), m_gameState.getParticle("particle_3"), Color::BLUE));
+
     // Cable
     auto cable2 = std::make_unique<ParticleCable>(m_gameState.getParticle("particle_2"), m_gameState.getParticle("particle_3"), 1.0f, 0.5f);
     m_gameState.addParticleContactGenerator("cable_2_3", std::move(cable2));
 
-
+    m_gameState.addShapeGenerator("cable_2_3", std::make_unique<LinkShapeGenerator>(m_gameState.getParticle("particle_2"), m_gameState.getParticle("particle_3"), Color::BLUE));
 
     std::vector<Particle*> particleToTest;
 
@@ -314,8 +316,6 @@ void Application::createExample()
     m_gameState.addParticleContactGenerator("contact_1_2", std::move(contact));
 
 
-
-
     // DEMONSTRATION OF RODS
     // Particle
     auto particle4 = std::make_unique<Particle>(Vector3f{ 0, 2, 1 }, 1.0f, 0.999f, false);
@@ -323,7 +323,7 @@ void Application::createExample()
     m_gameState.addParticle("particle_4", std::move(particle4));
 
     // Particle Shape
-    auto particuleShape4 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_4"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    auto particuleShape4 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_4"), Color::DARK_GRAY);
     m_gameState.addShapeGenerator("particle_4", std::move(particuleShape4));
 
     // Gravity
@@ -340,7 +340,7 @@ void Application::createExample()
     m_gameState.addParticle("particle_5", std::move(particle5));
 
     // Particle Shape
-    auto particuleShape5 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_5"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    auto particuleShape5 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_5"), Color::DARK_GRAY);
     m_gameState.addShapeGenerator("particle_5", std::move(particuleShape5));
 
     // Gravity
@@ -357,7 +357,7 @@ void Application::createExample()
     m_gameState.addParticle("particle_6", std::move(particle6));
 
     // Particle Shape
-    auto particuleShape6 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_6"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    auto particuleShape6 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_6"), Color::DARK_GRAY);
     m_gameState.addShapeGenerator("particle_6", std::move(particuleShape6));
 
 
@@ -366,11 +366,13 @@ void Application::createExample()
     auto rod1 = std::make_unique<ParticleRod>(m_gameState.getParticle("particle_4"), m_gameState.getParticle("particle_5"), 1.0f);
     m_gameState.addParticleContactGenerator("cable_4_5", std::move(rod1));
 
+    m_gameState.addShapeGenerator("cable_4_5", std::make_unique<LinkShapeGenerator>(m_gameState.getParticle("particle_4"), m_gameState.getParticle("particle_5"), Color::GREEN));
+
     // Rod
     auto rod2 = std::make_unique<ParticleRod>(m_gameState.getParticle("particle_5"), m_gameState.getParticle("particle_6"), 1.0f);
     m_gameState.addParticleContactGenerator("cable_5_6", std::move(rod2));
 
-
+    m_gameState.addShapeGenerator("cable_5_6", std::make_unique<LinkShapeGenerator>(m_gameState.getParticle("particle_5"), m_gameState.getParticle("particle_6"), Color::GREEN));
 
 
     // DEMONSTRATION OF GROUND CONTACT
@@ -380,7 +382,7 @@ void Application::createExample()
     m_gameState.addParticle("particle_7", std::move(particle7));
 
     // Particle Shape
-    auto particuleShape7 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_7"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    auto particuleShape7 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_7"), Color::DARK_GRAY);
     m_gameState.addShapeGenerator("particle_7", std::move(particuleShape7));
 
     // Gravity
@@ -404,7 +406,7 @@ void Application::createExample()
     m_gameState.addParticle("particle_8", std::move(particle8));
 
     // Particle Shape
-    auto particuleShape8 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_8"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    auto particuleShape8 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_8"), Color::DARK_GRAY);
     m_gameState.addShapeGenerator("particle_8", std::move(particuleShape8));
 
     // Gravity
@@ -423,8 +425,10 @@ void Application::createExample()
     m_gameState.addParticle("particle_9", std::move(particle9));
 
     // Particle Shape
-    auto particuleShape9 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_9"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    auto particuleShape9 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_9"), Color::DARK_GRAY);
     m_gameState.addShapeGenerator("particle_9", std::move(particuleShape9));
+
+    m_gameState.addShapeGenerator("spring_8_9", std::make_unique<LinkShapeGenerator>(m_gameState.getParticle("particle_8"), m_gameState.getParticle("particle_9"), Color::RED));
 }
 
 void Application::createBlob()
@@ -470,7 +474,7 @@ void Application::createBlob()
         m_gameState.addParticle("blob_" + std::to_string(i), std::move(particleBlob));
 
         // Particle Shape
-        auto particuleShapeBlob = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("blob_" + std::to_string(i)), glm::vec3{ 0.2f, 0.2f, 0.2f });
+        auto particuleShapeBlob = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("blob_" + std::to_string(i)), Color::DARK_GRAY);
         m_gameState.addShapeGenerator("blob_" + std::to_string(i), std::move(particuleShapeBlob));
 
         // Gravity
@@ -558,7 +562,7 @@ void Application::createBlob()
         auto particleB = m_gameState.getParticle(labelBlobB);
 
         // Link Shape
-        auto linkShapeBlob = std::make_unique<LinkShapeGenerator>(particleA, particleB, glm::vec3{ 0.0f, 0.0f, 1.0f });
+        auto linkShapeBlob = std::make_unique<LinkShapeGenerator>(particleA, particleB, Color::BLUE);
         m_gameState.addShapeGenerator("blobLink_" + labelBlobA + "_" + labelBlobB, std::move(linkShapeBlob));
     }
 
@@ -817,7 +821,7 @@ void Application::createGround()
     // Create walls on the ground
 
     // Wall 1 shape
-    auto wall1 = std::make_unique<CubeShapeGenerator>(glm::vec3{0.9f, 0.9f, 0.9f});
+    auto wall1 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
     wall1->setPosition(m_groundCenterPosition + Vector3f{-m_wallsLength / 2.0f, 0.0f, m_wallsWidth / 2.0f});
     wall1->scale({m_wallsThickness, m_wallsLength / 2.0f, m_wallsWidth / 2.0f});
     m_gameState.addShapeGenerator("wall1", std::move(wall1));
@@ -829,7 +833,7 @@ void Application::createGround()
     m_gameState.addParticleContactGenerator("wall1Contact", std::move(wall1Contact));
 
     // Wall 2 shape
-    auto wall2 = std::make_unique<CubeShapeGenerator>(glm::vec3{0.9f, 0.9f, 0.9f});
+    auto wall2 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
     wall2->setPosition(m_groundCenterPosition + Vector3f{0.0f, m_wallsLength / 2.0f, m_wallsWidth / 2.0f});
     wall2->scale({m_wallsLength / 2.0f, m_wallsThickness, m_wallsWidth / 2.0f});
     m_gameState.addShapeGenerator("wall2", std::move(wall2));

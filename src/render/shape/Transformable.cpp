@@ -10,7 +10,7 @@ Transformable::~Transformable()
 
 void Transformable::rotate(float angle, const glm::vec3 & axis)
 {
-    if(angle == 0.f) return;
+    if(angle == 0.f || axis == glm::vec3{0}) return;
     m_rotation = glm::rotate(m_rotation, angle, glm::normalize(axis));
 }
 
