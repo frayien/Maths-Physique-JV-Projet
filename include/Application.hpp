@@ -59,7 +59,7 @@ private:
     float m_wallsRestitution = 0.0f;
 
     // ImGui data
-    std::array<float, 3> currentBlobInitialPosition = {-8.0f, -3.0f,  0.0f};
+    std::array<float, 3> currentBlobInitialPosition = {-2.0f, -3.0f,  0.0f};
     std::array<float, 3> currentGroundCenterPosition = {0.0f, 0.0f, -6.0f};
 
     std::array<std::string, 2> m_modes = {"Blob", "Exemples"};
