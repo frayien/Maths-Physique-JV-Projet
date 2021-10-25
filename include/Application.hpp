@@ -23,6 +23,7 @@
 #include "physics/forces/ParticleDrag.hpp"
 #include "physics/forces/ParticleSpring.hpp"
 #include "physics/contacts/ParticleCable.hpp"
+#include "physics/contacts/ParticleRod.hpp"
 #include "GameState.hpp"
 #include "physics/contacts/WallContactGenerator.hpp"
 #include "physics/contacts/NaiveParticleContactGenerator.hpp"

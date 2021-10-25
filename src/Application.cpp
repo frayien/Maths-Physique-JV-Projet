@@ -310,6 +310,63 @@ void Application::createExample()
     // Contact
     auto contact = std::make_unique<NaiveParticleContactGenerator>(particleToTest);
     m_gameState.addParticleContactGenerator("contact_1_2", std::move(contact));
+
+
+
+
+
+    // Particle
+    auto particle4 = std::make_unique<Particle>(Vector3f{ 0, 2, 1 }, 1.0f, 0.999f, false);
+    particle4->setVelocity({ 0.0f, 0.0f, 0.0f });
+    m_gameState.addParticle("particle_4", std::move(particle4));
+
+    // Particle Shape
+    auto particuleShape4 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_4"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    m_gameState.addShapeGenerator("particle_4", std::move(particuleShape4));
+
+    // Gravity
+    m_physicsEngine.registerForce(m_gameState.getParticle("particle_4"), m_gameState.getParticleForceGenerator<ParticleGravity>("gravity"), 0.0f);
+
+    // Drag
+    m_physicsEngine.registerForce(m_gameState.getParticle("particle_4"), m_gameState.getParticleForceGenerator<ParticleDrag>("drag"), 0.0f);
+
+
+
+    // Particle
+    auto particle5 = std::make_unique<Particle>(Vector3f{ 0, 2, 2 }, 1.0f, 0.999f, false);
+    particle5->setVelocity({ 0.0f, 0.0f, 0.0f });
+    m_gameState.addParticle("particle_5", std::move(particle5));
+
+    // Particle Shape
+    auto particuleShape5 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_5"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    m_gameState.addShapeGenerator("particle_5", std::move(particuleShape5));
+
+    // Gravity
+    m_physicsEngine.registerForce(m_gameState.getParticle("particle_5"), m_gameState.getParticleForceGenerator<ParticleGravity>("gravity"), 0.0f);
+
+    // Drag
+    m_physicsEngine.registerForce(m_gameState.getParticle("particle_5"), m_gameState.getParticleForceGenerator<ParticleDrag>("drag"), 0.0f);
+
+
+
+    // Particle
+    auto particle6 = std::make_unique<Particle>(Vector3f{ 0, 1, 2 }, 100000000000.0f, 0.999f, false);
+    particle6->setVelocity({ 0.0f, 0.0f, 0.0f });
+    m_gameState.addParticle("particle_6", std::move(particle6));
+
+    // Particle Shape
+    auto particuleShape6 = std::make_unique<ParticleShapeGenerator>(m_gameState.getParticle("particle_6"), glm::vec3{ 0.2f, 0.2f, 0.2f });
+    m_gameState.addShapeGenerator("particle_6", std::move(particuleShape6));
+
+
+
+    // Rod
+    auto rod1 = std::make_unique<ParticleRod>(m_gameState.getParticle("particle_4"), m_gameState.getParticle("particle_5"), 1.0f);
+    m_gameState.addParticleContactGenerator("cable_4_5", std::move(rod1));
+
+    // Rod
+    auto rod2 = std::make_unique<ParticleRod>(m_gameState.getParticle("particle_5"), m_gameState.getParticle("particle_6"), 1.0f);
+    m_gameState.addParticleContactGenerator("cable_5_6", std::move(rod2));
 }
 
 void Application::createBlob()
