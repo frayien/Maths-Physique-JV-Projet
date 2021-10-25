@@ -62,6 +62,9 @@ private:
     std::array<float, 3> currentBlobInitialPosition = {-8.0f, -3.0f,  0.0f};
     std::array<float, 3> currentGroundCenterPosition = {0.0f, 0.0f, -6.0f};
 
+    std::array<std::string, 2> m_modes = {"Blob", "Exemples"};
+    int m_selected_mode = 0;
+
 public:
     Application();
     virtual ~Application();
@@ -77,6 +80,7 @@ private:
 
     void createBlob();
     void createExample();
+    void resetExample();
     void resetBlob();
     void moveBlob(Vector3f moveDirection, float deltaTime);
     void jumpBlob();

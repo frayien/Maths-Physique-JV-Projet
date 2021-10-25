@@ -56,8 +56,9 @@ void Application::init()
 
     // Create ground and blob
     createGround();
-    createExample();
-    //createBlob();
+    //createExample();
+    createBlob();
+    m_selected_mode = 0;
 }
 
 void Application::update(float deltaTime)
@@ -71,39 +72,35 @@ void Application::update(float deltaTime)
     // If we click on the reset button
     if(m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_R))
     {
-        resetBlob();
+        switch(m_selected_mode)
+        {
+        case 0:
+            resetBlob();
+            break;
+        case 1:
+            resetExample();
+            break;
+        default:
+            break;
+        }
     }
 
-    // Map with which we will call moveBlob, giving it different parameters according to the keys pressed
-    static std::unordered_map<std::string, std::function<void()>> blobMouvementMap =
+    if(m_selected_mode == 0)
     {
-        { "Up", [&]()    { moveBlob(Vector3f{-1.0f,  0.0f, 0.0f}, deltaTime); } },
-        { "Down", [&]()  { moveBlob(Vector3f{ 1.0f,  0.0f, 0.0f}, deltaTime); } },
-        { "Left", [&]()  { moveBlob(Vector3f{ 0.0f, -1.0f, 0.0f}, deltaTime); } },
-        { "Right", [&]() { moveBlob(Vector3f{ 0.0f,  1.0f, 0.0f}, deltaTime); } },
-        { "Jump", [&]()  { jumpBlob();                                        } },
-    };
+        // Map with which we will call moveBlob, giving it different parameters according to the keys pressed
+        static std::vector<std::tuple<int, std::function<void ()>>> keymap = 
+        {
+            { GLFW_KEY_Y,     [&]() { moveBlob(Vector3f{-1.0f,  0.0f, 0.0f}, deltaTime); } },
+            { GLFW_KEY_H,     [&]() { moveBlob(Vector3f{ 1.0f,  0.0f, 0.0f}, deltaTime); } },
+            { GLFW_KEY_G,     [&]() { moveBlob(Vector3f{ 0.0f, -1.0f, 0.0f}, deltaTime); } },
+            { GLFW_KEY_J,     [&]() { moveBlob(Vector3f{ 0.0f,  1.0f, 0.0f}, deltaTime); } },
+            { GLFW_KEY_SPACE, [&]()  { jumpBlob();                                        } },
+        };
 
-    // Movements of the blob
-    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_G))
-    {
-        blobMouvementMap.at("Left")();
-    }
-    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_H))
-    {
-        blobMouvementMap.at("Down")();
-    }
-    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_J))
-    {
-        blobMouvementMap.at("Right")();
-    }
-    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_Y))
-    {
-        blobMouvementMap.at("Up")();
-    }
-    if (m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_SPACE))
-    {
-        blobMouvementMap.at("Jump")();
+        for(const auto & [key, fun] : keymap)
+        {
+            if(m_graphicsEngine.getWindow().isKeyPressed(key)) fun();
+        }
     }
 
     // If we click on the pause button
@@ -231,6 +228,51 @@ void Application::createFrame()
 
 
         ImGui::Separator();
+
+        if (ImGui::BeginCombo("##combo", m_modes[m_selected_mode].c_str()))
+        {
+            for (int n = 0; n < m_modes.size(); n++)
+            {
+                bool isSelected = n == m_selected_mode;
+                if (ImGui::Selectable(m_modes[n].c_str(), isSelected))
+                {
+                    m_selected_mode = n;
+
+                    m_physicsEngine.getParticleForceRegistry().clear();
+                    m_gameState.clear();
+
+                    // Create force generators
+                    std::unique_ptr<ParticleForceGenerator> particleGravity = std::make_unique<ParticleGravity>(9.81f);
+                    m_gameState.addParticleForceGenerator("gravity", std::move(particleGravity));
+
+                    std::unique_ptr<ParticleForceGenerator> particleDrag = std::make_unique<ParticleDrag>(0.0f, 0.1f);
+                    m_gameState.addParticleForceGenerator("drag", std::move(particleDrag));
+
+                    switch(m_selected_mode)
+                    {
+                    case 0:
+                        createGround();
+                        createBlob();
+                        break;
+                    case 1:
+                        createGround();
+                        createExample();
+                        break;
+                    default:
+                        break;
+                    }
+                }
+
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+
+            }
+            ImGui::EndCombo();
+        }
+
+        
 
         // Apply
         ImGui::NewLine();
@@ -429,6 +471,32 @@ void Application::createExample()
     m_gameState.addShapeGenerator("particle_9", std::move(particuleShape9));
 
     m_gameState.addShapeGenerator("spring_8_9", std::make_unique<LinkShapeGenerator>(m_gameState.getParticle("particle_8"), m_gameState.getParticle("particle_9"), Color::RED));
+}
+
+void Application::resetExample()
+{
+    float phi = (1.0f + sqrt(5.0f)) / 2.0f;
+
+    std::array<std::pair<std::string, Vector3f>, 8> blobPos
+    {{
+        {"particle_1", Vector3f{0, -2.5, 2}},
+        {"particle_2", Vector3f{ 0, -1.5, 2 }},
+        {"particle_3", Vector3f{ 0, -2, 2 }},
+        {"particle_4", Vector3f{0, 2, 1}},
+        {"particle_5", Vector3f{0, 2, 2}},
+        {"particle_6", Vector3f{0, 1, 2}},
+        {"particle_7", Vector3f{ 0, 0, -1 }},
+        {"particle_8", Vector3f{ 0, -4, 0}},
+    }};
+
+    for(auto & [label, pos] : blobPos)
+    {
+        auto particle = m_gameState.getParticle(label);
+
+        particle->setPosition(pos);
+        particle->setVelocity({0.0f, 0.0f, 0.0f});
+        particle->setIsResting(false);
+    }
 }
 
 void Application::createBlob()

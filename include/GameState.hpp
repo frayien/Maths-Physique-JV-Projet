@@ -54,6 +54,14 @@ public:
         return static_cast<T*>(m_shapeGenerators.at(label).get());
     }
 
+    inline void clear()
+    {
+        m_particles.clear();
+        m_particleForceGenerators.clear();
+        m_particleContactGenerators.clear();
+        m_shapeGenerators.clear();
+    }
+
 private:
     std::unordered_map<std::string, std::unique_ptr<Particle>> m_particles;
     std::unordered_map<std::string, std::unique_ptr<ParticleForceGenerator>> m_particleForceGenerators;

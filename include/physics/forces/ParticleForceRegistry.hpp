@@ -22,6 +22,11 @@ public:
 
 	void update(float deltaTime);
 
+	inline void clear()
+	{
+		m_registry.clear();
+	}
+
 private:
 	Registry m_registry;
 
