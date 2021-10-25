@@ -43,8 +43,20 @@ float Quaternion::norm() const
 Quaternion Quaternion::normalize() const
 {
     float n = norm();
-    if(n == 0) return *this;
+    if(n == 0) return Quaternion{0.f};
     return {m_w / n, m_x / n, m_y / n, m_z / n};
+}
+
+Quaternion Quaternion::rotate(const Vector3f & vector) const
+{
+    Quaternion l_angles{0.f, vector.getX(), vector.getY(), vector.getZ()};
+    return (*this) * l_angles;
+}
+
+Quaternion Quaternion::update(const Vector3f & angularVelocity, float deltaTime) const
+{
+    Quaternion l_angularVelocity{0.f, angularVelocity.getX(), angularVelocity.getY(), angularVelocity.getZ()};
+    return (*this) + (deltaTime / 2.f) * l_angularVelocity * (*this); 
 }
 
 Quaternion & Quaternion::operator+=(const Quaternion & b)
