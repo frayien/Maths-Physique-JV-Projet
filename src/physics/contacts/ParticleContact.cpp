@@ -77,22 +77,18 @@ void ParticleContact::resolveVelocity(float deltaTime)
 
     m_particleA->setVelocity(m_particleA->getVelocity() + impulse * m_particleA->getInverseMass());
 
-    if (9.81f * deltaTime >= abs(m_particleA->getVelocity().dotProduct(m_normal)))
-    {
-        // Velocity caused by gravity : resting
-        m_particleA->setIsResting(true);
-        m_particleA->addVelocity(-m_normal * m_particleA->getVelocity().dotProduct(m_normal));
-    }
-
     if (m_particleB)
     {
         m_particleB->setVelocity(m_particleB->getVelocity() - impulse * m_particleB->getInverseMass());
-
-        if (9.81f * deltaTime >= abs(m_particleB->getVelocity().dotProduct(m_normal)))
+    }
+    else
+    {
+        // Only check if particle is resting when it's a collision with the scene : m_particleB is nullptr
+        if (9.81f * deltaTime >= abs(m_particleA->getVelocity().dotProduct(m_normal)))
         {
             // Velocity caused by gravity : resting
-            m_particleB->setIsResting(true);
-            m_particleB->addVelocity(-m_normal * m_particleB->getVelocity().dotProduct(m_normal));
+            m_particleA->setIsResting(true);
+            m_particleA->addVelocity(-m_normal * m_particleA->getVelocity().dotProduct(m_normal));
         }
     }
 }
