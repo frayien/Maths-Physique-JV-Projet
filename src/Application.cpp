@@ -894,7 +894,7 @@ void Application::createGround()
     // Wall 1 shape
     auto wall1 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
     wall1->setPosition(m_groundCenterPosition + Vector3f{-m_wallsLength / 2.0f, 0.0f, m_wallsWidth / 2.0f});
-    wall1->scale({m_wallsThickness, m_wallsLength / 2.0f, m_wallsWidth / 2.0f});
+    wall1->scale({m_wallsThickness / 2.0f, m_wallsLength / 2.0f, m_wallsWidth / 2.0f});
     m_gameState.addShapeGenerator("wall1", std::move(wall1));
 
     // Wall 1 contact
@@ -906,7 +906,7 @@ void Application::createGround()
     // Wall 2 shape
     auto wall2 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
     wall2->setPosition(m_groundCenterPosition + Vector3f{0.0f, m_wallsLength / 2.0f, m_wallsWidth / 2.0f});
-    wall2->scale({m_wallsLength / 2.0f, m_wallsThickness, m_wallsWidth / 2.0f});
+    wall2->scale({m_wallsLength / 2.0f, m_wallsThickness / 2.0f, m_wallsWidth / 2.0f});
     m_gameState.addShapeGenerator("wall2", std::move(wall2));
 
     // Wall 2 contact
