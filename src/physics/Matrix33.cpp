@@ -164,7 +164,7 @@ Vector3f operator*(const Matrix33 & a, Vector3f b)
 
     b.setX(a.m_values[0] * bX + a.m_values[1] * bY + a.m_values[2] * bZ);
     b.setY(a.m_values[3] * bX + a.m_values[4] * bY + a.m_values[5] * bZ);
-    b.setZ(a.m_values[6] * bX + a.m_values[8] * bY + a.m_values[8] * bZ);
+    b.setZ(a.m_values[6] * bX + a.m_values[7] * bY + a.m_values[8] * bZ);
 
     return b;
 }
