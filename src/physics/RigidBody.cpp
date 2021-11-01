@@ -36,7 +36,7 @@ void RigidBody::integrate(float deltaTime)
 	m_velocity += acceleration * deltaTime;
 
 	// Rotation update with torques next time
-	m_angularVelocity += Vector{ 0,0,0 };
+	m_angularVelocity += Vector3f{ 0,0,0 };
 
 	m_totalForce = { 0.0f, 0.0f, 0.0f };
 }
