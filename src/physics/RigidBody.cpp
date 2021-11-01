@@ -7,7 +7,7 @@ RigidBody::RigidBody()
 
 RigidBody::RigidBody(Vector3f position, float mass, float damping) :
 	m_position {position},
-	m_damping {damping},
+	m_damping {damping}
 {
 	m_inverseMass = 1.0f / mass;
 }

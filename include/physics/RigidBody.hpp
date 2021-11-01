@@ -2,6 +2,8 @@
 #define MPJVP_RIGIDBODY
 
 #include "physics/Vector3f.hpp"
+#include "physics/Quaternion.hpp"
+#include "physics/Matrix34.hpp"
 #include <numeric>
 
 class RigidBody {
