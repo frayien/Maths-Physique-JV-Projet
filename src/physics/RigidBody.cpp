@@ -5,8 +5,9 @@ RigidBody::RigidBody()
 
 }
 
-RigidBody::RigidBody(Vector3f position, float mass, float damping) :
+RigidBody::RigidBody(Vector3f position, float mass, float damping, bool isResting) :
 	m_position {position},
+	m_isResting(isResting),
 	m_damping {damping}
 {
 	m_inverseMass = 1.0f / mass;
@@ -30,12 +31,12 @@ void RigidBody::integrate(float deltaTime)
 	m_position += m_velocity * deltaTime;
 
 	// change orientation (quaternion) here
-	m_orientation = m_orientation.update(m_rotation, deltaTime);
+	m_orientation = m_orientation.update(m_angularVelocity, deltaTime);
 
 	m_velocity += acceleration * deltaTime;
 
-	// Rotation update
-	m_rotation += Vector{ 0,0,0 };
+	// Rotation update with torques next time
+	m_angularVelocity += Vector{ 0,0,0 };
 
 	m_totalForce = { 0.0f, 0.0f, 0.0f };
 }

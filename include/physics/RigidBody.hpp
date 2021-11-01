@@ -9,7 +9,7 @@
 class RigidBody {
 public:
 	RigidBody();
-	RigidBody(Vector3f position, float mass, float damping);
+	RigidBody(Vector3f position, float mass, float damping, bool isResting = false);
 	~RigidBody();
 
 	// Modify position, orientation and velocities (linear and angular)
@@ -38,9 +38,12 @@ public:
 	inline Quaternion getQuaternion() const { return m_orientation; }
 	inline void setQuaternion(Quaternion orientation) { m_orientation = orientation; }
 
-	inline Vector3f getRotation() const { return m_rotation; }
-	inline void setRotation(Vector3f rotation) { m_rotation = rotation; }
-	inline void addRotation(Vector3f rotation) { m_rotation += rotation; }
+	inline Vector3f getRotation() const { return m_angularVelocity; }
+	inline void setRotation(Vector3f rotation) { m_angularVelocity = rotation; }
+	inline void addRotation(Vector3f rotation) { m_angularVelocity += rotation; }
+
+	inline bool getIsResting() const { return m_isResting; }
+	inline void setIsResting(bool isResting) { m_isResting = isResting; }
 
 	inline Matrix34 getTranformMatrix() const { return m_transformMatrix; }
 	inline void setTransformMatrix(Matrix34 transformMatrix) { m_transformMatrix = transformMatrix; }
@@ -54,12 +57,13 @@ private:
 	Vector3f m_totalForce;
 	float m_inverseMass;
 	float m_damping;
+	bool m_isResting;
 
 	// Orientation of the Rigid Body
 	Quaternion m_orientation;
 
 	// Angular velocity
-	Vector3f m_rotation;
+	Vector3f m_angularVelocity;
 
 	// transform Matrix from the calcul between orientation and rotation
 	Matrix34 m_transformMatrix;
