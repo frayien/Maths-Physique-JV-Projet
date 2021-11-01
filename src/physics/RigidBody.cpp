@@ -17,9 +17,27 @@ RigidBody::~RigidBody()
 
 }
 
-void RigidBody::integrate(float duration)
+void RigidBody::integrate(float deltaTime)
 {
+	if (m_inverseMass == 0.0f)
+	{
+		// Don't integrate particle with infinite mass
+		return;
+	}
 
+	Vector3f acceleration = m_inverseMass * m_totalForce;
+
+	m_position += m_velocity * deltaTime;
+
+	// change orientation (quaternion) here
+	m_orientation = m_orientation.update(m_rotation, deltaTime);
+
+	m_velocity += acceleration * deltaTime;
+
+	// Rotation update
+	m_rotation += Vector{ 0,0,0 };
+
+	m_totalForce = { 0.0f, 0.0f, 0.0f };
 }
 
 std::ostream& operator<<(std::ostream& out, const RigidBody& a)
@@ -33,5 +51,8 @@ std::ostream& operator<<(std::ostream& out, const RigidBody& a)
 
 void RigidBody::calculateDerivedData()
 {
+	m_orientation.normalize();
 
+	// Calculate transformMatrix here
+	m_transformMatrix.setOrientationAndPosition(m_orientation, m_position);
 }

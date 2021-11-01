@@ -13,7 +13,7 @@ public:
 	~RigidBody();
 
 	// Modify position, orientation and velocities (linear and angular)
-	void integrate(float duration);
+	void integrate(float deltaTime);
 
 	inline Vector3f getPosition() const { return m_position; }
 	inline void setPosition(Vector3f pos) { m_position = pos; }
@@ -64,6 +64,7 @@ private:
 	// transform Matrix from the calcul between orientation and rotation
 	Matrix34 m_transformMatrix;
 
+	// Call each frame to calculate the transformMatrix
 	void calculateDerivedData();
 };
 
