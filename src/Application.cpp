@@ -58,6 +58,7 @@ void Application::init()
     createGround();
     //createExample();
     createBlob();
+    createRigidCube();
     m_selected_mode = 0;
 }
 
@@ -83,6 +84,7 @@ void Application::update(float deltaTime)
         default:
             break;
         }
+        resetRigidCube();
     }
 
     if(m_selected_mode == 0)
@@ -1114,4 +1116,40 @@ void Application::changeGroundSettings()
     // Wall 2 contact
     auto wall2Contact = m_gameState.getParticleContactGenerator<WallContactGenerator>("wall2Contact");
     wall2Contact->setCenterPosition(m_groundCenterPosition + Vector3f{0.0f, m_wallsLength / 2.0f, m_wallsWidth / 2.0f});
+}
+
+void Application::createRigidCube()
+{
+    auto rigidbody = std::make_unique<RigidBody>(Vector3f{0.0f, -2.5f, 2.0f}, 1.0f, 0.999f, false);
+    // rigidbody->setVelocity({ 0.0f, 1.0f, 1.0f });
+    rigidbody->setAngularVelocity({0.0f, 0.0f, 3.0f});
+
+    float angle = PI / 4.0;
+    float nx = 1.0f;
+    float ny = 0.0f;
+    float nz = 0.0f;
+    float norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion initialQuaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    rigidbody->setQuaternion(initialQuaternion.normalize());
+
+    m_gameState.addRigidBody("rigidbody", std::move(rigidbody));
+
+    // Rigidbody Shape
+    auto rigidbodyShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("rigidbody"), Color::DARK_GRAY);
+    m_gameState.addShapeGenerator("rigidbody", std::move(rigidbodyShape));
+}
+
+void Application::resetRigidCube()
+{
+    auto rigidbody = m_gameState.getRigidbody("rigidbody");
+
+    rigidbody->setPosition({0.0f, -2.5f, 2.0f});
+    // rigidbody->setVelocity({0.0f, 1.0f, 1.0f});
+    rigidbody->setIsResting(false);
 }

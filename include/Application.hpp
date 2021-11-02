@@ -15,6 +15,7 @@
 
 #include "ParticleShapeGenerator.hpp"
 #include "LinkShapeGenerator.hpp"
+#include "RigidCubeShapeGenerator.hpp"
 
 #include "physics/Particle.hpp"
 #include "physics/forces/ParticleGravity.hpp"
@@ -88,6 +89,9 @@ private:
 
     void createGround();
     void changeGroundSettings();
+
+    void createRigidCube();
+    void resetRigidCube();
 };
 
 #endif // MPJVP_APPLICATION
