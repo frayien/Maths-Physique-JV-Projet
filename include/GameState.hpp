@@ -8,6 +8,7 @@
 #include "physics/forces/ParticleForceGenerator.hpp"
 #include "physics/contacts/ParticleContactGenerator.hpp"
 #include "render/shape/IShapeGenerator.hpp"
+#include "physics/RigidBody.hpp"
 
 class GameState
 {
@@ -17,6 +18,7 @@ public:
 	virtual ~GameState();
 
     bool addParticle(const std::string & label, std::unique_ptr<Particle> && particle);
+    bool addRigidBody(const std::string & label, std::unique_ptr<RigidBody> && rigidBody);
     bool addParticleForceGenerator(const std::string & label, std::unique_ptr<ParticleForceGenerator> && particleForceGenerator);
     bool addParticleContactGenerator(const std::string & label, std::unique_ptr<ParticleContactGenerator> && particleContactGenerator);
     bool addShapeGenerator(const std::string & label, std::unique_ptr<IShapeGenerator> && shapeGenerator);
@@ -24,6 +26,7 @@ public:
     bool removeShapeGenerator(const std::string & label);
 
     inline std::unordered_map<std::string, std::unique_ptr<Particle>> & getParticles() { return m_particles; }
+    inline std::unordered_map<std::string, std::unique_ptr<RigidBody>> & getRigidbodies() { return m_rigidbodies; }
 	inline std::unordered_map<std::string, std::unique_ptr<ParticleForceGenerator>> & getParticleForceGenerators() { return m_particleForceGenerators; }
 	inline std::unordered_map<std::string, std::unique_ptr<ParticleContactGenerator>> & getParticleContactGenerators() { return m_particleContactGenerators; }
 	inline std::unordered_map<std::string, std::unique_ptr<IShapeGenerator>> & getShapeGenerators() { return m_shapeGenerators; }
@@ -31,6 +34,11 @@ public:
     Particle* getParticle(std::string label)
     {
         return m_particles.at(label).get();
+    }
+
+    RigidBody* getRigidbody(std::string label)
+    {
+        return m_rigidbodies.at(label).get();
     }
 
     template<typename T = ParticleForceGenerator>
@@ -57,6 +65,7 @@ public:
     inline void clear()
     {
         m_particles.clear();
+        m_rigidbodies.clear();
         m_particleForceGenerators.clear();
         m_particleContactGenerators.clear();
         m_shapeGenerators.clear();
@@ -64,6 +73,7 @@ public:
 
 private:
     std::unordered_map<std::string, std::unique_ptr<Particle>> m_particles;
+    std::unordered_map<std::string, std::unique_ptr<RigidBody>> m_rigidbodies;
     std::unordered_map<std::string, std::unique_ptr<ParticleForceGenerator>> m_particleForceGenerators;
     std::unordered_map<std::string, std::unique_ptr<ParticleContactGenerator>> m_particleContactGenerators;
     std::unordered_map<std::string, std::unique_ptr<IShapeGenerator>> m_shapeGenerators;
