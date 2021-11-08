@@ -12,6 +12,9 @@ RigidBody::RigidBody(Vector3f position, float mass, float damping, float angular
 	m_angularDamping {angularDamping}
 {
 	m_inverseMass = 1.0f / mass;
+	m_objectInertiaTensor = Matrix33{ { 1 / 12 * mass * (1 * 1 + 1 * 1), 0, 0,
+									 0, 1 / 12 * mass * (1 * 1 + 1 * 1), 0,
+									 0, 0, 1 / 12 * mass * (1 * 1 + 1 * 1) } };
 }
 
 RigidBody::~RigidBody()
@@ -31,7 +34,7 @@ void RigidBody::integrate(float deltaTime)
 	Vector3f acceleration = m_inverseMass * m_totalForce;
 
 	// angular acceleration
-	Vector3f angularAcceleration = m_inverseInertiaMoment * m_totalTorque;
+	Vector3f angularAcceleration = m_inverseInertiaTensor * m_totalTorque;
 
 	// linear velocity
 	m_velocity = m_velocity * m_damping + acceleration * deltaTime;
@@ -102,12 +105,13 @@ std::ostream& operator<<(std::ostream& out, const RigidBody& a)
 
 void RigidBody::calculateDerivedData()
 {
+	// Normalization of quaternion
 	m_orientation.normalize();
 
-	// Calculate transformMatrix here
+	// Calcul transformMatrix
 	m_transformMatrix.setOrientationAndPosition(m_orientation, m_position);
 
-	// -----------Calculate inverse of inertia moment here------------------
-	
+	// Calcul inverse of inertia tensor
+	m_inverseInertiaTensor = m_transformMatrix.extractMatrix33() * m_objectInertiaTensor.inverse() * m_transformMatrix.inverse().extractMatrix33();
 
 }

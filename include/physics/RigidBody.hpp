@@ -66,6 +66,9 @@ public:
 	inline Matrix34 getTranformMatrix() const { return m_transformMatrix; }
 	inline void setTransformMatrix(Matrix34 transformMatrix) { m_transformMatrix = transformMatrix; }
 
+	inline Matrix33 getInverseInertiaTensor() const { return m_inverseInertiaTensor; }
+	inline void setInverseInertiaTensor(Matrix33 inverseInertiaTensor) { m_inverseInertiaTensor = inverseInertiaTensor; }
+
 	friend std::ostream& operator<<(std::ostream& out, const RigidBody& a);
 
 
@@ -82,11 +85,14 @@ private:
 	// Orientation of the Rigid Body
 	Quaternion m_orientation;
 
+	// Inertia Tensor specific to the object
+	Matrix33 m_objectInertiaTensor;
+
 	// Angular velocity
 	Vector3f m_angularVelocity;
 
 	// Inverse inertia moment
-	Matrix33 m_inverseInertiaMoment;
+	Matrix33 m_inverseInertiaTensor;
 
 	// transform Matrix from the calcul between orientation and rotation
 	Matrix34 m_transformMatrix;

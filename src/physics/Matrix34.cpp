@@ -115,6 +115,19 @@ void Matrix34::setOrientationAndPosition(const Quaternion & q, const Vector3f & 
     };
 }
 
+Matrix33 Matrix34::extractMatrix33()
+{
+    Matrix33 ltm
+    {
+        {
+            m_values[0], m_values[1], m_values[2],
+            m_values[4], m_values[5], m_values[6],
+            m_values[8], m_values[9], m_values[10],
+        }
+    };
+    return ltm;
+}
+
 Vector3f Matrix34::transformPosition(const Vector3f & vector)
 {
     return *this * vector;
