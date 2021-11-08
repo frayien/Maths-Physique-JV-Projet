@@ -18,6 +18,7 @@ public:
     virtual ~Transformable();
 
     inline void setPosition(const glm::vec3 & vect) { m_position = vect; }
+    inline void setRotation(const glm::mat4 & mat) { m_rotation = mat; }
     inline void translate(const glm::vec3 & vect) { m_position += vect; }
     void rotate(float angle, const glm::vec3 & axis);
     inline void resetRotation() { m_rotation = glm::mat4(1.0f); }

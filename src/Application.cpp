@@ -1163,6 +1163,6 @@ void Application::resetRigidCube()
         glm::sin(angle / 2.0f) * nz / norm
     };
     rigidbody->setQuaternion(initialQuaternion.normalize());
-     rigidbody->setAngularVelocity({0.0f, 0.0f, 3.0f});
+    rigidbody->setAngularVelocity({0.0f, 0.0f, 3.0f});
     rigidbody->setIsResting(false);
 }
