@@ -26,8 +26,6 @@ public:
 	// Generate force and torque
 	void addForceAtBodyPoint(const Vector3f& force, const Vector3f& localPoint);
 
-	void clearAccumulator();
-
 	inline Vector3f getPosition() const { return m_position; }
 	inline void setPosition(Vector3f pos) { m_position = pos; }
 	inline void translate(Vector3f trans) { m_position += trans; }
@@ -99,6 +97,8 @@ private:
 
 	// Call each frame to calculate the transformMatrix
 	void calculateDerivedData();
+
+	void clearAccumulator();
 };
 
 #endif // MPJVP_RIGIDBODY
