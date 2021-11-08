@@ -102,7 +102,7 @@ std::ostream& operator<<(std::ostream& out, const RigidBody& a)
 
 void RigidBody::calculateDerivedData()
 {
-	m_orientation.normalize();
+	m_orientation = m_orientation.normalize();
 
 	// Calculate transformMatrix here
 	m_transformMatrix.setOrientationAndPosition(m_orientation, m_position);
