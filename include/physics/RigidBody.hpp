@@ -46,9 +46,9 @@ public:
 	inline Quaternion getQuaternion() const { return m_orientation; }
 	inline void setQuaternion(Quaternion orientation) { m_orientation = orientation; }
 
-	inline Vector3f getRotation() const { return m_angularVelocity; }
-	inline void setRotation(Vector3f rotation) { m_angularVelocity = rotation; }
-	inline void addRotation(Vector3f rotation) { m_angularVelocity += rotation; }
+	inline Vector3f getAngularVelocity() const { return m_angularVelocity; }
+	inline void setAngularVelocity(Vector3f angularVelocity) { m_angularVelocity = angularVelocity; }
+	inline void addAngularVelocity(Vector3f angularVelocity) { m_angularVelocity += angularVelocity; }
 
 	inline bool getIsResting() const { return m_isResting; }
 	inline void setIsResting(bool isResting) { m_isResting = isResting; }

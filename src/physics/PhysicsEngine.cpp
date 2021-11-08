@@ -23,6 +23,12 @@ void PhysicsEngine::update(float deltaTime, GameState & gameState)
         particle->integrate(deltaTime);
     }
 
+    // Update rigid bodies
+    for (auto & [label, rigidbody] : gameState.getRigidbodies())
+    {
+        rigidbody->integrate(deltaTime);
+    }
+
     // Generate contacts
     std::vector<ParticleContact> contacts;
     for(auto & [label, contactGenerator] : gameState.getParticleContactGenerators())
