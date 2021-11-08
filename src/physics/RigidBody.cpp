@@ -5,10 +5,11 @@ RigidBody::RigidBody()
 
 }
 
-RigidBody::RigidBody(Vector3f position, float mass, float damping, bool isResting) :
+RigidBody::RigidBody(Vector3f position, float mass, float damping, float angularDamping, bool isResting) :
 	m_position {position},
 	m_isResting(isResting),
-	m_damping {damping}
+	m_damping {damping},
+	m_angularDamping {angularDamping}
 {
 	m_inverseMass = 1.0f / mass;
 }
@@ -26,19 +27,30 @@ void RigidBody::integrate(float deltaTime)
 		return;
 	}
 
+	// linear acceleration
 	Vector3f acceleration = m_inverseMass * m_totalForce;
 
+	// angular acceleration
+	Vector3f angularAcceleration = m_inverseInertiaMoment * m_totalTorque;
+
+	// linear velocity
+	m_velocity = m_velocity * m_damping + acceleration * deltaTime;
+
+	// angular velocity
+	m_angularVelocity = m_angularVelocity * m_angularDamping + angularAcceleration * deltaTime;
+
+	// position
 	m_position += m_velocity * deltaTime;
 
-	// change orientation (quaternion) here
+	// orientation
 	m_orientation = m_orientation.update(m_angularVelocity, deltaTime);
 
-	m_velocity += acceleration * deltaTime;
+	// derived values' calcul
+	calculateDerivedData();
 
-	// Rotation update with torques next time
-	m_angularVelocity += Vector3f{ 0,0,0 };
+	// put to 0 totalForce and totalTorque
+	clearAccumulator();
 
-	m_totalForce = { 0.0f, 0.0f, 0.0f };
 }
 
 std::ostream& operator<<(std::ostream& out, const RigidBody& a)
@@ -56,4 +68,14 @@ void RigidBody::calculateDerivedData()
 
 	// Calculate transformMatrix here
 	m_transformMatrix.setOrientationAndPosition(m_orientation, m_position);
+
+	// -----------Calculate inverse of inertia moment here------------------
+	
+
+}
+
+void RigidBody::clearAccumulator() 
+{
+	m_totalForce = { 0.0f, 0.0f, 0.0f };
+	m_totalTorque = { 0.0f, 0.0f, 0.0f };
 }
