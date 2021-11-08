@@ -3,6 +3,7 @@
 
 #include "physics/Vector3f.hpp"
 #include "physics/Quaternion.hpp"
+#include "physics/Matrix33.hpp"
 
 #include <array>
 
@@ -22,6 +23,7 @@ public:
     void setOrientationAndPosition(const Quaternion & q, const Vector3f & p); // Set the matrix base on a quaternion and a position
     Vector3f transformPosition(const Vector3f & vector);
     Vector3f transformDirection(const Vector3f & vector); // Transform a direction by ignoring the translation
+    Matrix33 extractMatrix33();
 
     inline std::array<float, 12> & getValues() { return m_values; }
 

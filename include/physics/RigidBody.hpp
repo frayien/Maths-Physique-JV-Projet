@@ -26,8 +26,6 @@ public:
 	// Generate force and torque
 	void addForceAtBodyPoint(const Vector3f& force, const Vector3f& localPoint);
 
-	void clearAccumulator();
-
 	inline Vector3f getPosition() const { return m_position; }
 	inline void setPosition(Vector3f pos) { m_position = pos; }
 	inline void translate(Vector3f trans) { m_position += trans; }
@@ -66,6 +64,9 @@ public:
 	inline Matrix34 getTranformMatrix() const { return m_transformMatrix; }
 	inline void setTransformMatrix(Matrix34 transformMatrix) { m_transformMatrix = transformMatrix; }
 
+	inline Matrix33 getInverseInertiaTensor() const { return m_inverseInertiaTensor; }
+	inline void setInverseInertiaTensor(Matrix33 inverseInertiaTensor) { m_inverseInertiaTensor = inverseInertiaTensor; }
+
 	friend std::ostream& operator<<(std::ostream& out, const RigidBody& a);
 
 
@@ -82,17 +83,22 @@ private:
 	// Orientation of the Rigid Body
 	Quaternion m_orientation;
 
+	// Inertia Tensor specific to the object
+	Matrix33 m_objectInertiaTensor;
+
 	// Angular velocity
 	Vector3f m_angularVelocity;
 
 	// Inverse inertia moment
-	Matrix33 m_inverseInertiaMoment;
+	Matrix33 m_inverseInertiaTensor;
 
 	// transform Matrix from the calcul between orientation and rotation
 	Matrix34 m_transformMatrix;
 
 	// Call each frame to calculate the transformMatrix
 	void calculateDerivedData();
+
+	void clearAccumulator();
 };
 
 #endif // MPJVP_RIGIDBODY
