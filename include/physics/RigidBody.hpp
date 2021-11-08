@@ -16,6 +16,18 @@ public:
 	// Modify position, orientation and velocities (linear and angular)
 	void integrate(float deltaTime);
 
+	// Add force on the center of mass (no torque generated)
+	void addForce(const Vector3f& force);
+
+	// Add force at a point in world coordinate. Generate force and torque
+	void addForceAtPoint(const Vector3f& force, const Vector3f& worldPoint);
+
+	// Add force at a point in local coordinate. Point is converted in world coordinate by using the transform matrix.
+	// Generate force and torque
+	void addForceAtBodyPoint(const Vector3f& force, const Vector3f& localPoint);
+
+	void clearAccumulator();
+
 	inline Vector3f getPosition() const { return m_position; }
 	inline void setPosition(Vector3f pos) { m_position = pos; }
 	inline void translate(Vector3f trans) { m_position += trans; }
@@ -26,11 +38,9 @@ public:
 
 	inline Vector3f getTotalForce() const { return m_totalForce; }
 	inline void setTotalForce(Vector3f totalForce) { m_totalForce = totalForce; }
-	inline void addForce(Vector3f force) { m_totalForce += force; }
 
 	inline Vector3f getTotalTorque() const { return m_totalTorque; }
 	inline void setTotalTorque(Vector3f totalTorque) { m_totalTorque = totalTorque; }
-	inline void addTorque(Vector3f torque) { m_totalTorque += torque; }
 
 	inline float getInverseMass() const { return m_inverseMass; }
 	inline float getMass() const { return m_inverseMass == 0.0f ? std::numeric_limits<float>().max() : (1.0f / m_inverseMass); }
@@ -55,8 +65,6 @@ public:
 
 	inline Matrix34 getTranformMatrix() const { return m_transformMatrix; }
 	inline void setTransformMatrix(Matrix34 transformMatrix) { m_transformMatrix = transformMatrix; }
-
-	void clearAccumulator();
 
 	friend std::ostream& operator<<(std::ostream& out, const RigidBody& a);
 

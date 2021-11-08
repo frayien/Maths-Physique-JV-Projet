@@ -50,7 +50,45 @@ void RigidBody::integrate(float deltaTime)
 
 	// put to 0 totalForce and totalTorque
 	clearAccumulator();
+}
 
+void RigidBody::addForce(const Vector3f& force)
+{
+	m_totalForce += force;
+	m_isResting = false;
+}
+
+
+void RigidBody::addForceAtPoint(const Vector3f& force, const Vector3f& worldPoint)
+{
+	// Force
+	m_totalForce += force;
+
+	// Torque
+	// Convert to coordinates relative to center of mass
+	Vector3f point = worldPoint - m_position;
+	m_totalTorque += point.crossProduct(force);
+
+	m_isResting = false;
+}
+
+void RigidBody::addForceAtBodyPoint(const Vector3f& force, const Vector3f& localPoint)
+{
+	// Force
+	m_totalForce += force;
+
+	// Torque
+	// Convert to coordinates relative to the world
+	Vector3f worldPoint = m_transformMatrix * localPoint;
+	addForceAtPoint(force, worldPoint);
+
+	m_isResting = false;
+}
+
+void RigidBody::clearAccumulator()
+{
+	m_totalForce = { 0.0f, 0.0f, 0.0f };
+	m_totalTorque = { 0.0f, 0.0f, 0.0f };
 }
 
 std::ostream& operator<<(std::ostream& out, const RigidBody& a)
@@ -72,10 +110,4 @@ void RigidBody::calculateDerivedData()
 	// -----------Calculate inverse of inertia moment here------------------
 	
 
-}
-
-void RigidBody::clearAccumulator() 
-{
-	m_totalForce = { 0.0f, 0.0f, 0.0f };
-	m_totalTorque = { 0.0f, 0.0f, 0.0f };
 }
