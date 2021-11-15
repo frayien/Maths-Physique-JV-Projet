@@ -12,7 +12,7 @@ private:
     RigidBody * m_rigidbody;
     CubeShapeGenerator m_cube;
 
-    float m_scale = 0.5;
+    glm::vec3 m_scale = {0.5f, 0.5f, 0.5f};
     
 public:
     RigidCubeShapeGenerator(RigidBody* m_rigidbody, color_t color = Color::GRAY);
@@ -20,7 +20,8 @@ public:
 
     virtual void addShape(std::vector<Shape> & shapes) override;
 
-    inline void setScale(float scale) { m_scale = scale; }
+    inline void setScale(float scale) { m_scale = {scale, scale, scale}; }
+    inline void setScale(glm::vec3 scale) { m_scale = scale; }
 };
 
 #endif // MPJVP_RIGIDCUBESHAPEGENERATOR

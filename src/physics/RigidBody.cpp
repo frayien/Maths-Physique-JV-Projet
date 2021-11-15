@@ -12,9 +12,14 @@ RigidBody::RigidBody(Vector3f position, float mass, float damping, float angular
 	m_angularDamping {angularDamping}
 {
 	m_inverseMass = 1.0f / mass;
-	m_objectInertiaTensor = Matrix33{ { 1 / 12 * mass * (1 * 1 + 1 * 1), 0, 0,
-									 0, 1 / 12 * mass * (1 * 1 + 1 * 1), 0,
-									 0, 0, 1 / 12 * mass * (1 * 1 + 1 * 1) } };
+	m_objectInertiaTensor =
+	{
+		{
+			1.0f / 12.0f * mass * (1.0f * 1.0f + 1.0f * 1.0f), 0.0f, 0.0f,
+			0.0f, 1.0f / 12.0f * mass * (1.0f * 1.0f + 1.0f * 1.0f), 0.0f,
+			0.0f, 0.0f, 1.0f / 12.0f * mass * (1.0f * 1.0f + 1.0f * 1.0f)
+		}
+	};
 }
 
 RigidBody::~RigidBody()

@@ -63,8 +63,10 @@ private:
     std::array<float, 3> currentBlobInitialPosition = {-2.0f, -3.0f,  0.0f};
     std::array<float, 3> currentGroundCenterPosition = {0.0f, 0.0f, -6.0f};
 
-    std::array<std::string, 2> m_modes = {"Blob", "Exemples"};
+    std::array<std::string, 4> m_modes = {"Blob", "Exemples Phase 2", "Demo 1 Phase 3", "Demo 2 Phase 3 (car collision)"};
     int m_selected_mode = 0;
+
+    bool m_carCollision = false;
 
 public:
     Application();
@@ -79,19 +81,24 @@ private:
 
     void updateCamera(float deltaTime);
 
-    void createBlob();
-    void createExample();
-    void resetExample();
-    void resetBlob();
+    void createBlobDemo();
+    void resetBlobDemo();
     void moveBlob(Vector3f moveDirection, float deltaTime);
     void jumpBlob();
     void changeBlobSettings();
 
+    void createExamplePhase2Demo();
+    void resetExamplePhase2Demo();
+
     void createGround();
     void changeGroundSettings();
 
-    void createRigidCube();
-    void resetRigidCube();
+    void createRigidCubeDemo();
+    void resetRigidCubeDemo();
+
+    void createCarCollisionDemo();
+    void resetCarCollisionDemo();
+    void checkCarCollision();
 };
 
 #endif // MPJVP_APPLICATION

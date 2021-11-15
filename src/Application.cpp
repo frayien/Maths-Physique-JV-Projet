@@ -56,9 +56,7 @@ void Application::init()
 
     // Create ground and blob
     createGround();
-    //createExample();
-    createBlob();
-    createRigidCube();
+    createBlobDemo();
     m_selected_mode = 0;
 }
 
@@ -76,15 +74,18 @@ void Application::update(float deltaTime)
         switch(m_selected_mode)
         {
         case 0:
-            resetBlob();
+            resetBlobDemo();
             break;
         case 1:
-            resetExample();
+            resetExamplePhase2Demo();
             break;
+        case 2:
+            resetRigidCubeDemo();
+        case 3:
+            resetCarCollisionDemo();
         default:
             break;
         }
-        resetRigidCube();
     }
 
     if(m_selected_mode == 0)
@@ -114,6 +115,12 @@ void Application::update(float deltaTime)
     else if(!m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_P))
     {
         canPressPause = true;
+    }
+
+    if (m_selected_mode == 3)
+    {
+        // Check for car collision
+        checkCarCollision();
     }
 
     // If the elapsed time is greater than TIMESTEP, we enter the loop
@@ -189,12 +196,16 @@ void Application::createFrame()
                 {
                 case 0:
                     createGround();
-                    createBlob();
+                    createBlobDemo();
                     break;
                 case 1:
                     createGround();
-                    createExample();
+                    createExamplePhase2Demo();
                     break;
+                case 2:
+                    createRigidCubeDemo();
+                case 3:
+                    createCarCollisionDemo();
                 default:
                     break;
                 }
@@ -212,10 +223,10 @@ void Application::createFrame()
     ImGui::Separator();
     ImGui::NewLine();
 
-    if (ImGui::BeginTabBar("SettingsTabBar", ImGuiTabBarFlags_None))
+    if (m_selected_mode < 2 && ImGui::BeginTabBar("SettingsTabBar", ImGuiTabBarFlags_None))
     {
         // Tab to edit ground data
-        if (ImGui::BeginTabItem("Ground"))
+        if (m_selected_mode < 2 && ImGui::BeginTabItem("Ground"))
         {
             // Length
             ImGui::Text("Ground length : ");
@@ -274,25 +285,27 @@ void Application::createFrame()
 
         ImGui::NewLine();
 
-
-        ImGui::Separator();        
-
-        // Apply
-        ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.40f);
-        // ImGui::SetCursorPosY((ImGui::GetWindowSize().y) - 25.0f);
-        if (ImGui::Button("Apply"))
+        if (m_selected_mode < 2)
         {
-            if (m_selected_mode == 0)
+            ImGui::Separator();
+
+            // Apply
+            ImGui::SetCursorPosX((ImGui::GetWindowSize().x) * 0.40f);
+            // ImGui::SetCursorPosY((ImGui::GetWindowSize().y) - 25.0f);
+            if (ImGui::Button("Apply"))
             {
-                changeBlobSettings();
+                if (m_selected_mode == 0)
+                {
+                    changeBlobSettings();
+                }
+                changeGroundSettings();
             }
-            changeGroundSettings();
         }
     }
     ImGui::End();
 }
 
-void Application::createExample()
+void Application::createExamplePhase2Demo()
 {
 
     // DEMONSTRATION OF PARTICLE COLLISIONS AND CABLES
@@ -478,7 +491,7 @@ void Application::createExample()
     m_gameState.addShapeGenerator("spring_8_9", std::make_unique<LinkShapeGenerator>(m_gameState.getParticle("particle_8"), m_gameState.getParticle("particle_9"), Color::RED));
 }
 
-void Application::resetExample()
+void Application::resetExamplePhase2Demo()
 {
     float phi = (1.0f + sqrt(5.0f)) / 2.0f;
 
@@ -504,7 +517,7 @@ void Application::resetExample()
     }
 }
 
-void Application::createBlob()
+void Application::createBlobDemo()
 {
     float phi = (1.0f + sqrt(5.0f)) / 2.0f;
 
@@ -836,7 +849,7 @@ void Application::moveBlob(Vector3f moveDirection, float deltaTime)
     blobCentre->addVelocity( moveDirection * velocityToAdd);
 }
 
-void Application::resetBlob()
+void Application::resetBlobDemo()
 {
     float phi = (1.0f + sqrt(5.0f)) / 2.0f;
 
@@ -1118,10 +1131,10 @@ void Application::changeGroundSettings()
     wall2Contact->setCenterPosition(m_groundCenterPosition + Vector3f{0.0f, m_wallsLength / 2.0f, m_wallsWidth / 2.0f});
 }
 
-void Application::createRigidCube()
+void Application::createRigidCubeDemo()
 {
-    auto rigidbody = std::make_unique<RigidBody>(Vector3f{0.0f, -2.5f, 2.0f}, 1.0f, 0.999f, 0.999f, false);
-    // rigidbody->setVelocity({ 0.0f, 1.0f, 1.0f });
+    auto rigidbody = std::make_unique<RigidBody>(Vector3f{0.0f, -2.5f, 2.0f}, 1.0f, 1.0f, 1.0f, false);
+    rigidbody->setVelocity({ 0.0f, 1.0f, 1.0f });
     rigidbody->setAngularVelocity({0.0f, 0.0f, 3.0f});
 
     float angle = PI / 4.0;
@@ -1143,9 +1156,21 @@ void Application::createRigidCube()
     // Rigidbody Shape
     auto rigidbodyShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("rigidbody"), Color::DARK_GRAY);
     m_gameState.addShapeGenerator("rigidbody", std::move(rigidbodyShape));
+
+    // Ground shape
+    auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
+    groundShape->setScale({25.0f / 2.0f, 25.0f / 2.0f, 0.5f / 2.0f});
+    groundShape->setPosition({0.0f, 0.0f, -6.0f});
+    m_gameState.addShapeGenerator("ground", std::move(groundShape));
+
+    // Background shape
+    auto backgroundgroundShape = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    backgroundgroundShape->setScale({1.0f, 50.0f, 50.0f});
+    backgroundgroundShape->setPosition({-30.0f, 0.0f, 0.0f});
+    m_gameState.addShapeGenerator("background", std::move(backgroundgroundShape));
 }
 
-void Application::resetRigidCube()
+void Application::resetRigidCubeDemo()
 {
     auto rigidbody = m_gameState.getRigidbody("rigidbody");
 
@@ -1165,4 +1190,84 @@ void Application::resetRigidCube()
     rigidbody->setQuaternion(initialQuaternion.normalize());
     rigidbody->setAngularVelocity({0.0f, 0.0f, 3.0f});
     rigidbody->setIsResting(false);
+}
+
+void Application::createCarCollisionDemo()
+{
+    // ------ Car 1 ------
+    auto car1 = std::make_unique<RigidBody>(Vector3f{2.0f, -20.0f, -6.0f + 0.25f + 1.0f}, 50.0f, 0.999f, 0.999f, false);
+    car1->setVelocity({ 0.0f, 15.0f, 0.0f });
+    car1->setAngularVelocity({0.0f, 0.0f, 0.0f});
+    car1->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
+    m_gameState.addRigidBody("car1", std::move(car1));
+
+    // Car 1 shape
+    auto car1Shape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("car1"), Color::RED);
+    car1Shape->setScale({2.0f, 3.0f, 1.0f});
+    m_gameState.addShapeGenerator("car1", std::move(car1Shape));
+
+    // ------ Car 2 ------
+    auto car2 = std::make_unique<RigidBody>(Vector3f{0.0f, 20.0f, -6.0f + 0.25f + 1.0f}, 50.0f, 0.999f, 0.999f, false);
+    car2->setVelocity({ 0.0f, -15.0f, 0.0f });
+    car2->setAngularVelocity({0.0f, 0.0f, 0.0f});
+    car2->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
+    m_gameState.addRigidBody("car2", std::move(car2));
+
+    // Car 2 shape
+    auto car2Shape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("car2"), Color::BLUE);
+    car2Shape->setScale({2.0f, 3.0f, 1.0f});
+    m_gameState.addShapeGenerator("car2", std::move(car2Shape));
+
+    // Ground shape
+    auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
+    groundShape->setScale({100.0f, 100.0f, 0.5f / 2.0f});
+    groundShape->setPosition({0.0f, 0.0f, -6.0f});
+    m_gameState.addShapeGenerator("ground", std::move(groundShape));
+
+    // Background shape
+    auto backgroundgroundShape = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    backgroundgroundShape->setScale({1.0f, 50.0f, 50.0f});
+    backgroundgroundShape->setPosition({-30.0f, 0.0f, 0.0f});
+    m_gameState.addShapeGenerator("background", std::move(backgroundgroundShape));
+}
+
+void Application::resetCarCollisionDemo()
+{
+    auto car1 = m_gameState.getRigidbody("car1");
+
+    car1->setPosition({2.0f, -20.0, -6.0f + 0.25f + 1.0f});
+    car1->setVelocity({ 0.0f, 15.0f, 0.0f });
+    car1->setAngularVelocity({0.0f, 0.0f, 0.0f});
+    car1->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
+    car1->setIsResting(false);
+
+    auto car2 = m_gameState.getRigidbody("car2");
+
+    car2->setPosition({0.0f, 20.0, -6.0f + 0.25f + 1.0f});
+    car2->setVelocity({ 0.0f, -15.0f, 0.0f });
+    car2->setAngularVelocity({0.0f, 0.0f, 0.0f});
+    car2->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
+    car2->setIsResting(false);
+
+    m_carCollision = false;
+}
+
+void Application::checkCarCollision()
+{
+    if (!m_carCollision)
+    {
+        auto car1 = m_gameState.getRigidbody("car1");
+        auto car2 = m_gameState.getRigidbody("car2");
+
+        if (car1->getPosition().getY() >= -3.0f && car2->getPosition().getY() <= 3.0f)
+        {
+            car1->setAngularVelocity({0.0f, 0.0f, 1.5f});
+            car1->setVelocity({2.0f, -4.0f, 0.0f});
+
+            car2->setAngularVelocity({0.0f, 0.0f, 1.0f});
+            car2->setVelocity({-1.0f, 3.0f, 0.0f});
+
+            m_carCollision = true;
+        }
+    }
 }
