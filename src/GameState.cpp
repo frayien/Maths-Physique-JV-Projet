@@ -20,6 +20,11 @@ bool GameState::addRigidBody(const std::string & label, std::unique_ptr<RigidBod
     return m_rigidbodies.insert({label, std::move(rigidbody)}).second;
 }
 
+bool GameState::addRigidBodyForceGenerator(const std::string& label, std::unique_ptr<RigidBodyForceGenerator>&& rigidBodyForceGenerator)
+{
+    return m_rigidBodyForceGenerators.insert({ label, std::move(rigidBodyForceGenerator) }).second;
+}
+
 bool GameState::addParticleForceGenerator(const std::string & label, std::unique_ptr<ParticleForceGenerator> && particleForceGenerator)
 {
     return m_particleForceGenerators.insert({label, std::move(particleForceGenerator)}).second;

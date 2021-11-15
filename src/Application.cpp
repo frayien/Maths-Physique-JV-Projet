@@ -51,6 +51,9 @@ void Application::init()
     std::unique_ptr<ParticleForceGenerator> particleGravity = std::make_unique<ParticleGravity>(9.81f);
     m_gameState.addParticleForceGenerator("gravity", std::move(particleGravity));
 
+    std::unique_ptr<RigidBodyForceGenerator> rigidBodyGravity = std::make_unique<RigidBodyGravity>(9.81f);
+    m_gameState.addRigidBodyForceGenerator("gravity", std::move(rigidBodyGravity));
+
     std::unique_ptr<ParticleForceGenerator> particleDrag = std::make_unique<ParticleDrag>(0.0f, 0.1f);
     m_gameState.addParticleForceGenerator("drag", std::move(particleDrag));
 
@@ -1138,7 +1141,7 @@ void Application::changeGroundSettings()
 void Application::createRigidCubeDemo()
 {
     auto rigidbody = std::make_unique<RigidBody>(Vector3f{0.0f, -2.5f, 2.0f}, 1.0f, 1.0f, 1.0f, false);
-    rigidbody->setVelocity({ 0.0f, 1.0f, 1.0f });
+    rigidbody->setVelocity({ 0.0f, 0.0f, 0.0f });
     rigidbody->setAngularVelocity({0.0f, 0.0f, 3.0f});
 
     float angle = PI / 4.0;
@@ -1160,6 +1163,22 @@ void Application::createRigidCubeDemo()
     // Rigidbody Shape
     auto rigidbodyShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("rigidbody"), Color::DARK_GRAY);
     m_gameState.addShapeGenerator("rigidbody", std::move(rigidbodyShape));
+
+
+    // Cube submitted to gravity
+    auto rigidBodySubmittedToGravity = std::make_unique<RigidBody>(Vector3f{ 0.0f, -2.5f, 0.0f }, 1.0f, 1.0f, 1.0f, false);
+    rigidBodySubmittedToGravity->setVelocity({ 0.0f, 0.0f, 0.0f });
+    rigidBodySubmittedToGravity->setAngularVelocity({ 0.0f, 0.0f, 0.0f });
+    rigidBodySubmittedToGravity->setQuaternion({ 1.0f, 0.0f, 0.0f, 0.0f });
+    m_gameState.addRigidBody("rigidBodySubmittedToGravity", std::move(rigidBodySubmittedToGravity));
+    
+    //Cube submitted to gravity's shape
+    auto rigidBodySubmittedToGravityShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("rigidBodySubmittedToGravity"), Color::DARK_RED);
+    m_gameState.addShapeGenerator("rigidBodySubmittedToGravityShape", std::move(rigidBodySubmittedToGravityShape));
+
+    // Cube submitted to gravity's gravity
+    m_physicsEngine.registerForce(m_gameState.getRigidbody("rigidBodySubmittedToGravity"), m_gameState.getRigidBodyForceGenerator<RigidBodyGravity>("gravity"), 0.0f);
+
 
     // Ground shape
     auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
@@ -1194,6 +1213,10 @@ void Application::resetRigidCubeDemo()
     rigidbody->setQuaternion(initialQuaternion.normalize());
     rigidbody->setAngularVelocity({0.0f, 0.0f, 3.0f});
     rigidbody->setIsResting(false);
+
+    auto rigidBodySubmittedToGravity = m_gameState.getRigidbody("rigidBodySubmittedToGravity");
+    rigidBodySubmittedToGravity->setPosition({ 0.0f, -2.5f, 0.0f });
+    rigidBodySubmittedToGravity->setVelocity({ 0.0f, 0.0f, 0.0f });
 }
 
 void Application::createCarCollisionDemo()

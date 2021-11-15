@@ -16,6 +16,7 @@ void PhysicsEngine::update(float deltaTime, GameState & gameState)
 {
     // Update forces
     m_particleForceRegistry.update(deltaTime);
+    m_rigidBodyForceRegistry.update(deltaTime);
 
     // Update particles
     for (auto & [label, particle] : gameState.getParticles())
@@ -43,4 +44,9 @@ void PhysicsEngine::update(float deltaTime, GameState & gameState)
 void PhysicsEngine::registerForce(Particle * particle, ParticleForceGenerator * particleForceGenerator, float duration)
 {
     m_particleForceRegistry.addForce(particle, particleForceGenerator, duration);
+}
+
+void PhysicsEngine::registerForce(RigidBody* rigidBody, RigidBodyForceGenerator* rigidBodyForceGenerator, float duration)
+{
+    m_rigidBodyForceRegistry.addForce(rigidBody, rigidBodyForceGenerator, duration);
 }

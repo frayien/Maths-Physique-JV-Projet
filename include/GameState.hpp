@@ -5,6 +5,7 @@
 #include <memory>
 #include <unordered_map>
 #include "physics/Particle.hpp"
+#include "physics/forces/RigidBodyForceGenerator.hpp"
 #include "physics/forces/ParticleForceGenerator.hpp"
 #include "physics/contacts/ParticleContactGenerator.hpp"
 #include "render/shape/IShapeGenerator.hpp"
@@ -19,6 +20,7 @@ public:
 
     bool addParticle(const std::string & label, std::unique_ptr<Particle> && particle);
     bool addRigidBody(const std::string & label, std::unique_ptr<RigidBody> && rigidBody);
+    bool addRigidBodyForceGenerator(const std::string& label, std::unique_ptr<RigidBodyForceGenerator>&& rigidBodyForceGenerator);
     bool addParticleForceGenerator(const std::string & label, std::unique_ptr<ParticleForceGenerator> && particleForceGenerator);
     bool addParticleContactGenerator(const std::string & label, std::unique_ptr<ParticleContactGenerator> && particleContactGenerator);
     bool addShapeGenerator(const std::string & label, std::unique_ptr<IShapeGenerator> && shapeGenerator);
@@ -30,6 +32,7 @@ public:
 	inline std::unordered_map<std::string, std::unique_ptr<ParticleForceGenerator>> & getParticleForceGenerators() { return m_particleForceGenerators; }
 	inline std::unordered_map<std::string, std::unique_ptr<ParticleContactGenerator>> & getParticleContactGenerators() { return m_particleContactGenerators; }
 	inline std::unordered_map<std::string, std::unique_ptr<IShapeGenerator>> & getShapeGenerators() { return m_shapeGenerators; }
+    inline std::unordered_map<std::string, std::unique_ptr<RigidBodyForceGenerator>>& getRigidBodyForceGenerators() { return m_rigidBodyForceGenerators; }
 
     Particle* getParticle(std::string label)
     {
@@ -46,6 +49,13 @@ public:
     {
         static_assert(std::is_base_of_v<ParticleForceGenerator, T>, "Must be an instanceof ParticleForceGenerator");
         return static_cast<T*>(m_particleForceGenerators.at(label).get());
+    }
+
+    template<typename T = RigidBodyForceGenerator>
+    T* getRigidBodyForceGenerator(std::string label)
+    {
+        static_assert(std::is_base_of_v<RigidBodyForceGenerator, T>, "Must be an instanceof RigidBodyForceGenerator");
+        return static_cast<T*>(m_rigidBodyForceGenerators.at(label).get());
     }
 
     template<typename T = ParticleContactGenerator>
@@ -75,6 +85,7 @@ private:
     std::unordered_map<std::string, std::unique_ptr<Particle>> m_particles;
     std::unordered_map<std::string, std::unique_ptr<RigidBody>> m_rigidbodies;
     std::unordered_map<std::string, std::unique_ptr<ParticleForceGenerator>> m_particleForceGenerators;
+    std::unordered_map<std::string, std::unique_ptr<RigidBodyForceGenerator>> m_rigidBodyForceGenerators;
     std::unordered_map<std::string, std::unique_ptr<ParticleContactGenerator>> m_particleContactGenerators;
     std::unordered_map<std::string, std::unique_ptr<IShapeGenerator>> m_shapeGenerators;
 };

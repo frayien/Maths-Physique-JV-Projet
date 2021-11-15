@@ -19,6 +19,7 @@
 
 #include "physics/Particle.hpp"
 #include "physics/forces/ParticleGravity.hpp"
+#include "physics/forces/RigidBodyGravity.hpp"
 #include "physics/PhysicsEngine.hpp"
 #include "physics/forces/ParticleAnchoredSpring.hpp"
 #include "physics/forces/ParticleDrag.hpp"
