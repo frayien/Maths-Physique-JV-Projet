@@ -81,8 +81,10 @@ void Application::update(float deltaTime)
             break;
         case 2:
             resetRigidCubeDemo();
+            break;
         case 3:
             resetCarCollisionDemo();
+            break;
         default:
             break;
         }
@@ -204,8 +206,10 @@ void Application::createFrame()
                     break;
                 case 2:
                     createRigidCubeDemo();
+                    break;
                 case 3:
                     createCarCollisionDemo();
+                    break;
                 default:
                     break;
                 }
