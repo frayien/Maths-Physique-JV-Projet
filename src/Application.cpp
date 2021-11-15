@@ -1263,7 +1263,7 @@ void Application::checkCarCollision()
         auto car1 = m_gameState.getRigidbody("car1");
         auto car2 = m_gameState.getRigidbody("car2");
 
-        if (car1->getPosition().getY() >= -3.0f && car2->getPosition().getY() <= 3.0f)
+        if (car1->getPosition().getY() + 3.0f >= car2->getPosition().getY() - 3.0f)
         {
             car1->setAngularVelocity({0.0f, 0.0f, 1.5f});
             car1->setVelocity({2.0f, -4.0f, 0.0f});
