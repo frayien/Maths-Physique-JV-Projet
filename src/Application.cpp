@@ -187,12 +187,15 @@ void Application::createFrame()
             {
                 m_selected_mode = n;
 
-                m_physicsEngine.getParticleForceRegistry().clear();
+                m_physicsEngine.clear();
                 m_gameState.clear();
 
                 // Create force generators
                 std::unique_ptr<ParticleForceGenerator> particleGravity = std::make_unique<ParticleGravity>(9.81f);
                 m_gameState.addParticleForceGenerator("gravity", std::move(particleGravity));
+
+                std::unique_ptr<RigidBodyForceGenerator> rigidBodyGravity = std::make_unique<RigidBodyGravity>(9.81f);
+                m_gameState.addRigidBodyForceGenerator("gravity", std::move(rigidBodyGravity));
 
                 std::unique_ptr<ParticleForceGenerator> particleDrag = std::make_unique<ParticleDrag>(0.0f, 0.1f);
                 m_gameState.addParticleForceGenerator("drag", std::move(particleDrag));
@@ -1221,6 +1224,8 @@ void Application::resetRigidCubeDemo()
 
 void Application::createCarCollisionDemo()
 {
+    m_carCollision = false;
+
     // ------ Car 1 ------
     auto car1 = std::make_unique<RigidBody>(Vector3f{2.0f, -20.0f, -6.0f + 0.25f + 1.0f}, 50.0f, 0.999f, 0.999f, false);
     car1->setVelocity({ 0.0f, 15.0f, 0.0f });

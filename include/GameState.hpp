@@ -77,6 +77,7 @@ public:
         m_particles.clear();
         m_rigidbodies.clear();
         m_particleForceGenerators.clear();
+        m_rigidBodyForceGenerators.clear();
         m_particleContactGenerators.clear();
         m_shapeGenerators.clear();
     }

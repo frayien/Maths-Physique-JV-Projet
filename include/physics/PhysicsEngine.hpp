@@ -22,6 +22,12 @@ public:
     inline ParticleForceRegistry & getParticleForceRegistry() { return m_particleForceRegistry; }
 	inline RigidBodyForceRegistry& getRigidBodyForceRegistry() { return m_rigidBodyForceRegistry; }
 
+	inline void clear()
+    {
+        m_particleForceRegistry.clear();
+        m_rigidBodyForceRegistry.clear();
+    }
+
 private :
 	ParticleForceRegistry m_particleForceRegistry;
 	RigidBodyForceRegistry m_rigidBodyForceRegistry;
