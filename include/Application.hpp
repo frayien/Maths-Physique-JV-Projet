@@ -96,6 +96,7 @@ private:
 
     void createRigidCubeDemo();
     void resetRigidCubeDemo();
+    void checkRigidCubeDemo();
 
     void createCarCollisionDemo();
     void resetCarCollisionDemo();

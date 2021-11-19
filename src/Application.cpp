@@ -122,7 +122,11 @@ void Application::update(float deltaTime)
         canPressPause = true;
     }
 
-    if (m_selected_mode == 3)
+    if (m_selected_mode == 2)
+    {
+        checkRigidCubeDemo();
+    }
+    else if (m_selected_mode == 3)
     {
         // Check for car collision
         checkCarCollision();
@@ -1301,5 +1305,26 @@ void Application::checkCarCollision()
 
             m_carCollision = true;
         }
+    }
+}
+
+void Application::checkRigidCubeDemo()
+{
+    // Check if the cube hits the ground
+    auto gravityCube = m_gameState.getRigidbody("rigidBodySubmittedToGravity");
+    if (gravityCube->getPosition().getZ() < -6.0f + 0.25f + 0.5f)
+    {
+        if (gravityCube->getVelocity().norm() <= 0.3f)
+        {
+            gravityCube->setVelocity({0.0f, 0.0f, 0.0f});
+        }
+        else
+        {
+            gravityCube->setVelocity(- gravityCube->getVelocity() / 2.0f);
+        }
+
+        Vector3f position = gravityCube->getPosition();
+        position.setZ(-6.0f + 0.25f + 0.5f);
+        gravityCube->setPosition(position);
     }
 }
