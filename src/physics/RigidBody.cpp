@@ -91,13 +91,8 @@ void RigidBody::addForceAtPoint(const Vector3f& force, const Vector3f& worldPoin
 
 void RigidBody::addForceAtBodyPoint(const Vector3f& force, const Vector3f& localPoint)
 {
-	// Force
-	m_totalForce += force;
-
-	// Torque
 	// Convert to coordinates relative to the world
 	Vector3f worldPoint = m_transformMatrix * localPoint;
-	// Vector3f worldPoint = m_transformMatrix.extractMatrix33() * localPoint;
 	addForceAtPoint(force, worldPoint);
 
 	m_isResting = false;
