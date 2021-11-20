@@ -1,6 +1,10 @@
 #ifndef MPJVP_MATRIX33
 #define MPJVP_MATRIX33
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+
 #include "physics/Vector3f.hpp"
 #include "physics/Quaternion.hpp"
 
@@ -19,6 +23,10 @@ public:
     Matrix33 & operator*=(const Matrix33 & b);
     Matrix33 & operator*=(float b);
     Matrix33 & operator/=(float b);
+
+    // Implicit conversion to glm::mat4
+    operator glm::mat4();
+    operator const glm::mat4() const;
 
     Matrix33 inverse();
     Matrix33 transpose();

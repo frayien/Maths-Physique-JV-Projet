@@ -18,6 +18,10 @@ public:
     Matrix34 & operator*=(const Matrix34 & b);
     Matrix34 & operator*=(float b);
     Matrix34 & operator/=(float b);
+    
+    // Implicit conversion to glm::mat4
+    operator glm::mat4();
+    operator const glm::mat4() const;
 
     Matrix34 inverse();
     void setOrientationAndPosition(const Quaternion & q, const Vector3f & p); // Set the matrix base on a quaternion and a position

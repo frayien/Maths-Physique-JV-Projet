@@ -71,6 +71,30 @@ Matrix34 & Matrix34::operator/=(float b)
     return *this;
 }
 
+Matrix34::operator glm::mat4()
+{
+    // glm::mat4 is column defined
+    return
+    {
+        m_values[0], m_values[4], m_values[8] , 0.0f,
+        m_values[1], m_values[5], m_values[9] , 0.0f,
+        m_values[2], m_values[6], m_values[10], 0.0f,
+        m_values[3], m_values[7], m_values[11], 1.0f,
+    };
+}
+
+Matrix34::operator const glm::mat4() const
+{
+    // glm::mat4 is column defined
+    return
+    {
+        m_values[0], m_values[4], m_values[8] , 0.0f,
+        m_values[1], m_values[5], m_values[9] , 0.0f,
+        m_values[2], m_values[6], m_values[10], 0.0f,
+        m_values[3], m_values[7], m_values[11], 1.0f,
+    };
+}
+
 Matrix34 Matrix34::inverse()
 {
     // LTM : Linear Transform Matrix

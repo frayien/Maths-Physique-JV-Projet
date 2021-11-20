@@ -79,6 +79,30 @@ Matrix33 & Matrix33::operator/=(float b)
     return *this;
 }
 
+Matrix33::operator glm::mat4()
+{
+    // glm::mat4 is column defined
+    return
+    {
+        m_values[0], m_values[3], m_values[6], 0.0f,
+        m_values[1], m_values[4], m_values[7], 0.0f,
+        m_values[2], m_values[5], m_values[8], 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f,
+    };
+}
+
+Matrix33::operator const glm::mat4() const
+{
+    // glm::mat4 is column defined
+    return
+    {
+        m_values[0], m_values[3], m_values[6], 0.0f,
+        m_values[1], m_values[4], m_values[7], 0.0f,
+        m_values[2], m_values[5], m_values[8], 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f,
+    };
+}
+
 Matrix33 Matrix33::inverse()
 {
     // In our case it's a transformation matrix 
@@ -123,9 +147,9 @@ void Matrix33::setOrientation(const Quaternion & q)
 
     m_values =
     {
-        1 - (_2y2 + _2z2),  _2xy + _2zw,        _2xz - _2yw,
-        _2xy - _2zw,        1 - (_2x2 + _2z2),  _2yz + _2xw,
-        _2xz + _2yw,        _2yz - _2xw,        1 - (_2x2 + _2y2)
+        1 - (_2y2 + _2z2),  _2xy - _2zw,        _2xz + _2yw,
+        _2xy + _2zw,        1 - (_2x2 + _2z2),  _2yz - _2xw,
+        _2xz - _2yw,        _2yz + _2xw,        1 - (_2x2 + _2y2)
     };
 }
 

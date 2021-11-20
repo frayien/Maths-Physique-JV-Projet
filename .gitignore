@@ -40,3 +40,6 @@ lib/*
 !lib/glfw-3.3.4
 .vs
 imgui.ini
+
+*.ilk
+*.pdb
