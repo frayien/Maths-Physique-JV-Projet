@@ -1,7 +1,5 @@
 #include "physics/forces/RigidBodyAnchoredSpring.hpp"
 
-#include <iostream>
-
 RigidBodyAnchoredSpring::RigidBodyAnchoredSpring(Vector3f bodyAnchor, Vector3f anchor, float k, float restLength) :
     m_bodyAnchor{bodyAnchor},
     m_anchor{anchor},

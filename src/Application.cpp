@@ -1,7 +1,5 @@
 #include "Application.hpp"
 
-#include <iostream>
-
 Application::Application() :
     m_graphicsEngine{this}
 {
@@ -1170,8 +1168,8 @@ void Application::createRigidCubeDemo()
     m_gameState.addRigidBody("rigidbody", std::move(rigidbody));
 
     // Rigidbody Shape
-    // auto rigidbodyShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("rigidbody"), Color::DARK_GRAY);
-    // m_gameState.addShapeGenerator("rigidbody", std::move(rigidbodyShape));
+    auto rigidbodyShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("rigidbody"), Color::DARK_GRAY);
+    m_gameState.addShapeGenerator("rigidbody", std::move(rigidbodyShape));
 
 
     // Cube submitted to gravity
@@ -1181,9 +1179,9 @@ void Application::createRigidCubeDemo()
     rigidBodySubmittedToGravity->setQuaternion({ 1.0f, 0.0f, 0.0f, 0.0f });
     m_gameState.addRigidBody("rigidBodySubmittedToGravity", std::move(rigidBodySubmittedToGravity));
     
-    //Cube submitted to gravity's shape
-    // auto rigidBodySubmittedToGravityShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("rigidBodySubmittedToGravity"), Color::DARK_RED);
-    // m_gameState.addShapeGenerator("rigidBodySubmittedToGravityShape", std::move(rigidBodySubmittedToGravityShape));
+    // Cube submitted to gravity's shape
+    auto rigidBodySubmittedToGravityShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("rigidBodySubmittedToGravity"), Color::DARK_RED);
+    m_gameState.addShapeGenerator("rigidBodySubmittedToGravityShape", std::move(rigidBodySubmittedToGravityShape));
 
     // Cube submitted to gravity's gravity
     m_physicsEngine.registerForce(m_gameState.getRigidbody("rigidBodySubmittedToGravity"), m_gameState.getRigidBodyForceGenerator<RigidBodyGravity>("gravity"), 0.0f);
@@ -1192,7 +1190,7 @@ void Application::createRigidCubeDemo()
     // Cube with anchored spring
     auto rigidbodyWithAnchoredSpring = std::make_unique<RigidBody>(Vector3f{ 0.0f, -5.0f, 0.0f }, 1.0f, 1.0f, 1.0f, false);
     rigidbodyWithAnchoredSpring->setVelocity({ 0.0f, 0.0f, 0.0f });
-    rigidbodyWithAnchoredSpring->setAngularVelocity({ -1.0f, 0.0f, 0.0f });
+    rigidbodyWithAnchoredSpring->setAngularVelocity({ 0.0f, 0.0f, 0.0f });
     rigidbodyWithAnchoredSpring->setQuaternion({ 1.0f, 0.0f, 0.0f, 0.0f });
     m_gameState.addRigidBody("rigidbodyWithAnchoredSpring", std::move(rigidbodyWithAnchoredSpring));
     
@@ -1207,11 +1205,11 @@ void Application::createRigidCubeDemo()
     float restLength = 3.0f;
 
     std::unique_ptr<RigidBodyForceGenerator> rigidbodyAnchoredSpringForce = std::make_unique<RigidBodyAnchoredSpring>(bodyAnchorPosition, anchorPosition, k, restLength);
-    //m_physicsEngine.registerForce(m_gameState.getRigidbody("rigidbodyWithAnchoredSpring"), rigidbodyAnchoredSpringForce.get(), 0.0f);
-    // m_gameState.addRigidBodyForceGenerator("rigidbodyAnchoredSpring", std::move(rigidbodyAnchoredSpringForce));
+    m_physicsEngine.registerForce(m_gameState.getRigidbody("rigidbodyWithAnchoredSpring"), rigidbodyAnchoredSpringForce.get(), 0.0f);
+    m_gameState.addRigidBodyForceGenerator("rigidbodyAnchoredSpring", std::move(rigidbodyAnchoredSpringForce));
 
     // Cube with anchored spring : gravity
-    // m_physicsEngine.registerForce(m_gameState.getRigidbody("rigidbodyWithAnchoredSpring"), m_gameState.getRigidBodyForceGenerator<RigidBodyGravity>("gravity"), 0.0f);
+    m_physicsEngine.registerForce(m_gameState.getRigidbody("rigidbodyWithAnchoredSpring"), m_gameState.getRigidBodyForceGenerator<RigidBodyGravity>("gravity"), 0.0f);
 
     // Anchor
     auto anchor = std::make_unique<RigidBody>(anchorPosition, 1.0f, 1.0F, 1.0f, false);
@@ -1222,25 +1220,25 @@ void Application::createRigidCubeDemo()
     m_gameState.addRigidBody("anchor", std::move(anchor));
 
     // Anchor shape
-    // auto anchorShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("anchor"), Color::DARK_GREEN);
-    // anchorShape->setScale(0.15f);
-    // m_gameState.addShapeGenerator("anchorShape", std::move(anchorShape));
+    auto anchorShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("anchor"), Color::DARK_GREEN);
+    anchorShape->setScale(0.15f);
+    m_gameState.addShapeGenerator("anchorShape", std::move(anchorShape));
 
     // Rigidbody link shape
     m_gameState.addShapeGenerator("ridibodyAnchoredSpringLinkShape", std::make_unique<RigidBodyLinkShapeGenerator>(m_gameState.getRigidbody("rigidbodyWithAnchoredSpring"), bodyAnchorPosition, m_gameState.getRigidbody("anchor"), Vector3f{0.0f, 0.0f, 0.0f}, Color::BLUE));
 
 
     // Ground shape
-    // auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
-    // groundShape->setScale({25.0f / 2.0f, 25.0f / 2.0f, 0.5f / 2.0f});
-    // groundShape->setPosition({0.0f, 0.0f, -6.0f});
-    // m_gameState.addShapeGenerator("ground", std::move(groundShape));
+    auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
+    groundShape->setScale({25.0f / 2.0f, 25.0f / 2.0f, 0.5f / 2.0f});
+    groundShape->setPosition({0.0f, 0.0f, -6.0f});
+    m_gameState.addShapeGenerator("ground", std::move(groundShape));
 
     // Background shape
-    // auto backgroundgroundShape = std::make_unique<CubeShapeGenerator>(Color::WHITE);
-    // backgroundgroundShape->setScale({1.0f, 50.0f, 50.0f});
-    // backgroundgroundShape->setPosition({-30.0f, 0.0f, 0.0f});
-    // m_gameState.addShapeGenerator("background", std::move(backgroundgroundShape));
+    auto backgroundgroundShape = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    backgroundgroundShape->setScale({1.0f, 50.0f, 50.0f});
+    backgroundgroundShape->setPosition({-30.0f, 0.0f, 0.0f});
+    m_gameState.addShapeGenerator("background", std::move(backgroundgroundShape));
 }
 
 void Application::resetRigidCubeDemo()
@@ -1359,13 +1357,6 @@ void Application::checkCarCollision()
 
 void Application::checkRigidCubeDemo()
 {
-    // std::cout << "Vraie position : " << m_gameState.getRigidbody("rigidbodyWithAnchoredSpring")->getTranformMatrix() * Vector3f{0.0f, -0.5f, 0.5f} << std::endl;;
-    // std::cout << "Torque : " << m_gameState.getRigidbody("rigidbodyWithAnchoredSpring")->getTotalTorque() << std::endl;
-
-    // std::cout << "=============================" << std::endl;
-    // std::cout << "Quaternion 2 : " << std::endl << m_gameState.getRigidbody("rigidbodyWithAnchoredSpring")->getQuaternion() << std::endl;
-    // std::cout << "=============================" << std::endl;
-
     // Check if the cube hits the ground
     auto gravityCube = m_gameState.getRigidbody("rigidBodySubmittedToGravity");
     if (gravityCube->getPosition().getZ() < -6.0f + 0.25f + 0.5f)

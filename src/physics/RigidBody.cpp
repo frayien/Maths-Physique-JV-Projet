@@ -1,7 +1,5 @@
 #include "physics/RigidBody.hpp"
 
-#include <iostream>
-
 RigidBody::RigidBody()
 {
 
@@ -44,11 +42,6 @@ void RigidBody::integrate(float deltaTime)
 
 	// angular acceleration
 	Vector3f angularAcceleration = m_inverseInertiaTensor * m_totalTorque;
-
-	// if (angularAcceleration.norm() > 0.01f || angularAcceleration.norm() < -0.01f)
-	// {
-	// 	std::cout << "Angular acceleration : " << angularAcceleration << std::endl;
-	// }
 
 	// linear velocity
 	m_velocity = m_velocity * m_damping + acceleration * deltaTime;
