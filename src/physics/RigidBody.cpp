@@ -1,5 +1,7 @@
 #include "physics/RigidBody.hpp"
 
+#include <iostream>
+
 RigidBody::RigidBody()
 {
 
@@ -20,6 +22,8 @@ RigidBody::RigidBody(Vector3f position, float mass, float damping, float angular
 			0.0f, 0.0f, 1.0f / 12.0f * mass * (1.0f * 1.0f + 1.0f * 1.0f)
 		}
 	};
+
+	calculateDerivedData();
 }
 
 RigidBody::~RigidBody()
@@ -40,6 +44,11 @@ void RigidBody::integrate(float deltaTime)
 
 	// angular acceleration
 	Vector3f angularAcceleration = m_inverseInertiaTensor * m_totalTorque;
+
+	// if (angularAcceleration.norm() > 0.01f || angularAcceleration.norm() < -0.01f)
+	// {
+	// 	std::cout << "Angular acceleration : " << angularAcceleration << std::endl;
+	// }
 
 	// linear velocity
 	m_velocity = m_velocity * m_damping + acceleration * deltaTime;
@@ -88,6 +97,7 @@ void RigidBody::addForceAtBodyPoint(const Vector3f& force, const Vector3f& local
 	// Torque
 	// Convert to coordinates relative to the world
 	Vector3f worldPoint = m_transformMatrix * localPoint;
+	// Vector3f worldPoint = m_transformMatrix.extractMatrix33() * localPoint;
 	addForceAtPoint(force, worldPoint);
 
 	m_isResting = false;

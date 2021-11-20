@@ -1,5 +1,7 @@
 #include "physics/forces/RigidBodyAnchoredSpring.hpp"
 
+#include <iostream>
+
 RigidBodyAnchoredSpring::RigidBodyAnchoredSpring(Vector3f bodyAnchor, Vector3f anchor, float k, float restLength) :
     m_bodyAnchor{bodyAnchor},
     m_anchor{anchor},
@@ -23,5 +25,5 @@ void RigidBodyAnchoredSpring::updateForce(RigidBody* rigidBody, float duration)
     Vector3f distance = worldBodyAnchor - m_anchor;
     Vector3f force = - m_k * (distance.norm() - m_restLength) * distance.normalize();
 
-    rigidBody->addForceAtBodyPoint(force, m_bodyAnchor);
+    rigidBody->addForceAtPoint(force, worldBodyAnchor);
 }
