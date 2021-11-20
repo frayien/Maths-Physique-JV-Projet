@@ -57,10 +57,8 @@ void Application::init()
     std::unique_ptr<ParticleForceGenerator> particleDrag = std::make_unique<ParticleDrag>(0.0f, 0.1f);
     m_gameState.addParticleForceGenerator("drag", std::move(particleDrag));
 
-    // Create ground and blob
-    createGround();
-    createBlobDemo();
-    m_selected_mode = 0;
+    createRigidCubeDemo();
+    m_selected_mode = 2;
 }
 
 void Application::update(float deltaTime)
@@ -266,7 +264,7 @@ void Application::createFrame()
         }
 
         // Tab to edit blob data
-        if (m_selected_mode == 0 && ImGui::BeginTabItem("Blob"))
+        else if (m_selected_mode == 0 && ImGui::BeginTabItem("Blob"))
         {
             // Initial position
             ImGui::Text("Initial position (X ; Y ; Z) :");
@@ -1147,9 +1145,9 @@ void Application::changeGroundSettings()
 
 void Application::createRigidCubeDemo()
 {
-    auto rigidbody = std::make_unique<RigidBody>(Vector3f{0.0f, -2.5f, 2.0f}, 1.0f, 1.0f, 1.0f, false);
-    rigidbody->setVelocity({ 0.0f, 0.0f, 0.0f });
-    rigidbody->setAngularVelocity({0.0f, 0.0f, 3.0f});
+    auto rigidbodyMoving = std::make_unique<RigidBody>(Vector3f{0.0f, 0.0f, 3.0f}, 1.0f, 1.0f, 1.0f, false);
+    rigidbodyMoving->setVelocity({ 0.0f, 0.0f, 0.5f });
+    rigidbodyMoving->setAngularVelocity({0.0f, 0.0f, 3.0f});
 
     float angle = PI / 4.0;
     float nx = 1.0f;
@@ -1163,18 +1161,18 @@ void Application::createRigidCubeDemo()
         glm::sin(angle / 2.0f) * ny / norm,
         glm::sin(angle / 2.0f) * nz / norm
     };
-    rigidbody->setQuaternion(initialQuaternion.normalize());
+    rigidbodyMoving->setQuaternion(initialQuaternion.normalize());
 
-    m_gameState.addRigidBody("rigidbody", std::move(rigidbody));
+    m_gameState.addRigidBody("rigidbodyMoving", std::move(rigidbodyMoving));
 
-    // Rigidbody Shape
-    auto rigidbodyShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("rigidbody"), Color::DARK_GRAY);
-    m_gameState.addShapeGenerator("rigidbody", std::move(rigidbodyShape));
+    // Rigidbody moving Shape
+    auto rigidbodyMovingShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("rigidbodyMoving"), Color::DARK_GRAY);
+    m_gameState.addShapeGenerator("rigidbodyMovingShape", std::move(rigidbodyMovingShape));
 
 
     // Cube submitted to gravity
     auto rigidBodySubmittedToGravity = std::make_unique<RigidBody>(Vector3f{ 0.0f, -2.5f, 0.0f }, 1.0f, 1.0f, 1.0f, false);
-    rigidBodySubmittedToGravity->setVelocity({ 0.0f, 0.0f, 0.0f });
+    rigidBodySubmittedToGravity->setVelocity({ 0.0f, 0.0f, 10.0f });
     rigidBodySubmittedToGravity->setAngularVelocity({ 0.0f, 0.0f, 0.0f });
     rigidBodySubmittedToGravity->setQuaternion({ 1.0f, 0.0f, 0.0f, 0.0f });
     m_gameState.addRigidBody("rigidBodySubmittedToGravity", std::move(rigidBodySubmittedToGravity));
@@ -1188,7 +1186,7 @@ void Application::createRigidCubeDemo()
 
 
     // Cube with anchored spring
-    auto rigidbodyWithAnchoredSpring = std::make_unique<RigidBody>(Vector3f{ 0.0f, -5.0f, 0.0f }, 1.0f, 1.0f, 1.0f, false);
+    auto rigidbodyWithAnchoredSpring = std::make_unique<RigidBody>(Vector3f{ 0.0f, -8.0f, 0.0f }, 1.0f, 0.999f, 0.999f, false);
     rigidbodyWithAnchoredSpring->setVelocity({ 0.0f, 0.0f, 0.0f });
     rigidbodyWithAnchoredSpring->setAngularVelocity({ 0.0f, 0.0f, 0.0f });
     rigidbodyWithAnchoredSpring->setQuaternion({ 1.0f, 0.0f, 0.0f, 0.0f });
@@ -1200,8 +1198,8 @@ void Application::createRigidCubeDemo()
 
     // Cube with anchored spring : anchored spring force
     Vector3f bodyAnchorPosition{0.0f, -0.5f, 0.5f};
-    Vector3f anchorPosition{ 0.0f, -5.0f, 6.0f };
-    float k = 10.0f;
+    Vector3f anchorPosition{ 0.0f, -8.0f, 6.0f };
+    float k = 20.0f;
     float restLength = 3.0f;
 
     std::unique_ptr<RigidBodyForceGenerator> rigidbodyAnchoredSpringForce = std::make_unique<RigidBodyAnchoredSpring>(bodyAnchorPosition, anchorPosition, k, restLength);
@@ -1225,7 +1223,40 @@ void Application::createRigidCubeDemo()
     m_gameState.addShapeGenerator("anchorShape", std::move(anchorShape));
 
     // Rigidbody link shape
-    m_gameState.addShapeGenerator("ridibodyAnchoredSpringLinkShape", std::make_unique<RigidBodyLinkShapeGenerator>(m_gameState.getRigidbody("rigidbodyWithAnchoredSpring"), bodyAnchorPosition, m_gameState.getRigidbody("anchor"), Vector3f{0.0f, 0.0f, 0.0f}, Color::BLUE));
+    m_gameState.addShapeGenerator("ridibodyAnchoredSpringLinkShape", std::make_unique<RigidBodyLinkShapeGenerator>(m_gameState.getRigidbody("rigidbodyWithAnchoredSpring"), bodyAnchorPosition, m_gameState.getRigidbody("anchor"), Vector3f{0.0f, 0.0f, 0.0f}, Color::WHITE));
+
+
+    // Little cube spring
+    auto littleCubeSpring = std::make_unique<RigidBody>(Vector3f{ 0.0f, -11.0f, -1.0f }, 0.5f, 0.999f, 0.999f, false);
+    littleCubeSpring->setVelocity({ 0.0f, 0.0f, 0.0f });
+    littleCubeSpring->setAngularVelocity({ 0.0f, 0.0f, 0.0f });
+    littleCubeSpring->setQuaternion({ 1.0f, 0.0f, 0.0f, 0.0f });
+    m_gameState.addRigidBody("littleCubeSpring", std::move(littleCubeSpring));
+
+    // Little cube spring shape
+    auto littleCubeSpringShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("littleCubeSpring"), Color::YELLOW);
+    littleCubeSpringShape->setScale(0.25f);
+    m_gameState.addShapeGenerator("littleCubeSpringShape", std::move(littleCubeSpringShape));
+
+    // Little cube spring : gravity
+    m_physicsEngine.registerForce(m_gameState.getRigidbody("littleCubeSpring"), m_gameState.getRigidBodyForceGenerator<RigidBodyGravity>("gravity"), 0.0f);
+
+    // Little cube spring : spring force
+    Vector3f littleCubeBodyAnchorPosition{0.0f, -0.25f, 0.25f};
+    Vector3f otherCubeBodyAnchorPosition{0.0f, 0.5f, -0.5f};
+    k = 30.0f;
+    restLength = 2.0f;
+
+    std::unique_ptr<RigidBodyForceGenerator> littleCubeSpringForce = std::make_unique<RigidBodySpring>(littleCubeBodyAnchorPosition, m_gameState.getRigidbody("rigidbodyWithAnchoredSpring"), otherCubeBodyAnchorPosition, k, restLength);
+    m_physicsEngine.registerForce(m_gameState.getRigidbody("littleCubeSpring"), littleCubeSpringForce.get(), 0.0f);
+    m_gameState.addRigidBodyForceGenerator("littleCubeSpring", std::move(littleCubeSpringForce));
+
+    std::unique_ptr<RigidBodyForceGenerator> otherLittleCubeSpringForce = std::make_unique<RigidBodySpring>(otherCubeBodyAnchorPosition, m_gameState.getRigidbody("littleCubeSpring"), littleCubeBodyAnchorPosition, k, restLength);
+    m_physicsEngine.registerForce(m_gameState.getRigidbody("rigidbodyWithAnchoredSpring"), otherLittleCubeSpringForce.get(), 0.0f);
+    m_gameState.addRigidBodyForceGenerator("otherLittleCubeSpring", std::move(otherLittleCubeSpringForce));
+
+    // Rigidbody link shape
+    m_gameState.addShapeGenerator("littleCubeSpringLinkShape", std::make_unique<RigidBodyLinkShapeGenerator>(m_gameState.getRigidbody("littleCubeSpring"), littleCubeBodyAnchorPosition, m_gameState.getRigidbody("rigidbodyWithAnchoredSpring"), otherCubeBodyAnchorPosition, Color::LIGHT_PURPLE));
 
 
     // Ground shape
@@ -1239,13 +1270,26 @@ void Application::createRigidCubeDemo()
     backgroundgroundShape->setScale({1.0f, 50.0f, 50.0f});
     backgroundgroundShape->setPosition({-30.0f, 0.0f, 0.0f});
     m_gameState.addShapeGenerator("background", std::move(backgroundgroundShape));
+
+    // Human rigidbody
+    auto humanRigidbody = std::make_unique<RigidBody>(Vector3f{0.0f, 2.0f, 2.0f}, 1.0f, 1.0f, 1.0f, false);
+    humanRigidbody->setVelocity({ 0.0f, 2.0f, 0.0f });
+    humanRigidbody->setAngularVelocity({0.0f, 0.0f, 4.0f});
+    humanRigidbody->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
+
+    m_gameState.addRigidBody("humanRigidbody", std::move(humanRigidbody));
+
+    // Human shape
+    auto humanShape = std::make_unique<HumanShapeGenerator>(m_gameState.getRigidbody("humanRigidbody"), Color::GOLD);
+    humanShape->setScale(1.5f);
+    m_gameState.addShapeGenerator("humanShape", std::move(humanShape));
 }
 
 void Application::resetRigidCubeDemo()
 {
-    auto rigidbody = m_gameState.getRigidbody("rigidbody");
+    auto rigidbodyMoving = m_gameState.getRigidbody("rigidbodyMoving");
 
-    rigidbody->setPosition({0.0f, -2.5f, 2.0f});
+    rigidbodyMoving->setPosition({0.0f, 0.0f, 3.0f});
     float angle = PI / 4.0;
     float nx = 1.0f;
     float ny = 0.0f;
@@ -1258,19 +1302,32 @@ void Application::resetRigidCubeDemo()
         glm::sin(angle / 2.0f) * ny / norm,
         glm::sin(angle / 2.0f) * nz / norm
     };
-    rigidbody->setQuaternion(initialQuaternion.normalize());
-    rigidbody->setAngularVelocity({0.0f, 0.0f, 3.0f});
-    rigidbody->setIsResting(false);
+    rigidbodyMoving->setQuaternion(initialQuaternion.normalize());
+    rigidbodyMoving->setAngularVelocity({0.0f, 0.0f, 3.0f});
+    rigidbodyMoving->setVelocity({0.0f, 0.0f, 0.5f});
+    rigidbodyMoving->setIsResting(false);
 
     auto rigidBodySubmittedToGravity = m_gameState.getRigidbody("rigidBodySubmittedToGravity");
     rigidBodySubmittedToGravity->setPosition({ 0.0f, -2.5f, 0.0f });
-    rigidBodySubmittedToGravity->setVelocity({ 0.0f, 0.0f, 0.0f });
+    rigidBodySubmittedToGravity->setVelocity({ 0.0f, 0.0f, 10.0f });
 
     auto rigidbodyWithAnchoredSpring = m_gameState.getRigidbody("rigidbodyWithAnchoredSpring");
-    rigidbodyWithAnchoredSpring->setPosition({ 0.0f, -5.0f, 0.0f });
+    rigidbodyWithAnchoredSpring->setPosition({ 0.0f, -8.0f, 0.0f });
     rigidbodyWithAnchoredSpring->setVelocity({ 0.0f, 0.0f, 0.0f });
     rigidbodyWithAnchoredSpring->setAngularVelocity({ 0.0f, 0.0f, 0.0f });
     rigidbodyWithAnchoredSpring->setQuaternion({ 1.0f, 0.0f, 0.0f, 0.0f });
+
+    auto littleCubeSpring = m_gameState.getRigidbody("littleCubeSpring");
+    littleCubeSpring->setPosition({ 0.0f, -11.0f, -1.0f });
+    littleCubeSpring->setVelocity({ 0.0f, 0.0f, 0.0f });
+    littleCubeSpring->setAngularVelocity({ 0.0f, 0.0f, 0.0f });
+    littleCubeSpring->setQuaternion({ 1.0f, 0.0f, 0.0f, 0.0f });
+
+    auto humanRigidbody = m_gameState.getRigidbody("humanRigidbody");
+    humanRigidbody->setPosition({0.0f, 2.0f, 2.0f});
+    humanRigidbody->setVelocity({ 0.0f, 2.0f, 0.0f });
+    humanRigidbody->setAngularVelocity({0.0f, 0.0f, 4.0f});
+    humanRigidbody->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
 }
 
 void Application::createCarCollisionDemo()
@@ -1278,8 +1335,8 @@ void Application::createCarCollisionDemo()
     m_carCollision = false;
 
     // ------ Car 1 ------
-    auto car1 = std::make_unique<RigidBody>(Vector3f{2.0f, -20.0f, -6.0f + 0.25f + 1.0f}, 50.0f, 0.999f, 0.999f, false);
-    car1->setVelocity({ 0.0f, 15.0f, 0.0f });
+    auto car1 = std::make_unique<RigidBody>(Vector3f{-3.0f, -20.0f, -6.0f + 0.25f + 1.0f}, 50.0f, 0.999f, 0.999f, false);
+    car1->setVelocity({ 0.0f, 18.0f, 0.0f });
     car1->setAngularVelocity({0.0f, 0.0f, 0.0f});
     car1->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
     m_gameState.addRigidBody("car1", std::move(car1));
@@ -1290,8 +1347,8 @@ void Application::createCarCollisionDemo()
     m_gameState.addShapeGenerator("car1", std::move(car1Shape));
 
     // ------ Car 2 ------
-    auto car2 = std::make_unique<RigidBody>(Vector3f{0.0f, 20.0f, -6.0f + 0.25f + 1.0f}, 50.0f, 0.999f, 0.999f, false);
-    car2->setVelocity({ 0.0f, -15.0f, 0.0f });
+    auto car2 = std::make_unique<RigidBody>(Vector3f{-6.0f, 20.0f, -6.0f + 0.25f + 1.0f}, 50.0f, 0.999f, 0.999f, false);
+    car2->setVelocity({ 0.0f, -18.0f, 0.0f });
     car2->setAngularVelocity({0.0f, 0.0f, 0.0f});
     car2->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
     m_gameState.addRigidBody("car2", std::move(car2));
@@ -1318,16 +1375,16 @@ void Application::resetCarCollisionDemo()
 {
     auto car1 = m_gameState.getRigidbody("car1");
 
-    car1->setPosition({2.0f, -20.0, -6.0f + 0.25f + 1.0f});
-    car1->setVelocity({ 0.0f, 15.0f, 0.0f });
+    car1->setPosition({-3.0f, -20.0, -6.0f + 0.25f + 1.0f});
+    car1->setVelocity({ 0.0f, 18.0f, 0.0f });
     car1->setAngularVelocity({0.0f, 0.0f, 0.0f});
     car1->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
     car1->setIsResting(false);
 
     auto car2 = m_gameState.getRigidbody("car2");
 
-    car2->setPosition({0.0f, 20.0, -6.0f + 0.25f + 1.0f});
-    car2->setVelocity({ 0.0f, -15.0f, 0.0f });
+    car2->setPosition({-6.0f, 20.0, -6.0f + 0.25f + 1.0f});
+    car2->setVelocity({ 0.0f, -18.0f, 0.0f });
     car2->setAngularVelocity({0.0f, 0.0f, 0.0f});
     car2->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
     car2->setIsResting(false);
@@ -1344,10 +1401,10 @@ void Application::checkCarCollision()
 
         if (car1->getPosition().getY() + 3.0f >= car2->getPosition().getY() - 3.0f)
         {
-            car1->setAngularVelocity({0.0f, 0.0f, 1.5f});
+            car1->setAngularVelocity({0.0f, 0.0f, 2.5f});
             car1->setVelocity({2.0f, -4.0f, 0.0f});
 
-            car2->setAngularVelocity({0.0f, 0.0f, 1.0f});
+            car2->setAngularVelocity({0.0f, 0.0f, 1.5f});
             car2->setVelocity({-1.0f, 3.0f, 0.0f});
 
             m_carCollision = true;
@@ -1357,6 +1414,22 @@ void Application::checkCarCollision()
 
 void Application::checkRigidCubeDemo()
 {
+    // Check 'humanRigidbody' (goes back and forth)
+    auto humanRigidbody = m_gameState.getRigidbody("humanRigidbody");
+    Vector3f humanRigidbodyPosition = humanRigidbody->getPosition();
+    if (humanRigidbodyPosition.getY() > 7.0f)
+    {
+        humanRigidbodyPosition.setY(6.8f);
+        humanRigidbody->setVelocity(-humanRigidbody->getVelocity());
+        humanRigidbody->setAngularVelocity(-humanRigidbody->getAngularVelocity());
+    }
+    else if (humanRigidbodyPosition.getY() < 2.0f)
+    {
+        humanRigidbodyPosition.setY(2.2f);
+        humanRigidbody->setVelocity(-humanRigidbody->getVelocity());
+        humanRigidbody->setAngularVelocity(-humanRigidbody->getAngularVelocity());
+    }
+
     // Check if the cube hits the ground
     auto gravityCube = m_gameState.getRigidbody("rigidBodySubmittedToGravity");
     if (gravityCube->getPosition().getZ() < -6.0f + 0.25f + 0.5f)

@@ -17,6 +17,7 @@
 #include "LinkShapeGenerator.hpp"
 #include "RigidCubeShapeGenerator.hpp"
 #include "RigidBodyLinkShapeGenerator.hpp"
+#include "HumanShapeGenerator.hpp"
 
 #include "physics/Particle.hpp"
 #include "physics/forces/ParticleGravity.hpp"
@@ -28,6 +29,7 @@
 #include "physics/contacts/ParticleCable.hpp"
 #include "physics/contacts/ParticleRod.hpp"
 #include "physics/forces/RigidBodyAnchoredSpring.hpp"
+#include "physics/forces/RigidBodySpring.hpp"
 #include "GameState.hpp"
 #include "physics/contacts/WallContactGenerator.hpp"
 #include "physics/contacts/NaiveParticleContactGenerator.hpp"

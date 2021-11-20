@@ -15,7 +15,7 @@ private:
     glm::vec3 m_scale = {0.5f, 0.5f, 0.5f};
     
 public:
-    RigidCubeShapeGenerator(RigidBody* m_rigidbody, color_t color = Color::GRAY);
+    RigidCubeShapeGenerator(RigidBody* rigidbody, color_t color = Color::GRAY);
     virtual ~RigidCubeShapeGenerator();
 
     virtual void addShape(std::vector<Shape> & shapes) override;
