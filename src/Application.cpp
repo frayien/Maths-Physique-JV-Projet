@@ -180,6 +180,17 @@ void Application::createFrame()
 {
     ImGui::Begin("Settings");
 
+    static bool isSizeInitialized = false;
+
+    if (!isSizeInitialized)
+    {
+        // Default size
+        float imGuiWidth = 200.0f;
+        float imGuiHeight = 250.0f;
+        ImGui::SetWindowSize(ImVec2(imGuiWidth, imGuiHeight));
+        isSizeInitialized = true;
+    }
+
     if (ImGui::BeginCombo("##combo", m_modes[m_selected_mode].c_str()))
     {
         for (int n = 0; n < m_modes.size(); n++)
