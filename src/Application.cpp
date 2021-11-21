@@ -264,7 +264,7 @@ void Application::createFrame()
         }
 
         // Tab to edit blob data
-        else if (m_selected_mode == 0 && ImGui::BeginTabItem("Blob"))
+        if (m_selected_mode == 0 && ImGui::BeginTabItem("Blob"))
         {
             // Initial position
             ImGui::Text("Initial position (X ; Y ; Z) :");
