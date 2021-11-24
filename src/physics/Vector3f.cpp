@@ -21,6 +21,11 @@ float Vector3f::norm() const
     return std::sqrt(m_x*m_x + m_y*m_y + m_z*m_z);
 }
 
+float Vector3f::sqrNorm() const
+{
+    return m_x*m_x + m_y*m_y + m_z*m_z;
+}
+
 Vector3f Vector3f::normalize() const
 {
     float n = norm();
@@ -76,6 +81,36 @@ Vector3f & Vector3f::operator/=(float b)
     m_z /= b;
 
     return *this;
+}
+
+float & Vector3f::operator[](int index)
+{
+    switch (index)
+    {
+        case 0:
+            return m_x;
+        case 1:
+            return m_y;
+        case 2:
+            return m_z;
+        default:
+            exit(0);
+    }
+}
+
+const float & Vector3f::operator[](int index) const
+{
+    switch (index)
+    {
+        case 0:
+            return m_x;
+        case 1:
+            return m_y;
+        case 2:
+            return m_z;
+        default:
+            exit(0);
+    }
 }
 
 // //////////// friends //////////// //

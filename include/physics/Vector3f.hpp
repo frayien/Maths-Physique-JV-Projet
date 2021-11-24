@@ -19,6 +19,7 @@ public:
     ~Vector3f();
 
     float norm() const;
+    float sqrNorm() const;
     Vector3f normalize() const;
 
     float dotProduct(const Vector3f & b) const;
@@ -28,6 +29,9 @@ public:
     Vector3f & operator-=(const Vector3f & b);
     Vector3f & operator*=(float b);
     Vector3f & operator/=(float b);
+
+    float & operator[](int index);
+    const float & operator[](int index) const;
 
     // Implicit conversion to glm::vec3
     inline operator glm::vec3() { return {m_x, m_y, m_z}; }
