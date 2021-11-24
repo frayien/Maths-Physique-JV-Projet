@@ -5,9 +5,9 @@
 #include <memory>
 #include <unordered_map>
 #include "physics/Particle.hpp"
-#include "physics/forces/RigidBodyForceGenerator.hpp"
-#include "physics/forces/ParticleForceGenerator.hpp"
-#include "physics/contacts/ParticleContactGenerator.hpp"
+#include "physics/forces/RigidBody/RigidBodyForceGenerator.hpp"
+#include "physics/forces/Particle/ParticleForceGenerator.hpp"
+#include "physics/contacts/Particle/ParticleContactGenerator.hpp"
 #include "render/shape/IShapeGenerator.hpp"
 #include "physics/RigidBody.hpp"
 
