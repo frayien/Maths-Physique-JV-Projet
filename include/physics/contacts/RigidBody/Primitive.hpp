@@ -8,13 +8,17 @@
 class Primitive 
 {
 public:
-	RigidBody* rigidBody;
-	Matrix34 offset;
 
-	inline Vector3f getPosition()
-	{
-		return offset * rigidBody->getPosition();
-	}
+	Primitive(RigidBody* rigidBody, Matrix34 offset);
+	~Primitive();
+
+	inline Vector3f getPosition(){ return m_offset * m_rigidBody->getPosition(); }
+	inline RigidBody* getRigidBody() { return m_rigidBody; }
+	inline Matrix34 getOffset() { return m_offset; }
+
+private:
+	RigidBody* m_rigidBody;
+	Matrix34 m_offset;
 };
 
 #endif // MPJVP_PRIMITIVE
