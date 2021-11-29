@@ -12,10 +12,12 @@ class SphereAndSphereContact : public RigidBodyContactGenerator
 private:
     std::array<Sphere*, 2> m_spheres;
 public:
-    SphereAndSphereContact() = default;
-    virtual ~SphereAndSphereContact() = default;
+    SphereAndSphereContact(Sphere* sphereA, Sphere* sphereB);
+    virtual ~SphereAndSphereContact();
 
-    virtual void addContact(std::vector<RigidBodyContact>& contacts) const;
+    void addContact(std::vector<RigidBodyContact>& contacts) const;
+
+    float getCurrentDistance() const;
 };
 
 #endif // MPJVP_SPHEREANDSPHERECONTACT

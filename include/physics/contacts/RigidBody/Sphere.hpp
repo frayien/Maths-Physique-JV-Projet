@@ -7,6 +7,8 @@ class Sphere : public Primitive
 {
 public:
 	float radius;
+
+	inline float getRadius() const { return radius; }
 };
 
 #endif // MPJVP_SPHERE
