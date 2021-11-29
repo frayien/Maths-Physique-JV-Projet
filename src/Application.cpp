@@ -47,18 +47,24 @@ void Application::init()
 
     sun.setPosition({0.0f, 0.0f, 0.0f});
 
-    // Create force generators
+    initRigidbodyForceGenerators();
+    createDemoPhase4();
+    m_selected_mode = 4;
+}
+
+void Application::initParticleForceGenerators()
+{
     std::unique_ptr<ParticleForceGenerator> particleGravity = std::make_unique<ParticleGravity>(9.81f);
     m_gameState.addParticleForceGenerator("gravity", std::move(particleGravity));
 
-    std::unique_ptr<RigidBodyForceGenerator> rigidBodyGravity = std::make_unique<RigidBodyGravity>(9.81f);
-    m_gameState.addRigidBodyForceGenerator("gravity", std::move(rigidBodyGravity));
-
     std::unique_ptr<ParticleForceGenerator> particleDrag = std::make_unique<ParticleDrag>(0.0f, 0.1f);
     m_gameState.addParticleForceGenerator("drag", std::move(particleDrag));
+}
 
-    createRigidCubeDemo();
-    m_selected_mode = 2;
+void Application::initRigidbodyForceGenerators()
+{
+    std::unique_ptr<RigidBodyForceGenerator> rigidBodyGravity = std::make_unique<RigidBodyGravity>(9.81f);
+    m_gameState.addRigidBodyForceGenerator("gravity", std::move(rigidBodyGravity));
 }
 
 void Application::update(float deltaTime)
@@ -72,19 +78,32 @@ void Application::update(float deltaTime)
     // If we click on the reset button
     if(m_graphicsEngine.getWindow().isKeyPressed(GLFW_KEY_R))
     {
+        m_physicsEngine.clear();
+        m_gameState.clear();
+
         switch(m_selected_mode)
         {
         case 0:
-            resetBlobDemo();
+            initParticleForceGenerators();
+            createGround();
+            createBlobDemo();
             break;
         case 1:
-            resetExamplePhase2Demo();
+            initParticleForceGenerators();
+            createGround();
+            createExamplePhase2Demo();
             break;
         case 2:
-            resetRigidCubeDemo();
+            initRigidbodyForceGenerators();
+            createRigidCubeDemo();
             break;
         case 3:
-            resetCarCollisionDemo();
+            initRigidbodyForceGenerators();
+            createCarCollisionDemo();
+            break;
+        case 4:
+            initRigidbodyForceGenerators();
+            createDemoPhase4();
             break;
         default:
             break;
@@ -228,6 +247,9 @@ void Application::createFrame()
                     break;
                 case 3:
                     createCarCollisionDemo();
+                    break;
+                case 4:
+                    createDemoPhase4();
                     break;
                 default:
                     break;
@@ -512,32 +534,6 @@ void Application::createExamplePhase2Demo()
     m_gameState.addShapeGenerator("particle_9", std::move(particuleShape9));
 
     m_gameState.addShapeGenerator("spring_8_9", std::make_unique<LinkShapeGenerator>(m_gameState.getParticle("particle_8"), m_gameState.getParticle("particle_9"), Color::RED));
-}
-
-void Application::resetExamplePhase2Demo()
-{
-    float phi = (1.0f + sqrt(5.0f)) / 2.0f;
-
-    std::array<std::pair<std::string, Vector3f>, 8> blobPos
-    {{
-        {"particle_1", Vector3f{0, -2.5, 2}},
-        {"particle_2", Vector3f{ 0, -1.5, 2 }},
-        {"particle_3", Vector3f{ 0, -2, 2 }},
-        {"particle_4", Vector3f{0, 2, 1}},
-        {"particle_5", Vector3f{0, 2, 2}},
-        {"particle_6", Vector3f{0, 1, 2}},
-        {"particle_7", Vector3f{ 0, 0, -1 }},
-        {"particle_8", Vector3f{ 0, -4, 0}},
-    }};
-
-    for(auto & [label, pos] : blobPos)
-    {
-        auto particle = m_gameState.getParticle(label);
-
-        particle->setPosition(pos);
-        particle->setVelocity({0.0f, 0.0f, 0.0f});
-        particle->setIsResting(false);
-    }
 }
 
 void Application::createBlobDemo()
@@ -870,49 +866,6 @@ void Application::moveBlob(Vector3f moveDirection, float deltaTime)
 
     // Move the center for global movement
     blobCentre->addVelocity( moveDirection * velocityToAdd);
-}
-
-void Application::resetBlobDemo()
-{
-    float phi = (1.0f + sqrt(5.0f)) / 2.0f;
-
-    std::array<std::pair<std::string, Vector3f>, 21> blobPos
-    {{
-        {"blob_0", m_blobCenterInitPos},
-
-        {"blob_1",  m_blobCenterInitPos + Vector3f{1.0f, 1.0f, 1.0f}},
-        {"blob_2",  m_blobCenterInitPos + Vector3f{-1.0f, 1.0f, 1.0f}},
-        {"blob_3",  m_blobCenterInitPos + Vector3f{1.0f, -1.0f, 1.0f}},
-        {"blob_4",  m_blobCenterInitPos + Vector3f{1.0f, 1.0f, -1.0f}},
-        {"blob_5",  m_blobCenterInitPos + Vector3f{-1.0f, -1.0f, 1.0f}},
-        {"blob_6",  m_blobCenterInitPos + Vector3f{-1.0f, 1.0f, -1.0f}},
-        {"blob_7",  m_blobCenterInitPos + Vector3f{1.0f, -1.0f,-1.0f}},
-        {"blob_8",  m_blobCenterInitPos + Vector3f{-1.0f, -1.0f, -1.0f}},
-
-        {"blob_9",  m_blobCenterInitPos + Vector3f{0.0f, phi, 1.0f / phi}},
-        {"blob_10", m_blobCenterInitPos + Vector3f{0.0f, -phi, 1.0f / phi}},
-        {"blob_11", m_blobCenterInitPos + Vector3f{0.0f, phi, -1.0f / phi}},
-        {"blob_12", m_blobCenterInitPos + Vector3f{0.0f, -phi, -1.0f / phi}},
-
-        {"blob_13", m_blobCenterInitPos + Vector3f{1.0f / phi, 0.0f, phi}},
-        {"blob_14", m_blobCenterInitPos + Vector3f{-1.0f / phi, 0.0f, phi}},
-        {"blob_15", m_blobCenterInitPos + Vector3f{1.0f / phi, 0.0f, -phi}},
-        {"blob_16", m_blobCenterInitPos + Vector3f{-1.0f / phi, 0.0f, -phi}},
-
-        {"blob_17", m_blobCenterInitPos + Vector3f{phi, 1.0f / phi, 0.0f}},
-        {"blob_18", m_blobCenterInitPos + Vector3f{-phi, 1.0f / phi, 0.0f}},
-        {"blob_19", m_blobCenterInitPos + Vector3f{phi, -1.0f / phi, 0.0f}},
-        {"blob_20", m_blobCenterInitPos + Vector3f{-phi, -1.0f / phi, 0.0f}}
-    }};
-
-    for(auto & [label, pos] : blobPos)
-    {
-        auto particle = m_gameState.getParticle(label);
-
-        particle->setPosition(pos);
-        particle->setVelocity({0.0f, 0.0f, 0.0f});
-        particle->setIsResting(false);
-    }
 }
 
 void Application::createGround()
@@ -1296,51 +1249,6 @@ void Application::createRigidCubeDemo()
     m_gameState.addShapeGenerator("humanShape", std::move(humanShape));
 }
 
-void Application::resetRigidCubeDemo()
-{
-    auto rigidbodyMoving = m_gameState.getRigidbody("rigidbodyMoving");
-
-    rigidbodyMoving->setPosition({0.0f, 0.0f, 3.0f});
-    float angle = PI / 4.0;
-    float nx = 1.0f;
-    float ny = 0.0f;
-    float nz = 0.0f;
-    float norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
-    Quaternion initialQuaternion
-    {
-        glm::cos(angle / 2.0f),
-        glm::sin(angle / 2.0f) * nx / norm,
-        glm::sin(angle / 2.0f) * ny / norm,
-        glm::sin(angle / 2.0f) * nz / norm
-    };
-    rigidbodyMoving->setQuaternion(initialQuaternion.normalize());
-    rigidbodyMoving->setAngularVelocity({0.0f, 0.0f, 3.0f});
-    rigidbodyMoving->setVelocity({0.0f, 0.0f, 0.5f});
-    rigidbodyMoving->setIsResting(false);
-
-    auto rigidBodySubmittedToGravity = m_gameState.getRigidbody("rigidBodySubmittedToGravity");
-    rigidBodySubmittedToGravity->setPosition({ 0.0f, -2.5f, 0.0f });
-    rigidBodySubmittedToGravity->setVelocity({ 0.0f, 0.0f, 10.0f });
-
-    auto rigidbodyWithAnchoredSpring = m_gameState.getRigidbody("rigidbodyWithAnchoredSpring");
-    rigidbodyWithAnchoredSpring->setPosition({ 0.0f, -8.0f, 0.0f });
-    rigidbodyWithAnchoredSpring->setVelocity({ 0.0f, 0.0f, 0.0f });
-    rigidbodyWithAnchoredSpring->setAngularVelocity({ 0.0f, 0.0f, 0.0f });
-    rigidbodyWithAnchoredSpring->setQuaternion({ 1.0f, 0.0f, 0.0f, 0.0f });
-
-    auto littleCubeSpring = m_gameState.getRigidbody("littleCubeSpring");
-    littleCubeSpring->setPosition({ 0.0f, -11.0f, -1.0f });
-    littleCubeSpring->setVelocity({ 0.0f, 0.0f, 0.0f });
-    littleCubeSpring->setAngularVelocity({ 0.0f, 0.0f, 0.0f });
-    littleCubeSpring->setQuaternion({ 1.0f, 0.0f, 0.0f, 0.0f });
-
-    auto humanRigidbody = m_gameState.getRigidbody("humanRigidbody");
-    humanRigidbody->setPosition({0.0f, 2.0f, 2.0f});
-    humanRigidbody->setVelocity({ 0.0f, 2.0f, 0.0f });
-    humanRigidbody->setAngularVelocity({0.0f, 0.0f, 4.0f});
-    humanRigidbody->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
-}
-
 void Application::createCarCollisionDemo()
 {
     m_carCollision = false;
@@ -1380,27 +1288,6 @@ void Application::createCarCollisionDemo()
     backgroundgroundShape->setScale({1.0f, 50.0f, 50.0f});
     backgroundgroundShape->setPosition({-30.0f, 0.0f, 0.0f});
     m_gameState.addShapeGenerator("background", std::move(backgroundgroundShape));
-}
-
-void Application::resetCarCollisionDemo()
-{
-    auto car1 = m_gameState.getRigidbody("car1");
-
-    car1->setPosition({-3.0f, -20.0, -6.0f + 0.25f + 1.0f});
-    car1->setVelocity({ 0.0f, 18.0f, 0.0f });
-    car1->setAngularVelocity({0.0f, 0.0f, 0.0f});
-    car1->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
-    car1->setIsResting(false);
-
-    auto car2 = m_gameState.getRigidbody("car2");
-
-    car2->setPosition({-6.0f, 20.0, -6.0f + 0.25f + 1.0f});
-    car2->setVelocity({ 0.0f, -18.0f, 0.0f });
-    car2->setAngularVelocity({0.0f, 0.0f, 0.0f});
-    car2->setQuaternion({1.0f, 0.0f, 0.0f, 0.0f});
-    car2->setIsResting(false);
-
-    m_carCollision = false;
 }
 
 void Application::checkCarCollision()
@@ -1458,4 +1345,153 @@ void Application::checkRigidCubeDemo()
         position.setZ(-6.0f + 0.25f + 0.5f);
         gravityCube->setPosition(position);
     }
+}
+
+void Application::createDemoPhase4()
+{
+
+    // Ground shape
+    Vector3f groundCenterPosition{0.0f, 0.0f, -6.0f};
+    float groundHalfLength = 70.0f / 2.0f;
+    float groundHalfWidth = 70.0f / 2.0f;
+    float groundHalfHeight = 0.5f / 2.0f;
+
+    auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
+    groundShape->setScale({groundHalfLength, groundHalfWidth, groundHalfHeight});
+    groundShape->setPosition(groundCenterPosition);
+    m_gameState.addShapeGenerator("ground", std::move(groundShape));
+
+    // Walls
+    float wallHalfLength = 50.0f / 2.0f;
+    float wallHalfWidth = 0.4f / 2.0f;
+    float wallHalfHeight = 5.0f / 2.0f;
+
+    // Wall 1 shape
+    Vector3f wall1CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{-wallHalfLength, 0.0f, wallHalfHeight};
+
+    float angle = PI / 2.0;
+    float nx = 0.0f;
+    float ny = 0.0f;
+    float nz = 1.0f;
+    float norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion wall1Quaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    Matrix33 rotationWall1;
+    rotationWall1.setOrientation(wall1Quaternion);
+
+    auto wall1 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    wall1->setPosition(wall1CenterPosition);
+    wall1->setRotation(rotationWall1);
+    wall1->scale({wallHalfLength + wallHalfWidth, wallHalfWidth, wallHalfHeight});
+    m_gameState.addShapeGenerator("wall1", std::move(wall1));
+
+    // Wall 2 shape
+    Vector3f wall2CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0f, wallHalfLength, wallHalfHeight};
+
+    angle = 0.0f;
+    nx = 0.0f;
+    ny = 0.0f;
+    nz = 1.0f;
+    norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion wall2Quaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    Matrix33 rotationWall2;
+    rotationWall2.setOrientation(wall2Quaternion);
+
+    auto wall2 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    wall2->setPosition(wall2CenterPosition);
+    wall2->setRotation(rotationWall2);
+    wall2->scale({wallHalfLength - wallHalfWidth, wallHalfWidth, wallHalfHeight});
+    m_gameState.addShapeGenerator("wall2", std::move(wall2));
+
+    // Wall 3 shape
+    Vector3f wall3CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0f, -wallHalfLength, wallHalfHeight};
+
+    angle = 0.0f;
+    nx = 0.0f;
+    ny = 0.0f;
+    nz = 1.0f;
+    norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion wall3Quaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    Matrix33 rotationWall3;
+    rotationWall3.setOrientation(wall3Quaternion);
+
+    auto wall3 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    wall3->setPosition(wall3CenterPosition);
+    wall3->setRotation(rotationWall3);
+    wall3->scale({wallHalfLength - wallHalfWidth, wallHalfWidth, wallHalfHeight});
+    m_gameState.addShapeGenerator("wall3", std::move(wall3));
+
+    // Wall 4 shape
+    Vector3f wall4CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{wallHalfLength, 0.0f, wallHalfHeight};
+
+    angle = PI / 2.0;
+    nx = 0.0f;
+    ny = 0.0f;
+    nz = 1.0f;
+    norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion wall4Quaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    Matrix33 rotationWall4;
+    rotationWall4.setOrientation(wall4Quaternion);
+
+    auto wall4 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    wall4->setPosition(wall4CenterPosition);
+    wall4->setRotation(rotationWall4);
+    wall4->scale({wallHalfLength + wallHalfWidth, wallHalfWidth, wallHalfHeight});
+    m_gameState.addShapeGenerator("wall4", std::move(wall4));
+
+    // Box
+    float boxHalfLength = 6.0f / 2.0f;
+    float boxHalfWidth = 3.0f / 2.0f;
+    float boxHalfHeight = 1.0f / 2.0f;
+    Vector3f boxPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0F, 0.0f, boxHalfHeight};
+
+    angle = PI / 2.0;
+    nx = 0.0f;
+    ny = 0.0f;
+    nz = 1.0f;
+    norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion boxQuaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+
+    Vector3f boxInitialLinearVelocity{0.0f, 10.0f, 0.0f};
+    Vector3f boxInitialAngularVelocity{0.0f, 0.0f, 20.0f};
+
+    auto box = std::make_unique<RigidBody>(boxPosition, 1.0f, 0.999f, 0.999f, false);
+    box->setVelocity(boxInitialLinearVelocity);
+    box->setAngularVelocity(boxInitialAngularVelocity);
+    box->setQuaternion(boxQuaternion);
+    m_gameState.addRigidBody("box", std::move(box));
+
+    // Box shape
+    auto boxShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("box"), Color::RED);
+    boxShape->setScale({boxHalfLength, boxHalfWidth, boxHalfHeight});
+    m_gameState.addShapeGenerator("box", std::move(boxShape));
 }
