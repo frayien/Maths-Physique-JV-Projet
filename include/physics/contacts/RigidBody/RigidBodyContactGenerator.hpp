@@ -1,5 +1,5 @@
-#ifndef FRAYIEN_RIGIDBODYCONTACTGENERATOR
-#define FRAYIEN_RIGIDBODYCONTACTGENERATOR
+#ifndef MPJVP_RIGIDBODYCONTACTGENERATOR
+#define MPJVP_RIGIDBODYCONTACTGENERATOR
 
 #include <vector>
 
@@ -16,4 +16,4 @@ public:
     virtual void addContact(std::vector<RigidBodyContact>& contacts) const = 0;
 };
 
-#endif // FRAYIEN_RIGIDBODYCONTACTGENERATOR
+#endif // MPJVP_RIGIDBODYCONTACTGENERATOR

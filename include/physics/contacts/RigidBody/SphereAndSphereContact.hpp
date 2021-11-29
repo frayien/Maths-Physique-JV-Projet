@@ -1,5 +1,5 @@
-#ifndef FRAYIEN_SPHEREANDSPHERECONTACT
-#define FRAYIEN_SPHEREANDSPHERECONTACT
+#ifndef MPJVP_SPHEREANDSPHERECONTACT
+#define MPJVP_SPHEREANDSPHERECONTACT
 
 #include <vector>
 #include <array>
@@ -18,4 +18,4 @@ public:
     virtual void addContact(std::vector<RigidBodyContact>& contacts) const;
 };
 
-#endif // FRAYIEN_SPHEREANDSPHERECONTACT
+#endif // MPJVP_SPHEREANDSPHERECONTACT
