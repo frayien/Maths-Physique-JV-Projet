@@ -57,8 +57,8 @@ void Application::init()
     std::unique_ptr<ParticleForceGenerator> particleDrag = std::make_unique<ParticleDrag>(0.0f, 0.1f);
     m_gameState.addParticleForceGenerator("drag", std::move(particleDrag));
 
-    createRigidCubeDemo();
-    m_selected_mode = 2;
+    createDemoPhase4();
+    m_selected_mode = 4;
 }
 
 void Application::update(float deltaTime)
@@ -85,6 +85,9 @@ void Application::update(float deltaTime)
             break;
         case 3:
             resetCarCollisionDemo();
+            break;
+        case 4:
+            resetDemoPhase4();
             break;
         default:
             break;
@@ -228,6 +231,9 @@ void Application::createFrame()
                     break;
                 case 3:
                     createCarCollisionDemo();
+                    break;
+                case 4:
+                    createDemoPhase4();
                     break;
                 default:
                     break;
@@ -1458,4 +1464,191 @@ void Application::checkRigidCubeDemo()
         position.setZ(-6.0f + 0.25f + 0.5f);
         gravityCube->setPosition(position);
     }
+}
+
+void Application::createDemoPhase4()
+{
+
+    // Ground shape
+    Vector3f groundCenterPosition{0.0f, 0.0f, -6.0f};
+    float groundHalfLength = 70.0f / 2.0f;
+    float groundHalfWidth = 70.0f / 2.0f;
+    float groundHalfHeight = 0.5f / 2.0f;
+
+    auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
+    groundShape->setScale({groundHalfLength, groundHalfWidth, groundHalfHeight});
+    groundShape->setPosition(groundCenterPosition);
+    m_gameState.addShapeGenerator("ground", std::move(groundShape));
+
+    // Walls
+    float wallHalfLength = 50.0f / 2.0f;
+    float wallHalfWidth = 0.4f / 2.0f;
+    float wallHalfHeight = 5.0f / 2.0f;
+
+    // Wall 1 shape
+    Vector3f wall1CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{-wallHalfLength, 0.0f, wallHalfHeight};
+
+    float angle = PI / 2.0;
+    float nx = 0.0f;
+    float ny = 0.0f;
+    float nz = 1.0f;
+    float norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion wall1Quaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    Matrix33 rotationWall1;
+    rotationWall1.setOrientation(wall1Quaternion);
+
+    auto wall1 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    wall1->setPosition(wall1CenterPosition);
+    wall1->setRotation(rotationWall1);
+    wall1->scale({wallHalfLength + wallHalfWidth, wallHalfWidth, wallHalfHeight});
+    m_gameState.addShapeGenerator("wall1", std::move(wall1));
+
+    // Wall 2 shape
+    Vector3f wall2CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0f, wallHalfLength, wallHalfHeight};
+
+    angle = 0.0f;
+    nx = 0.0f;
+    ny = 0.0f;
+    nz = 1.0f;
+    norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion wall2Quaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    Matrix33 rotationWall2;
+    rotationWall2.setOrientation(wall2Quaternion);
+
+    auto wall2 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    wall2->setPosition(wall2CenterPosition);
+    wall2->setRotation(rotationWall2);
+    wall2->scale({wallHalfLength - wallHalfWidth, wallHalfWidth, wallHalfHeight});
+    m_gameState.addShapeGenerator("wall2", std::move(wall2));
+
+    // Wall 3 shape
+    Vector3f wall3CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0f, -wallHalfLength, wallHalfHeight};
+
+    angle = 0.0f;
+    nx = 0.0f;
+    ny = 0.0f;
+    nz = 1.0f;
+    norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion wall3Quaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    Matrix33 rotationWall3;
+    rotationWall3.setOrientation(wall3Quaternion);
+
+    auto wall3 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    wall3->setPosition(wall3CenterPosition);
+    wall3->setRotation(rotationWall3);
+    wall3->scale({wallHalfLength - wallHalfWidth, wallHalfWidth, wallHalfHeight});
+    m_gameState.addShapeGenerator("wall3", std::move(wall3));
+
+    // Wall 4 shape
+    Vector3f wall4CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{wallHalfLength, 0.0f, wallHalfHeight};
+
+    angle = PI / 2.0;
+    nx = 0.0f;
+    ny = 0.0f;
+    nz = 1.0f;
+    norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion wall4Quaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    Matrix33 rotationWall4;
+    rotationWall4.setOrientation(wall4Quaternion);
+
+    auto wall4 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    wall4->setPosition(wall4CenterPosition);
+    wall4->setRotation(rotationWall4);
+    wall4->scale({wallHalfLength + wallHalfWidth, wallHalfWidth, wallHalfHeight});
+    m_gameState.addShapeGenerator("wall4", std::move(wall4));
+
+    // Box
+    float boxHalfLength = 6.0f / 2.0f;
+    float boxHalfWidth = 3.0f / 2.0f;
+    float boxHalfHeight = 1.0f / 2.0f;
+    Vector3f boxPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0F, 0.0f, boxHalfHeight};
+
+    angle = PI / 2.0;
+    nx = 0.0f;
+    ny = 0.0f;
+    nz = 1.0f;
+    norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion boxQuaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+
+    Vector3f boxInitialLinearVelocity{0.0f, 10.0f, 0.0f};
+    Vector3f boxInitialAngularVelocity{0.0f, 0.0f, 20.0f};
+
+    auto box = std::make_unique<RigidBody>(boxPosition, 1.0f, 0.999f, 0.999f, false);
+    box->setVelocity(boxInitialLinearVelocity);
+    box->setAngularVelocity(boxInitialAngularVelocity);
+    box->setQuaternion(boxQuaternion);
+    m_gameState.addRigidBody("box", std::move(box));
+
+    // Box shape
+    auto boxShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("box"), Color::RED);
+    boxShape->setScale({boxHalfLength, boxHalfWidth, boxHalfHeight});
+    m_gameState.addShapeGenerator("box", std::move(boxShape));
+}
+
+void Application::resetDemoPhase4()
+{
+    Vector3f groundCenterPosition{0.0f, 0.0f, -6.0f};
+    float groundHalfLength = 70.0f / 2.0f;
+    float groundHalfWidth = 70.0f / 2.0f;
+    float groundHalfHeight = 0.5f / 2.0f;
+
+    float boxHalfLength = 6.0f / 2.0f;
+    float boxHalfWidth = 3.0f / 2.0f;
+    float boxHalfHeight = 1.0f / 2.0f;
+
+    Vector3f boxPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0F, 0.0f, boxHalfHeight};
+
+    float angle = PI / 2.0;
+    float nx = 0.0f;
+    float ny = 0.0f;
+    float nz = 1.0f;
+    float norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion boxQuaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+
+    Vector3f boxInitialLinearVelocity{0.0f, 10.0f, 0.0f};
+    Vector3f boxInitialAngularVelocity{0.0f, 0.0f, 20.0f};
+
+    auto box = m_gameState.getRigidbody("box");
+
+    box->setPosition(boxPosition);
+    box->setVelocity(boxInitialLinearVelocity);
+    box->setAngularVelocity(boxInitialAngularVelocity);
+    box->setQuaternion(boxQuaternion);
+    box->setIsResting(false);
 }

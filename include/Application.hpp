@@ -68,7 +68,7 @@ private:
     std::array<float, 3> currentBlobInitialPosition = {-2.0f, -3.0f,  0.0f};
     std::array<float, 3> currentGroundCenterPosition = {0.0f, 0.0f, -6.0f};
 
-    std::array<std::string, 4> m_modes = {"Blob", "Exemples Phase 2", "Demo 1 Phase 3", "Demo 2 Phase 3 (car collision)"};
+    std::array<std::string, 5> m_modes = {"Blob", "Exemples Phase 2", "Demo 1 Phase 3", "Demo 2 Phase 3 (car collision)", "Demo phase 4 (collision detection)"};
     int m_selected_mode = 0;
 
     bool m_carCollision = false;
@@ -105,6 +105,9 @@ private:
     void createCarCollisionDemo();
     void resetCarCollisionDemo();
     void checkCarCollision();
+
+    void createDemoPhase4();
+    void resetDemoPhase4();
 };
 
 #endif // MPJVP_APPLICATION
