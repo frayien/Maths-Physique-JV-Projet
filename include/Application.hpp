@@ -82,32 +82,29 @@ public:
 
 private:
     void init();
+    void initParticleForceGenerators();
+    void initRigidbodyForceGenerators();
     void update(float deltaTime);
 
     void updateCamera(float deltaTime);
 
     void createBlobDemo();
-    void resetBlobDemo();
     void moveBlob(Vector3f moveDirection, float deltaTime);
     void jumpBlob();
     void changeBlobSettings();
 
     void createExamplePhase2Demo();
-    void resetExamplePhase2Demo();
 
     void createGround();
     void changeGroundSettings();
 
     void createRigidCubeDemo();
-    void resetRigidCubeDemo();
     void checkRigidCubeDemo();
 
     void createCarCollisionDemo();
-    void resetCarCollisionDemo();
     void checkCarCollision();
 
     void createDemoPhase4();
-    void resetDemoPhase4();
 };
 
 #endif // MPJVP_APPLICATION
