@@ -8,7 +8,7 @@ class Plane : public Primitive
 {
 public:
 	Vector3f normal;
-	float offset; // probablement l'épaisseur du plan
+	float thickness; // probablement l'Ã©paisseur du plan
 };
 
 #endif // MPJVP_PLANE
