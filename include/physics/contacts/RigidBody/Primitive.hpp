@@ -3,6 +3,7 @@
 
 #include "physics/RigidBody.hpp"
 #include "physics/Matrix34.hpp"
+#include "physics/Vector3f.hpp"
 
 class Primitive 
 {
@@ -10,8 +11,10 @@ public:
 	RigidBody* rigidBody;
 	Matrix34 offset;
 
-	virtual void Primitive() = 0;
-	virtual ~Primitive() = default;
+	inline Vector3f getPosition()
+	{
+		return offset * rigidBody->getPosition();
+	}
 };
 
 #endif // MPJVP_PRIMITIVE
