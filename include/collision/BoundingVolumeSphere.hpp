@@ -17,6 +17,7 @@ public:
     virtual ~BoundingVolumeSphere() = default;
 
     bool intersects(BoundingVolumeSphere* other);
+    void updatePosition();
 
     inline Vector3f getPosition() { return m_position; }
     inline float getRadius() { return m_radius; }
