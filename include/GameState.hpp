@@ -85,6 +85,9 @@ public:
         m_rigidBodyForceGenerators.clear();
         m_particleContactGenerators.clear();
         m_shapeGenerators.clear();
+        m_linksBetweenBoundingVolumesAndPrimitives.clear();
+        m_boundingVolumeSpheres.clear();
+        m_primitives.clear();
     }
 
 private:
