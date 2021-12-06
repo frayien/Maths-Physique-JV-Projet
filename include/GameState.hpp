@@ -10,6 +10,8 @@
 #include "physics/contacts/Particle/ParticleContactGenerator.hpp"
 #include "render/shape/IShapeGenerator.hpp"
 #include "physics/RigidBody.hpp"
+#include "collision/BoundingVolumeSphere.hpp"
+#include "physics/contacts/RigidBody/Primitive.hpp"
 
 class GameState
 {
@@ -33,6 +35,9 @@ public:
 	inline std::unordered_map<std::string, std::unique_ptr<ParticleContactGenerator>> & getParticleContactGenerators() { return m_particleContactGenerators; }
 	inline std::unordered_map<std::string, std::unique_ptr<IShapeGenerator>> & getShapeGenerators() { return m_shapeGenerators; }
     inline std::unordered_map<std::string, std::unique_ptr<RigidBodyForceGenerator>>& getRigidBodyForceGenerators() { return m_rigidBodyForceGenerators; }
+    inline std::unordered_map<std::unique_ptr<BoundingVolumeSphere>, std::vector<std::unique_ptr<Primitive>>>& getLinksBetweenBoundingVolumesAndPrimitives() { return m_linksBetweenBoundingVolumesAndPrimitives; }
+    inline std::vector<std::unique_ptr<BoundingVolumeSphere>>& getBoundingVolumeSphere() { return m_boundingVolumeSpheres; }
+    inline std::vector<std::unique_ptr<Primitive>>& getPrimitives() { return m_primitives; }
 
     Particle* getParticle(std::string label)
     {
@@ -89,6 +94,9 @@ private:
     std::unordered_map<std::string, std::unique_ptr<RigidBodyForceGenerator>> m_rigidBodyForceGenerators;
     std::unordered_map<std::string, std::unique_ptr<ParticleContactGenerator>> m_particleContactGenerators;
     std::unordered_map<std::string, std::unique_ptr<IShapeGenerator>> m_shapeGenerators;
+    std::unordered_map<std::unique_ptr<BoundingVolumeSphere>, std::vector<std::unique_ptr<Primitive>>> m_linksBetweenBoundingVolumesAndPrimitives;
+    std::vector<std::unique_ptr<BoundingVolumeSphere>> m_boundingVolumeSpheres;
+    std::vector<std::unique_ptr<Primitive>> m_primitives;
 };
 
 #endif // MPJVP_GAMESTATE
