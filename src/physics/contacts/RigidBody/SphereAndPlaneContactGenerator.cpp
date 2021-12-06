@@ -16,8 +16,7 @@ void SphereAndPlaneContactGenerator::addContact(std::vector<RigidBodyContact>& c
 
     if(distance < m_sphere->getRadius() + m_plane->getThickness()/2.f)
     {
-        // TODO
-        // float penetration = distance - m_sphere->getRadius() - m_plane->getThickness()/2.f;
-        // contacts.emplace_back(m_sphere->getRigidBody(), m_plane->getRigidBody(), penetration, m_plane->getNormal(), m_plane->getPosition(), 0.1f, 0.99f);
+        float penetration = m_sphere->getRadius() + m_plane->getThickness()/2.f - distance;
+        contacts.emplace_back(m_sphere->getRigidBody(), m_plane->getRigidBody(), penetration, m_plane->getNormal(), m_plane->getPosition(), 0.1f, 0.99f);
     }
 }
