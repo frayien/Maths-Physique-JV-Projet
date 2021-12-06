@@ -6,9 +6,12 @@
 
 class Box : public Primitive
 {
-public:
-	Vector3f halfSizeX;
-	Vector3f halfSizeY;
+	inline Vector3f getHalfSizeX() const { return m_halfSizeX; }
+	inline Vector3f getHalfSizeY() const { return m_halfSizeY; }
+
+private:
+	Vector3f m_halfSizeX;
+	Vector3f m_halfSizeY;
 };
 
 #endif // MPJVP_BOX

@@ -1,10 +1,10 @@
 #ifndef MPJVP_PRIMITIVE
 #define MPJVP_PRIMITIVE
 
-#include "physics/RigidBody.hpp"
 #include "physics/Matrix34.hpp"
 #include "physics/Vector3f.hpp"
 
+class RigidBody;
 class Primitive 
 {
 public:
@@ -12,9 +12,9 @@ public:
 	Primitive(RigidBody* rigidBody, Matrix34 offset);
 	~Primitive();
 
-	inline Vector3f getPosition(){ return m_offset * m_rigidBody->getPosition(); }
-	inline RigidBody* getRigidBody() { return m_rigidBody; }
-	inline Matrix34 getOffset() { return m_offset; }
+	inline Vector3f getPosition() const;
+	inline RigidBody* getRigidBody() const { return m_rigidBody; }
+	inline Matrix34 getOffset() const { return m_offset; }
 
 private:
 	RigidBody* m_rigidBody;

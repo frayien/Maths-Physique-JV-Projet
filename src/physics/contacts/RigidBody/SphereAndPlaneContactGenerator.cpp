@@ -6,10 +6,6 @@ SphereAndPlaneContactGenerator::SphereAndPlaneContactGenerator(Sphere* sphere, P
 {
 }
 
-SphereAndPlaneContactGenerator::~SphereAndPlaneContactGenerator()
-{
-}
-
 void SphereAndPlaneContactGenerator::addContact(std::vector<RigidBodyContact>& contacts) const
 {
     float distance = m_plane->getNormal().dotProduct(m_sphere->getPosition() - m_plane->getPosition());

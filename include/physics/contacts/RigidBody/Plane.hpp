@@ -7,11 +7,12 @@
 class Plane : public Primitive
 {
 public:
-	Vector3f normal;
-	float thickness; // probablement l'épaisseur du plan
+	inline Vector3f getNormal() const { return m_normal; }
+	inline float getThickness() const { return m_thickness; }
 
-	inline Vector3f getNormal() { return normal; }
-	inline float getThickness() { return thickness; }
+private:
+	Vector3f m_normal;
+	float m_thickness; // probablement l'épaisseur du plan
 };
 
 #endif // MPJVP_PLANE

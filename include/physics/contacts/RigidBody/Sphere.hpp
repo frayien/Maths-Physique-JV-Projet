@@ -6,9 +6,10 @@
 class Sphere : public Primitive 
 {
 public:
-	float radius;
+	inline float getRadius() const { return m_radius; }
 
-	inline float getRadius() const { return radius; }
+private:
+	float m_radius;
 };
 
 #endif // MPJVP_SPHERE
