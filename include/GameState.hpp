@@ -34,7 +34,7 @@ public:
 	inline std::unordered_map<std::string, std::unique_ptr<ParticleContactGenerator>> & getParticleContactGenerators() { return m_particleContactGenerators; }
 	inline std::unordered_map<std::string, std::unique_ptr<IShapeGenerator>> & getShapeGenerators() { return m_shapeGenerators; }
     inline std::unordered_map<std::string, std::unique_ptr<RigidBodyForceGenerator>>& getRigidBodyForceGenerators() { return m_rigidBodyForceGenerators; }
-    inline std::unordered_map<std::unique_ptr<BoundingVolumeSphere>>& getBoundingVolumeSphere() { return m_boundingVolumeSphere; }
+    inline std::vector<std::unique_ptr<BoundingVolumeSphere>>& getBoundingVolumeSphere() { return m_boundingVolumeSphere; }
 
     Particle* getParticle(std::string label)
     {
