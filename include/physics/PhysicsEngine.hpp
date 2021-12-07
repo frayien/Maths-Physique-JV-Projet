@@ -6,6 +6,7 @@
 #include "physics/forces/RigidBody/RigidBodyForceRegistry.hpp"
 #include "physics/contacts/Particle/ParticleContactResolver.hpp"
 #include "physics/contacts/Particle/ParticleContactGenerator.hpp"
+#include "collision/octree.hpp"
 
 class PhysicsEngine
 {
@@ -32,6 +33,7 @@ private :
 	ParticleForceRegistry m_particleForceRegistry;
 	RigidBodyForceRegistry m_rigidBodyForceRegistry;
 	ParticleContactResolver m_particleContactResolver;
+	Octree m_octree;
 };
 
 #endif // MPJVP_PHYSICSENGINE

@@ -30,6 +30,26 @@ void PhysicsEngine::update(float deltaTime, GameState & gameState)
         rigidbody->integrate(deltaTime);
     }
 
+    // Update bounding volumes
+    for (auto & boundingVolume : gameState.getBoundingVolumeSphere())
+    {
+        boundingVolume->updatePosition();
+    }
+
+    // Collision detection
+
+    // Broad phase
+    m_octree.clear();
+    for (auto & boundingVolume : gameState.getBoundingVolumeSphere())
+    {
+        m_octree.insert(boundingVolume.get());
+    }
+
+    auto possibleCollisions = m_octree.findAllPossibleCollisions();
+
+    // 3 : Narrow phase
+
+
     // Generate contacts
     std::vector<ParticleContact> contacts;
     for(auto & [label, contactGenerator] : gameState.getParticleContactGenerators())
