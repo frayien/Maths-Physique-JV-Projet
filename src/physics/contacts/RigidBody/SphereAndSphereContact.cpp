@@ -17,6 +17,8 @@ float SphereAndSphereContact::getCurrentDistance() const {
 
 void SphereAndSphereContact::addContact(std::vector<RigidBodyContact>& contacts) const {
 	if (getCurrentDistance() > m_spheres[0]->getRadius() + m_spheres[1]->getRadius()) {
+		std::cout << "contact entre deux sphères ! " << std::endl;
+
 		Vector3f vectorToNormalize{ m_spheres[0]->getPosition() - m_spheres[1]->getPosition() };
 
 		Vector3f extremitySphereA{ (m_spheres[1]->getPosition() - m_spheres[0]->getPosition()) - (-vectorToNormalize.normalize() * m_spheres[1]->getRadius()) };

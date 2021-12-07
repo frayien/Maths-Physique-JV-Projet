@@ -1,12 +1,16 @@
 #ifndef MPJVP_PHYSICSENGINE
 #define MPJVP_PHYSICSENGINE
 
+#include <unordered_map>
+
 #include "GameState.hpp"
 #include "physics/forces/Particle/ParticleForceRegistry.hpp"
 #include "physics/forces/RigidBody/RigidBodyForceRegistry.hpp"
 #include "physics/contacts/Particle/ParticleContactResolver.hpp"
 #include "physics/contacts/Particle/ParticleContactGenerator.hpp"
 #include "collision/octree.hpp"
+#include "physics/contacts/RigidBody/Sphere.hpp"
+#include "physics/contacts/RigidBody/SphereAndSphereContact.hpp"
 
 class PhysicsEngine
 {
@@ -34,6 +38,7 @@ private :
 	RigidBodyForceRegistry m_rigidBodyForceRegistry;
 	ParticleContactResolver m_particleContactResolver;
 	Octree m_octree;
+	int numberOfSphereAndSphereContact;
 };
 
 #endif // MPJVP_PHYSICSENGINE

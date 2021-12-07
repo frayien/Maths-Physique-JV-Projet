@@ -9,10 +9,6 @@ Primitive::Primitive(RigidBody* rigidBody, Matrix34 offset) :
 
 }
 
-Primitive::~Primitive()
-{
-}
-
 Vector3f Primitive::getPosition() const
 {
 	Vector3f basePos = m_rigidBody != nullptr ? m_rigidBody->getPosition() : Vector3f{ 0.f, 0.f, 0.f };

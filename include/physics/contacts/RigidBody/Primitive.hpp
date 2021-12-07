@@ -10,9 +10,9 @@ class Primitive
 public:
 
 	Primitive(RigidBody* rigidBody, Matrix34 offset);
-	~Primitive();
+	virtual ~Primitive() = default;
 
-	inline Vector3f getPosition() const;
+	Vector3f getPosition() const;
 	inline RigidBody* getRigidBody() const { return m_rigidBody; }
 	inline Matrix34 getOffset() const { return m_offset; }
 

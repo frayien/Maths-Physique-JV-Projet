@@ -7,6 +7,7 @@
 #include "physics/Particle.hpp"
 #include "physics/forces/RigidBody/RigidBodyForceGenerator.hpp"
 #include "physics/forces/Particle/ParticleForceGenerator.hpp"
+#include "physics/contacts/RigidBody/RigidBodyContactGenerator.hpp"
 #include "physics/contacts/Particle/ParticleContactGenerator.hpp"
 #include "render/shape/IShapeGenerator.hpp"
 #include "physics/RigidBody.hpp"
@@ -25,6 +26,7 @@ public:
     bool addRigidBodyForceGenerator(const std::string& label, std::unique_ptr<RigidBodyForceGenerator>&& rigidBodyForceGenerator);
     bool addParticleForceGenerator(const std::string & label, std::unique_ptr<ParticleForceGenerator> && particleForceGenerator);
     bool addParticleContactGenerator(const std::string & label, std::unique_ptr<ParticleContactGenerator> && particleContactGenerator);
+    bool addRigidBodyContactGenerator(const std::string& label, std::unique_ptr<RigidBodyContactGenerator>&& rigidBodyContactGenerator);
     bool addShapeGenerator(const std::string & label, std::unique_ptr<IShapeGenerator> && shapeGenerator);
 
     bool removeShapeGenerator(const std::string & label);
@@ -33,6 +35,7 @@ public:
     inline std::unordered_map<std::string, std::unique_ptr<RigidBody>> & getRigidbodies() { return m_rigidbodies; }
 	inline std::unordered_map<std::string, std::unique_ptr<ParticleForceGenerator>> & getParticleForceGenerators() { return m_particleForceGenerators; }
 	inline std::unordered_map<std::string, std::unique_ptr<ParticleContactGenerator>> & getParticleContactGenerators() { return m_particleContactGenerators; }
+    inline std::unordered_map<std::string, std::unique_ptr<RigidBodyContactGenerator>>& getRigidBodyContactGenerators() { return m_rigidBodyContactGenerators; }
 	inline std::unordered_map<std::string, std::unique_ptr<IShapeGenerator>> & getShapeGenerators() { return m_shapeGenerators; }
     inline std::unordered_map<std::string, std::unique_ptr<RigidBodyForceGenerator>>& getRigidBodyForceGenerators() { return m_rigidBodyForceGenerators; }
     inline std::unordered_map<BoundingVolumeSphere*, std::vector<Primitive*>>& getLinksBetweenBoundingVolumesAndPrimitives() { return m_linksBetweenBoundingVolumesAndPrimitives; }
@@ -70,6 +73,13 @@ public:
         return static_cast<T*>(m_particleContactGenerators.at(label).get());
     }
 
+    template<typename T = RigidBodyContactGenerator>
+    T* getRigidBodyContactGenerator(std::string label)
+    {
+        static_assert(std::is_base_of_v<RigidBodyContactGenerator, T>, "Must be an instanceof RigidBodyContactGenerator");
+        return static_cast<T*>(m_rigidBodyContactGenerators.at(label).get());
+    }
+
     template<typename T = IShapeGenerator>
     T* getShapeGenerator(std::string label)
     {
@@ -84,6 +94,7 @@ public:
         m_particleForceGenerators.clear();
         m_rigidBodyForceGenerators.clear();
         m_particleContactGenerators.clear();
+        m_rigidBodyContactGenerators.clear();
         m_shapeGenerators.clear();
         m_linksBetweenBoundingVolumesAndPrimitives.clear();
         m_boundingVolumeSpheres.clear();
@@ -96,6 +107,7 @@ private:
     std::unordered_map<std::string, std::unique_ptr<ParticleForceGenerator>> m_particleForceGenerators;
     std::unordered_map<std::string, std::unique_ptr<RigidBodyForceGenerator>> m_rigidBodyForceGenerators;
     std::unordered_map<std::string, std::unique_ptr<ParticleContactGenerator>> m_particleContactGenerators;
+    std::unordered_map<std::string, std::unique_ptr<RigidBodyContactGenerator>> m_rigidBodyContactGenerators;
     std::unordered_map<std::string, std::unique_ptr<IShapeGenerator>> m_shapeGenerators;
     std::unordered_map<BoundingVolumeSphere*, std::vector<Primitive*>> m_linksBetweenBoundingVolumesAndPrimitives;
     std::vector<std::unique_ptr<BoundingVolumeSphere>> m_boundingVolumeSpheres;
