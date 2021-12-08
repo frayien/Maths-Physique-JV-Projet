@@ -28,7 +28,7 @@ std::vector<RigidBodyContact> CollisionDetector::detectCollisions(GameState& gam
         auto firstPrimitiveVectorIterator = linksBetweenBoundingVolumesAndPrimitives.find(boundingVolumePair.first);
         auto secondPrimitiveVectorIterator = linksBetweenBoundingVolumesAndPrimitives.find(boundingVolumePair.second);
 
-        if (firstPrimitiveVectorIterator != linksBetweenBoundingVolumesAndPrimitives.end() || secondPrimitiveVectorIterator != linksBetweenBoundingVolumesAndPrimitives.end()) continue;
+        if (firstPrimitiveVectorIterator == linksBetweenBoundingVolumesAndPrimitives.end() || secondPrimitiveVectorIterator == linksBetweenBoundingVolumesAndPrimitives.end()) continue;
 
         std::vector<Primitive*> firstPrimitiveVector = firstPrimitiveVectorIterator->second;
         std::vector<Primitive*> secondPrimitiveVector = secondPrimitiveVectorIterator->second;
