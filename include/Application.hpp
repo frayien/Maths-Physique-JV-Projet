@@ -33,7 +33,6 @@
 #include "GameState.hpp"
 #include "physics/contacts/Particle/WallContactGenerator.hpp"
 #include "physics/contacts/Particle/NaiveParticleContactGenerator.hpp"
-#include "physics/contacts/RigidBody/SphereAndSphereContact.hpp"
 
 class Application : public IImGuiFrameGenerator
 {

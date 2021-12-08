@@ -10,7 +10,7 @@
 #include "physics/contacts/Particle/ParticleContactGenerator.hpp"
 #include "collision/octree.hpp"
 #include "physics/contacts/RigidBody/Sphere.hpp"
-#include "physics/contacts/RigidBody/SphereAndSphereContact.hpp"
+#include "collision/CollisionDetector.hpp"
 
 class PhysicsEngine
 {
@@ -37,8 +37,7 @@ private :
 	ParticleForceRegistry m_particleForceRegistry;
 	RigidBodyForceRegistry m_rigidBodyForceRegistry;
 	ParticleContactResolver m_particleContactResolver;
-	Octree m_octree;
-	int numberOfSphereAndSphereContact;
+	CollisionDetector m_collisionDetector;
 };
 
 #endif // MPJVP_PHYSICSENGINE
