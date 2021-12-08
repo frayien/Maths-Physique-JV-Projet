@@ -67,3 +67,15 @@ void CollisionDetector::sphereAndSphereContact(Sphere* firstSphere, Sphere* seco
         allContacts.emplace_back(firstSphere->getRigidBody(), secondSphere->getRigidBody(), std::abs(firstSphere->getRadius() - (distance - secondSphere->getRadius())), vectorToNormalize, (extremitySphereA + extremitySphereB) / 2.f, 0.95f, 0.95f);
     }
 }
+
+void CollisionDetector::sphereAndPlane(Sphere* sphere, Plane* plane, std::vector<RigidBodyContact>& allContacts)
+{
+    float distance = plane->getNormal().dotProduct(sphere->getPosition() - plane->getPosition());
+
+    if(distance < sphere->getRadius() + plane->getThickness()/2.f)
+    {
+        float penetration = sphere->getRadius() + plane->getThickness()/2.f - distance;
+        Vector3f position = sphere->getPosition() + (penetration/2.f) * plane->getNormal();
+        allContacts.emplace_back(sphere->getRigidBody(), plane->getRigidBody(), penetration, plane->getNormal(), position, 0.1f, 0.99f);
+    }
+}
