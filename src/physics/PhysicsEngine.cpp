@@ -84,10 +84,17 @@ void PhysicsEngine::update(float deltaTime, GameState & gameState)
     for (auto& [label, contactGenerator] : gameState.getRigidBodyContactGenerators())
     {
         contactGenerator->addContact(rigidBodyContacts);
+
+        // We add the contact, then proceed to erase the element
+        gameState.getRigidBodyContactGenerators().erase(label);
     }
 
-    // --------------------- TODO --------------------------
-    // Lors de la résolution des contacts, supprimer le contact de gameState.m_rigidBodyContactGenerators et désincrémenter de 1 numberofBlaBlaBlaContact
+    // We put to 0 all the numberOfContact variables
+    numberOfSphereAndSphereContact = 0;
+    // other variables put to 0 here...
+
+    // --------------------- Resolve RigidBody contacts ------------------------------
+    // HERE
 
     // Generate Particle contacts
     std::vector<ParticleContact> contacts;
