@@ -61,10 +61,11 @@ void Octree::clear()
         if (m_children[i] != nullptr)
         {
             m_children[i]->clear();
+            m_children[i].reset();
         }
-
-        m_children[i].reset();
     }
+
+    m_objects.clear();
 }
 
 std::vector<std::pair<BoundingVolumeSphere*, BoundingVolumeSphere*>> Octree::findAllPossibleCollisions() const
