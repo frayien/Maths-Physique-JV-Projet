@@ -1,6 +1,13 @@
 #include "collision/CollisionDetector.hpp"
 #include "collision/BoundingVolumeSphere.hpp"
 
+CollisionDetector::CollisionDetector() :
+    // Initialize octree with large dimensions (maybe change that later)
+    m_octree{Vector3f{0.0f, 0.0f, 0.0f}, 10000.0f}
+{
+
+}
+
 std::vector<RigidBodyContact> CollisionDetector::detectCollisions(GameState& gameState)
 {
 	// ---- Broad phase ----

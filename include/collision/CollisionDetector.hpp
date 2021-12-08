@@ -15,7 +15,7 @@ private:
     Octree m_octree;
 
 public:
-    CollisionDetector() = default;
+    CollisionDetector();
     virtual ~CollisionDetector() = default;
 
     std::vector<RigidBodyContact> detectCollisions(GameState& gameState);
