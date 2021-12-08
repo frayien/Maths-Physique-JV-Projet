@@ -50,31 +50,31 @@ void PhysicsEngine::update(float deltaTime, GameState & gameState)
     std::unordered_map<BoundingVolumeSphere*, std::vector<Primitive*>> linksBetweenBoundingVolumesAndPrimitives = gameState.getLinksBetweenBoundingVolumesAndPrimitives();
 
     // 3 : Narrow phase
-    for (auto & boundingVolumePair : possibleCollisions) {
-
-        std::unordered_map<BoundingVolumeSphere*, std::vector<Primitive*>>::iterator firstPrimitiveVectorIterator = linksBetweenBoundingVolumesAndPrimitives.find(boundingVolumePair.first);
-        std::unordered_map<BoundingVolumeSphere*, std::vector<Primitive*>>::iterator secondPrimitiveVectorIterator = linksBetweenBoundingVolumesAndPrimitives.find(boundingVolumePair.second);
+    for (auto & boundingVolumePair : possibleCollisions)
+    {
+        auto firstPrimitiveVectorIterator = linksBetweenBoundingVolumesAndPrimitives.find(boundingVolumePair.first);
+        auto secondPrimitiveVectorIterator = linksBetweenBoundingVolumesAndPrimitives.find(boundingVolumePair.second);
 
         if (firstPrimitiveVectorIterator != linksBetweenBoundingVolumesAndPrimitives.end() || secondPrimitiveVectorIterator != linksBetweenBoundingVolumesAndPrimitives.end()) continue;
 
         std::vector<Primitive*> firstPrimitiveVector = firstPrimitiveVectorIterator->second;
         std::vector<Primitive*> secondPrimitiveVector = secondPrimitiveVectorIterator->second;
 
-        for (Primitive* primitive1 : firstPrimitiveVector) {
-            for (Primitive* primitive2 : secondPrimitiveVector) {
-
+        for (Primitive* primitive1 : firstPrimitiveVector)
+        {
+            for (Primitive* primitive2 : secondPrimitiveVector)
+            {
                 // If the first primitive is a sphere
-                if (dynamic_cast<Sphere*>(primitive1) != nullptr) {
-
+                if (dynamic_cast<Sphere*>(primitive1) != nullptr)
+                {
                     // If the second primitive is a sphere
-                    if (dynamic_cast<Sphere*>(primitive2) != nullptr) {
+                    if (dynamic_cast<Sphere*>(primitive2) != nullptr)
+                    {
                         auto sphereAndSphereContact = std::make_unique<SphereAndSphereContact>(dynamic_cast<Sphere*>(primitive1), dynamic_cast<Sphere*>(primitive2));
                         gameState.addRigidBodyContactGenerator("sphereAndContactContact_" + numberOfSphereAndSphereContact, std::move(sphereAndSphereContact));
                         numberOfSphereAndSphereContact++;
                     }
-
                 }
-
             }
         }
     }
