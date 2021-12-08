@@ -35,11 +35,6 @@ bool GameState::addParticleContactGenerator(const std::string & label, std::uniq
     return m_particleContactGenerators.insert({label, std::move(particleContactGenerator)}).second;
 }
 
-bool GameState::addRigidBodyContactGenerator(const std::string& label, std::unique_ptr<RigidBodyContactGenerator>&& rigidBodyContactGenerator)
-{
-    return m_rigidBodyContactGenerators.insert({ label, std::move(rigidBodyContactGenerator) }).second;
-}
-
 bool GameState::addShapeGenerator(const std::string & label, std::unique_ptr<IShapeGenerator> && shapeGenerator)
 {
     return m_shapeGenerators.insert({label, std::move(shapeGenerator)}).second;
