@@ -7,6 +7,7 @@
 #include "physics/contacts/RigidBody/Primitive.hpp"
 #include "physics/contacts/RigidBody/Sphere.hpp"
 #include "physics/contacts/RigidBody/Plane.hpp"
+#include "physics/contacts/RigidBody/Box.hpp"
 
 class CollisionDetector
 {
@@ -23,6 +24,7 @@ private:
     void generateContact(Primitive* firstPrimitive, Primitive* secondPrimitive, std::vector<RigidBodyContact>& allContacts);
     void sphereAndSphereContact(Sphere* firstSphere, Sphere* secondSphere, std::vector<RigidBodyContact>& allContacts);
     void sphereAndPlane(Sphere* sphere, Plane* plane, std::vector<RigidBodyContact>& allContacts);
+    void boxAndPlane(Box* box, Plane* plane, std::vector<RigidBodyContact>& allContacts);
 };
 
 #endif // MPJVP_COLLISIONDETECTOR

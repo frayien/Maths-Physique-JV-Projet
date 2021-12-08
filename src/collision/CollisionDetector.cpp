@@ -79,3 +79,37 @@ void CollisionDetector::sphereAndPlane(Sphere* sphere, Plane* plane, std::vector
         allContacts.emplace_back(sphere->getRigidBody(), plane->getRigidBody(), penetration, plane->getNormal(), position, 0.1f, 0.99f);
     }
 }
+
+void CollisionDetector::boxAndPlane(Box* box, Plane* plane, std::vector<RigidBodyContact>& allContacts)
+{
+    std::array<Vector3f, 8> vertices
+    {
+        Vector3f{ -box->getHalfSize().getX(), -box->getHalfSize().getY(), -box->getHalfSize().getZ() },
+        Vector3f{ -box->getHalfSize().getX(), -box->getHalfSize().getY(), +box->getHalfSize().getZ() },
+        Vector3f{ -box->getHalfSize().getX(), +box->getHalfSize().getY(), -box->getHalfSize().getZ() },
+        Vector3f{ -box->getHalfSize().getX(), +box->getHalfSize().getY(), +box->getHalfSize().getZ() },
+        Vector3f{ +box->getHalfSize().getX(), -box->getHalfSize().getY(), -box->getHalfSize().getZ() },
+        Vector3f{ +box->getHalfSize().getX(), -box->getHalfSize().getY(), +box->getHalfSize().getZ() },
+        Vector3f{ +box->getHalfSize().getX(), +box->getHalfSize().getY(), -box->getHalfSize().getZ() },
+        Vector3f{ +box->getHalfSize().getX(), +box->getHalfSize().getY(), +box->getHalfSize().getZ() }
+    };
+
+    Vector3f centerPos = box->getPosition();
+
+    for(std::size_t i = 0; i < vertices.size(); ++i)
+    {
+        vertices[i] = centerPos + box->getOffset().extractMatrix33() * vertices[i];
+    }
+
+    for(auto & vertex : vertices)
+    {
+        float distance = plane->getNormal().dotProduct(vertex - plane->getPosition());
+
+        if(distance < plane->getThickness()/2.f)
+        {
+            float penetration = plane->getThickness()/2.f - distance;
+            Vector3f position = vertex + (penetration/2.f) * plane->getNormal();
+            allContacts.emplace_back(box->getRigidBody(), plane->getRigidBody(), penetration, plane->getNormal(), position, 0.1f, 0.99f);
+        }
+    }
+}
