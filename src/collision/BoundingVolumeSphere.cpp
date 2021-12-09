@@ -19,5 +19,5 @@ void BoundingVolumeSphere::updatePosition()
 {
     if (m_rigidbody == nullptr) return;
 
-    m_position = m_rigidbody->getPosition() + m_rigidbody->getTranformMatrix() * m_offset;
+    m_position = m_rigidbody->getTranformMatrix() * m_offset;
 }
