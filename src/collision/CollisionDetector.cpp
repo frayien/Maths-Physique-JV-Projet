@@ -58,6 +58,24 @@ void CollisionDetector::generateContact(Primitive* firstPrimitive, Primitive* se
             sphereAndSphereContact(dynamic_cast<Sphere*>(firstPrimitive), dynamic_cast<Sphere*>(secondPrimitive), allContacts);
         }
     }
+    // If the first primitive is a box
+    else if (dynamic_cast<Box*>(firstPrimitive) != nullptr)
+    {
+        // If the second primitive is a plane
+        if (dynamic_cast<Plane*>(secondPrimitive) != nullptr)
+        {
+            boxAndPlane(dynamic_cast<Box*>(firstPrimitive), dynamic_cast<Plane*>(secondPrimitive), allContacts);
+        }
+    }
+    // If the first primitive is a plane
+    else if (dynamic_cast<Plane*>(firstPrimitive) != nullptr)
+    {
+        // If the second primitive is a box
+        if (dynamic_cast<Box*>(secondPrimitive) != nullptr)
+        {
+            boxAndPlane(dynamic_cast<Box*>(secondPrimitive), dynamic_cast<Plane*>(firstPrimitive), allContacts);
+        }
+    }
 }
 
 void CollisionDetector::sphereAndSphereContact(Sphere* firstSphere, Sphere* secondSphere, std::vector<RigidBodyContact>& allContacts)
