@@ -7,6 +7,9 @@
 class Box : public Primitive
 {
 public:
+	Box(RigidBody* rigidBody, Matrix34 offset, Vector3f halfSize);
+	~Box() = default;
+
 	inline Vector3f getHalfSize() const { return m_halfSize; }
 
 private:
