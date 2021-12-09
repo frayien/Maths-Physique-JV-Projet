@@ -1390,6 +1390,20 @@ void Application::createDemoPhase4()
     wall1->scale({wallHalfLength + wallHalfWidth, wallHalfWidth, wallHalfHeight});
     m_gameState.addShapeGenerator("wall1", std::move(wall1));
 
+    // Wall 1 bounding volume (sphere)
+    float radius = glm::sqrt(wallHalfLength * wallHalfLength + wallHalfWidth * wallHalfWidth + wallHalfHeight * wallHalfHeight);
+    std::unique_ptr<BoundingVolumeSphere> wall1BoundingVolume = std::make_unique<BoundingVolumeSphere>(wall1CenterPosition, radius);
+
+    // Wall 1 primitive (plane)
+    Matrix34 wall1Offset;
+    wall1Offset.setOrientationAndPosition(wall1Quaternion, wall1CenterPosition);
+    std::unique_ptr<Plane> wall1Primitive = std::make_unique<Plane>(nullptr, wall1Offset, Vector3f{1.0f, 0.0f, 0.0f}, wallHalfWidth * 2.0f);
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(wall1BoundingVolume.get(), {wall1Primitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(wall1BoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(wall1Primitive));
+
     // Wall 2 shape
     Vector3f wall2CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0f, wallHalfLength, wallHalfHeight};
 
@@ -1413,6 +1427,19 @@ void Application::createDemoPhase4()
     wall2->setRotation(rotationWall2);
     wall2->scale({wallHalfLength - wallHalfWidth, wallHalfWidth, wallHalfHeight});
     m_gameState.addShapeGenerator("wall2", std::move(wall2));
+
+    // Wall 2 bounding volume (sphere)
+    std::unique_ptr<BoundingVolumeSphere> wall2BoundingVolume = std::make_unique<BoundingVolumeSphere>(wall2CenterPosition, radius);
+
+    // Wall 2 primitive (plane)
+    Matrix34 wall2Offset;
+    wall2Offset.setOrientationAndPosition(wall2Quaternion, wall2CenterPosition);
+    std::unique_ptr<Plane> wall2Primitive = std::make_unique<Plane>(nullptr, wall2Offset, Vector3f{0.0f, -1.0f, 0.0f}, wallHalfWidth * 2.0f);
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(wall2BoundingVolume.get(), {wall2Primitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(wall2BoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(wall2Primitive));
 
     // Wall 3 shape
     Vector3f wall3CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0f, -wallHalfLength, wallHalfHeight};
@@ -1438,6 +1465,19 @@ void Application::createDemoPhase4()
     wall3->scale({wallHalfLength - wallHalfWidth, wallHalfWidth, wallHalfHeight});
     m_gameState.addShapeGenerator("wall3", std::move(wall3));
 
+    // Wall 3 bounding volume (sphere)
+    std::unique_ptr<BoundingVolumeSphere> wall3BoundingVolume = std::make_unique<BoundingVolumeSphere>(wall3CenterPosition, radius);
+
+    // Wall 3 primitive (plane)
+    Matrix34 wall3Offset;
+    wall3Offset.setOrientationAndPosition(wall3Quaternion, wall3CenterPosition);
+    std::unique_ptr<Plane> wall3Primitive = std::make_unique<Plane>(nullptr, wall3Offset, Vector3f{0.0f, 1.0f, 0.0f}, wallHalfWidth * 2.0f);
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(wall3BoundingVolume.get(), {wall3Primitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(wall3BoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(wall3Primitive));
+
     // Wall 4 shape
     Vector3f wall4CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{wallHalfLength, 0.0f, wallHalfHeight};
 
@@ -1462,6 +1502,19 @@ void Application::createDemoPhase4()
     wall4->scale({wallHalfLength + wallHalfWidth, wallHalfWidth, wallHalfHeight});
     m_gameState.addShapeGenerator("wall4", std::move(wall4));
 
+    // Wall 4 bounding volume (sphere)
+    std::unique_ptr<BoundingVolumeSphere> wall4BoundingVolume = std::make_unique<BoundingVolumeSphere>(wall4CenterPosition, radius);
+
+    // Wall 4 primitive (plane)
+    Matrix34 wall4Offset;
+    wall4Offset.setOrientationAndPosition(wall4Quaternion, wall4CenterPosition);
+    std::unique_ptr<Plane> wall4Primitive = std::make_unique<Plane>(nullptr, wall4Offset, Vector3f{-1.0f, 0.0f, 0.0f}, wallHalfWidth * 2.0f);
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(wall4BoundingVolume.get(), {wall4Primitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(wall4BoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(wall4Primitive));
+
     // Box
     float boxHalfLength = 6.0f / 2.0f;
     float boxHalfWidth = 3.0f / 2.0f;
@@ -1481,14 +1534,34 @@ void Application::createDemoPhase4()
         glm::sin(angle / 2.0f) * nz / norm
     };
 
-    Vector3f boxInitialLinearVelocity{0.0f, 10.0f, 0.0f};
-    Vector3f boxInitialAngularVelocity{0.0f, 0.0f, 20.0f};
+    Vector3f boxInitialLinearVelocity{-10.0f, 1.0f, 0.0f};
+    Vector3f boxInitialAngularVelocity{0.0f, 0.0f, 5.0f};
 
     auto box = std::make_unique<RigidBody>(boxPosition, 1.0f, 0.999f, 0.999f, false);
     box->setVelocity(boxInitialLinearVelocity);
     box->setAngularVelocity(boxInitialAngularVelocity);
     box->setQuaternion(boxQuaternion);
     m_gameState.addRigidBody("box", std::move(box));
+
+    // Box bounding volume (sphere)
+    radius = glm::sqrt(boxHalfLength * boxHalfLength + boxHalfWidth * boxHalfWidth + boxHalfHeight * boxHalfHeight);
+    std::unique_ptr<BoundingVolumeSphere> boxBoundingVolume = std::make_unique<BoundingVolumeSphere>(boxPosition, radius, m_gameState.getRigidbody("box"));
+
+    // Box primitive (box)
+    Matrix34 boxOffset
+    {
+        {
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f
+        }
+    };
+    std::unique_ptr<Box> boxPrimitive = std::make_unique<Box>(m_gameState.getRigidbody("box"), boxOffset, Vector3f{boxHalfLength, boxHalfWidth, boxHalfHeight});
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(boxBoundingVolume.get(), {boxPrimitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(boxBoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(boxPrimitive));
 
     // Box shape
     auto boxShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("box"), Color::RED);
