@@ -139,7 +139,7 @@ void Matrix34::setOrientationAndPosition(const Quaternion & q, const Vector3f & 
     };
 }
 
-Matrix33 Matrix34::extractMatrix33()
+Matrix33 Matrix34::extractMatrix33() const
 {
     Matrix33 ltm
     {

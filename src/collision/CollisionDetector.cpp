@@ -123,7 +123,7 @@ void CollisionDetector::boxAndPlane(Box* box, Plane* plane, std::vector<RigidBod
 
     for(std::size_t i = 0; i < vertices.size(); ++i)
     {
-        vertices[i] = centerPos + box->getOffset().extractMatrix33() * vertices[i];
+        vertices[i] = centerPos + box->getRotation() * vertices[i];
     }
 
     for(auto & vertex : vertices)

@@ -13,6 +13,7 @@ public:
 	virtual ~Primitive() = default;
 
 	Vector3f getPosition() const;
+	Matrix33 getRotation() const;
 	inline RigidBody* getRigidBody() const { return m_rigidBody; }
 	inline Matrix34 getOffset() const { return m_offset; }
 
