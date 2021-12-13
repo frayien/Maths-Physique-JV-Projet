@@ -12,6 +12,8 @@ public:
 
     void resolve(float deltaTime);
 
+    friend std::ostream& operator<<(std::ostream & out, const RigidBodyContact & c);
+
 private:
     float m_restitution;
     float m_penetration;

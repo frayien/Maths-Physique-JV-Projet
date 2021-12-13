@@ -19,3 +19,15 @@ void RigidBodyContact::resolve(float deltaTime)
 {
     
 }
+
+// //////////// friends //////////// //
+
+std::ostream& operator<<(std::ostream & out, const RigidBodyContact & c)
+{
+    out << "[\n" << "\t - Point d'impact : " << c.m_position << std::endl;
+    out << "\t - Normale : " << c.m_normal << std::endl;
+    out << "\t - Interpenetration : " << c.m_penetration << std::endl;
+    out << "]";
+
+    return out;
+}
