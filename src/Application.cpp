@@ -1519,7 +1519,7 @@ void Application::createDemoPhase4()
     float boxHalfLength = 6.0f / 2.0f;
     float boxHalfWidth = 3.0f / 2.0f;
     float boxHalfHeight = 1.0f / 2.0f;
-    Vector3f boxPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0F, 0.0f, boxHalfHeight};
+    Vector3f boxPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0F, 10.0f, boxHalfHeight};
 
     angle = PI / 2.0;
     nx = 0.0f;
