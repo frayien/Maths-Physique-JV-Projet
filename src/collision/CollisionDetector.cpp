@@ -130,7 +130,7 @@ void CollisionDetector::boxAndPlane(Box* box, Plane* plane, std::vector<RigidBod
     {
         float distance = plane->getNormal().dotProduct(vertex - plane->getPosition());
 
-        if(distance < plane->getThickness()/2.f)
+        if(glm::abs(distance) < plane->getThickness()/2.f)
         {
             float penetration = plane->getThickness()/2.f - distance;
             Vector3f position = vertex + (penetration/2.f) * plane->getNormal();
