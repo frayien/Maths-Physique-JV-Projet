@@ -105,6 +105,9 @@ void Application::update(float deltaTime)
             initRigidbodyForceGenerators();
             createDemoPhase4();
             break;
+        case 5:
+            initRigidbodyForceGenerators();
+            createSphereAndSphereCollisionDemo();
         default:
             break;
         }
@@ -286,6 +289,8 @@ void Application::createFrame()
                 case 4:
                     createDemoPhase4();
                     break;
+                case 5:
+                    createSphereAndSphereCollisionDemo();
                 default:
                     break;
                 }
@@ -383,7 +388,7 @@ void Application::createFrame()
         }
     }
 
-    if (m_selected_mode == 4)
+    if (m_selected_mode == 4 || m_selected_mode == 5)
     {
         // Demo phase 4
         ImGui::Text("Pause when contact occurs : ");
@@ -1619,4 +1624,104 @@ void Application::createDemoPhase4()
     auto boxShape = std::make_unique<RigidCubeShapeGenerator>(m_gameState.getRigidbody("box"), Color::RED);
     boxShape->setScale({boxHalfLength, boxHalfWidth, boxHalfHeight});
     m_gameState.addShapeGenerator("box", std::move(boxShape));
+}
+
+void Application::createSphereAndSphereCollisionDemo()
+{
+    // Ground shape
+    Vector3f groundCenterPosition{0.0f, 0.0f, -6.0f};
+    float groundHalfLength = 70.0f / 2.0f;
+    float groundHalfWidth = 70.0f / 2.0f;
+    float groundHalfHeight = 0.5f / 2.0f;
+
+    auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
+    groundShape->setScale({groundHalfLength, groundHalfWidth, groundHalfHeight});
+    groundShape->setPosition(groundCenterPosition);
+    m_gameState.addShapeGenerator("ground", std::move(groundShape));
+
+    // Sphere 1
+    float sphere1Radius = 2.0f;
+    Vector3f sphere1Position = groundCenterPosition + Vector3f{0.0f, 0.0f, 8.0f};
+    Quaternion sphere1Quaternion
+    {
+        1.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+    };
+
+    Vector3f sphere1InitialLinearVelocity{0.0, 3.0f, 0.0f};
+
+    auto sphere1 = std::make_unique<RigidBody>(sphere1Position, 1.0f, 0.999f, 0.999f, false);
+    sphere1->setVelocity(sphere1InitialLinearVelocity);
+    sphere1->setQuaternion(sphere1Quaternion);
+    m_gameState.addRigidBody("sphere1", std::move(sphere1));
+
+    // Sphere 1 bounding volume (sphere)
+    float radius = sphere1Radius;
+    std::unique_ptr<BoundingVolumeSphere> sphere1BoundingVolume = std::make_unique<BoundingVolumeSphere>(sphere1Position, radius, m_gameState.getRigidbody("sphere1"));
+
+    // Sphere 1 primitive (sphere)
+    Matrix34 sphere1Offset
+    {
+        {
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f
+        }
+    };
+    std::unique_ptr<Sphere> sphere1Primitive = std::make_unique<Sphere>(m_gameState.getRigidbody("sphere1"), sphere1Offset, sphere1Radius);
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(sphere1BoundingVolume.get(), {sphere1Primitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(sphere1BoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(sphere1Primitive));
+
+    // Sphere 1 shape
+    auto sphere1Shape = std::make_unique<RigidBodySphereShapeGenerator>(m_gameState.getRigidbody("sphere1"), Color::BLUE);
+    sphere1Shape->setScale(sphere1Radius);
+    m_gameState.addShapeGenerator("sphere1", std::move(sphere1Shape));
+
+    // Sphere 2
+    float sphere2Radius = 2.0f;
+    Vector3f sphere2Position = groundCenterPosition + Vector3f{0.0f, 10.0f, 8.0f};
+    Quaternion sphere2Quaternion
+    {
+        1.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+    };
+
+    Vector3f sphere2InitialLinearVelocity{0.0, -3.0f, 0.0f};
+
+    auto sphere2 = std::make_unique<RigidBody>(sphere2Position, 1.0f, 0.999f, 0.999f, false);
+    sphere2->setVelocity(sphere2InitialLinearVelocity);
+    sphere2->setQuaternion(sphere2Quaternion);
+    m_gameState.addRigidBody("sphere2", std::move(sphere2));
+
+    // Sphere 2 bounding volume (sphere)
+    radius = sphere2Radius;
+    std::unique_ptr<BoundingVolumeSphere> sphere2BoundingVolume = std::make_unique<BoundingVolumeSphere>(sphere2Position, radius, m_gameState.getRigidbody("sphere2"));
+
+    // Sphere 2 primitive (sphere)
+    Matrix34 sphere2Offset
+    {
+        {
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f
+        }
+    };
+    std::unique_ptr<Sphere> sphere2Primitive = std::make_unique<Sphere>(m_gameState.getRigidbody("sphere2"), sphere2Offset, sphere2Radius);
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(sphere2BoundingVolume.get(), {sphere2Primitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(sphere2BoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(sphere2Primitive));
+
+    // Sphere 2 shape
+    auto sphere2Shape = std::make_unique<RigidBodySphereShapeGenerator>(m_gameState.getRigidbody("sphere2"), Color::GREEN);
+    sphere2Shape->setScale(sphere2Radius);
+    m_gameState.addShapeGenerator("sphere2", std::move(sphere2Shape));
 }

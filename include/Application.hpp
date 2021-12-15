@@ -19,6 +19,7 @@
 #include "RigidBodyLinkShapeGenerator.hpp"
 #include "HumanShapeGenerator.hpp"
 #include "ContactShapeGenerator.hpp"
+#include "RigidBodySphereShapeGenerator.hpp"
 
 #include "physics/Particle.hpp"
 #include "physics/forces/Particle/ParticleGravity.hpp"
@@ -69,7 +70,7 @@ private:
     std::array<float, 3> currentBlobInitialPosition = {-2.0f, -3.0f,  0.0f};
     std::array<float, 3> currentGroundCenterPosition = {0.0f, 0.0f, -6.0f};
 
-    std::array<std::string, 5> m_modes = {"Blob", "Exemples Phase 2", "Demo 1 Phase 3", "Demo 2 Phase 3 (car collision)", "Demo phase 4 (collision detection)"};
+    std::array<std::string, 6> m_modes = {"Blob", "Exemples Phase 2", "Demo 1 Phase 3", "Demo 2 Phase 3 (car collision)", "Demo phase 4 (collision detection)", "Demo sphere/sphere collision"};
     int m_selected_mode = 0;
 
     bool m_carCollision = false;
@@ -111,6 +112,7 @@ private:
     void checkCarCollision();
 
     void createDemoPhase4();
+    void createSphereAndSphereCollisionDemo();
 };
 
 #endif // MPJVP_APPLICATION
