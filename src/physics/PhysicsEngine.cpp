@@ -41,17 +41,7 @@ void PhysicsEngine::update(float deltaTime, GameState & gameState)
     // Collision detection
     std::vector<RigidBodyContact> allRigidbodyContacts = m_collisionDetector.detectCollisions(gameState);
 
-    // FOR DEMO PHASE 4
-    if (allRigidbodyContacts.size() > 0)
-    {
-        // Display collision data
-        for (RigidBodyContact & contact : allRigidbodyContacts)
-        {
-            std::cout << "Donnees du contact : \n" << contact << std::endl;
-        }
-
-        // WHAT TO DO ?
-    }
+    gameState.setRigidBodyContacts(allRigidbodyContacts);
 
     // --------------------- Resolve RigidBody contacts ------------------------------
     // HERE

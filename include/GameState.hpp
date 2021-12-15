@@ -12,6 +12,7 @@
 #include "physics/RigidBody.hpp"
 #include "collision/BoundingVolumeSphere.hpp"
 #include "physics/contacts/RigidBody/Primitive.hpp"
+#include "physics/contacts/RigidBody/RigidBodyContact.hpp"
 
 class GameState
 {
@@ -38,6 +39,8 @@ public:
     inline std::unordered_map<BoundingVolumeSphere*, std::vector<Primitive*>>& getLinksBetweenBoundingVolumesAndPrimitives() { return m_linksBetweenBoundingVolumesAndPrimitives; }
     inline std::vector<std::unique_ptr<BoundingVolumeSphere>>& getBoundingVolumeSphere() { return m_boundingVolumeSpheres; }
     inline std::vector<std::unique_ptr<Primitive>>& getPrimitives() { return m_primitives; }
+    inline std::vector<RigidBodyContact> & getRigidBodyContacts() { return m_rigidbodyContacts; }
+    inline void setRigidBodyContacts(std::vector<RigidBodyContact> contacts) { m_rigidbodyContacts = contacts; }
 
     Particle* getParticle(std::string label)
     {
@@ -100,6 +103,7 @@ private:
     std::unordered_map<BoundingVolumeSphere*, std::vector<Primitive*>> m_linksBetweenBoundingVolumesAndPrimitives;
     std::vector<std::unique_ptr<BoundingVolumeSphere>> m_boundingVolumeSpheres;
     std::vector<std::unique_ptr<Primitive>> m_primitives;
+    std::vector<RigidBodyContact> m_rigidbodyContacts;
 };
 
 #endif // MPJVP_GAMESTATE
