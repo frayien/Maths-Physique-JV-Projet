@@ -1693,7 +1693,7 @@ void Application::createSphereAndSphereCollisionDemo()
 
     // Sphere 2
     float sphere2Radius = 2.0f;
-    Vector3f sphere2Position = groundCenterPosition + Vector3f{0.0f, 10.0f, 8.0f};
+    Vector3f sphere2Position = groundCenterPosition + Vector3f{0.0f, 10.0f, 6.5f};
     Quaternion sphere2Quaternion
     {
         1.0f,
