@@ -82,14 +82,14 @@ void CollisionDetector::sphereAndSphereContact(Sphere* firstSphere, Sphere* seco
 {
     float distance = Vector3f{ firstSphere->getPosition() - secondSphere->getPosition() }.norm();
 
-    if (distance > firstSphere->getRadius() + secondSphere->getRadius())
+    if (distance < firstSphere->getRadius() + secondSphere->getRadius())
     {
-        Vector3f vectorToNormalize = Vector3f{ firstSphere->getPosition() - secondSphere->getPosition() }.normalize();
+        Vector3f normale = Vector3f{ firstSphere->getPosition() - secondSphere->getPosition() }.normalize();
 
-        Vector3f extremitySphereA{ (secondSphere->getPosition() - firstSphere->getPosition()) - (-vectorToNormalize * secondSphere->getRadius()) };
-        Vector3f extremitySphereB{ (firstSphere->getPosition() - secondSphere->getPosition()) - (vectorToNormalize * firstSphere->getRadius()) };
+        Vector3f extremityFirstSphere{firstSphere->getPosition() - normale * firstSphere->getRadius()};
+        Vector3f extremitySecondSphere{secondSphere->getPosition() + normale * secondSphere->getRadius()};
 
-        allContacts.emplace_back(firstSphere->getRigidBody(), secondSphere->getRigidBody(), std::abs(firstSphere->getRadius() - (distance - secondSphere->getRadius())), vectorToNormalize, (extremitySphereA + extremitySphereB) / 2.f, 0.95f, 0.95f);
+        allContacts.emplace_back(firstSphere->getRigidBody(), secondSphere->getRigidBody(), std::abs(firstSphere->getRadius() - (distance - secondSphere->getRadius())), normale, (extremityFirstSphere + extremitySecondSphere) / 2.f, 0.95f, 0.95f);
     }
 }
 
