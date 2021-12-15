@@ -108,9 +108,11 @@ void Application::update(float deltaTime)
         case 5:
             initRigidbodyForceGenerators();
             createSphereAndSphereCollisionDemo();
+            break;
         case 6:
             initRigidbodyForceGenerators();
             createSphereAndPlaneCollisionDemo();
+            break;
         default:
             break;
         }
@@ -294,8 +296,10 @@ void Application::createFrame()
                     break;
                 case 5:
                     createSphereAndSphereCollisionDemo();
+                    break;
                 case 6:
                     createSphereAndPlaneCollisionDemo();
+                    break;
                 default:
                     break;
                 }
