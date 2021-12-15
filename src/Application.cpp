@@ -108,6 +108,9 @@ void Application::update(float deltaTime)
         case 5:
             initRigidbodyForceGenerators();
             createSphereAndSphereCollisionDemo();
+        case 6:
+            initRigidbodyForceGenerators();
+            createSphereAndPlaneCollisionDemo();
         default:
             break;
         }
@@ -291,6 +294,8 @@ void Application::createFrame()
                     break;
                 case 5:
                     createSphereAndSphereCollisionDemo();
+                case 6:
+                    createSphereAndPlaneCollisionDemo();
                 default:
                     break;
                 }
@@ -388,7 +393,7 @@ void Application::createFrame()
         }
     }
 
-    if (m_selected_mode == 4 || m_selected_mode == 5)
+    if (m_selected_mode == 4 || m_selected_mode == 5 || m_selected_mode == 6)
     {
         // Demo phase 4
         ImGui::Text("Pause when contact occurs : ");
@@ -1724,4 +1729,215 @@ void Application::createSphereAndSphereCollisionDemo()
     auto sphere2Shape = std::make_unique<RigidBodySphereShapeGenerator>(m_gameState.getRigidbody("sphere2"), Color::GREEN);
     sphere2Shape->setScale(sphere2Radius);
     m_gameState.addShapeGenerator("sphere2", std::move(sphere2Shape));
+}
+
+void Application::createSphereAndPlaneCollisionDemo()
+{
+    // Ground shape
+    Vector3f groundCenterPosition{0.0f, 0.0f, -6.0f};
+    float groundHalfLength = 70.0f / 2.0f;
+    float groundHalfWidth = 70.0f / 2.0f;
+    float groundHalfHeight = 0.5f / 2.0f;
+
+    auto groundShape = std::make_unique<CubeShapeGenerator>(Color::DARK_GRAY);
+    groundShape->setScale({groundHalfLength, groundHalfWidth, groundHalfHeight});
+    groundShape->setPosition(groundCenterPosition);
+    m_gameState.addShapeGenerator("ground", std::move(groundShape));
+
+    // Walls
+    float wallHalfLength = 40.0f / 2.0f;
+    float wallHalfWidth = 0.4f / 2.0f;
+    float wallHalfHeight = 5.0f / 2.0f;
+
+    // Wall 1 shape
+    Vector3f wall1CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{-wallHalfLength, 0.0f, wallHalfHeight};
+
+    float angle = PI / 2.0;
+    float nx = 0.0f;
+    float ny = 0.0f;
+    float nz = 1.0f;
+    float norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion wall1Quaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    Matrix33 rotationWall1;
+    rotationWall1.setOrientation(wall1Quaternion);
+
+    auto wall1 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    wall1->setPosition(wall1CenterPosition);
+    wall1->setRotation(rotationWall1);
+    wall1->scale({wallHalfLength + wallHalfWidth, wallHalfWidth, wallHalfHeight});
+    m_gameState.addShapeGenerator("wall1", std::move(wall1));
+
+    // Wall 1 bounding volume (sphere)
+    float radius = glm::sqrt(wallHalfLength * wallHalfLength + wallHalfWidth * wallHalfWidth + wallHalfHeight * wallHalfHeight);
+    std::unique_ptr<BoundingVolumeSphere> wall1BoundingVolume = std::make_unique<BoundingVolumeSphere>(wall1CenterPosition, radius);
+
+    // Wall 1 primitive (plane)
+    Matrix34 wall1Offset;
+    wall1Offset.setOrientationAndPosition(wall1Quaternion, wall1CenterPosition);
+    std::unique_ptr<Plane> wall1Primitive = std::make_unique<Plane>(nullptr, wall1Offset, Vector3f{1.0f, 0.0f, 0.0f}, wallHalfWidth * 2.0f);
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(wall1BoundingVolume.get(), {wall1Primitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(wall1BoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(wall1Primitive));
+
+    // Wall 2 shape
+    Vector3f wall2CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0f, wallHalfLength, wallHalfHeight};
+
+    angle = 0.0f;
+    nx = 0.0f;
+    ny = 0.0f;
+    nz = 1.0f;
+    norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion wall2Quaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    Matrix33 rotationWall2;
+    rotationWall2.setOrientation(wall2Quaternion);
+
+    auto wall2 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    wall2->setPosition(wall2CenterPosition);
+    wall2->setRotation(rotationWall2);
+    wall2->scale({wallHalfLength - wallHalfWidth, wallHalfWidth, wallHalfHeight});
+    m_gameState.addShapeGenerator("wall2", std::move(wall2));
+
+    // Wall 2 bounding volume (sphere)
+    std::unique_ptr<BoundingVolumeSphere> wall2BoundingVolume = std::make_unique<BoundingVolumeSphere>(wall2CenterPosition, radius);
+
+    // Wall 2 primitive (plane)
+    Matrix34 wall2Offset;
+    wall2Offset.setOrientationAndPosition(wall2Quaternion, wall2CenterPosition);
+    std::unique_ptr<Plane> wall2Primitive = std::make_unique<Plane>(nullptr, wall2Offset, Vector3f{0.0f, -1.0f, 0.0f}, wallHalfWidth * 2.0f);
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(wall2BoundingVolume.get(), {wall2Primitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(wall2BoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(wall2Primitive));
+
+    // Wall 3 shape
+    Vector3f wall3CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{0.0f, -wallHalfLength, wallHalfHeight};
+
+    angle = 0.0f;
+    nx = 0.0f;
+    ny = 0.0f;
+    nz = 1.0f;
+    norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion wall3Quaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    Matrix33 rotationWall3;
+    rotationWall3.setOrientation(wall3Quaternion);
+
+    auto wall3 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    wall3->setPosition(wall3CenterPosition);
+    wall3->setRotation(rotationWall3);
+    wall3->scale({wallHalfLength - wallHalfWidth, wallHalfWidth, wallHalfHeight});
+    m_gameState.addShapeGenerator("wall3", std::move(wall3));
+
+    // Wall 3 bounding volume (sphere)
+    std::unique_ptr<BoundingVolumeSphere> wall3BoundingVolume = std::make_unique<BoundingVolumeSphere>(wall3CenterPosition, radius);
+
+    // Wall 3 primitive (plane)
+    Matrix34 wall3Offset;
+    wall3Offset.setOrientationAndPosition(wall3Quaternion, wall3CenterPosition);
+    std::unique_ptr<Plane> wall3Primitive = std::make_unique<Plane>(nullptr, wall3Offset, Vector3f{0.0f, 1.0f, 0.0f}, wallHalfWidth * 2.0f);
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(wall3BoundingVolume.get(), {wall3Primitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(wall3BoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(wall3Primitive));
+
+    // Wall 4 shape
+    Vector3f wall4CenterPosition = groundCenterPosition + Vector3f{0.0f, 0.0f, groundHalfHeight} + Vector3f{wallHalfLength, 0.0f, wallHalfHeight};
+
+    angle = PI / 2.0;
+    nx = 0.0f;
+    ny = 0.0f;
+    nz = 1.0f;
+    norm = glm::sqrt(nx * nx + ny * ny + nz * nz);
+    Quaternion wall4Quaternion
+    {
+        glm::cos(angle / 2.0f),
+        glm::sin(angle / 2.0f) * nx / norm,
+        glm::sin(angle / 2.0f) * ny / norm,
+        glm::sin(angle / 2.0f) * nz / norm
+    };
+    Matrix33 rotationWall4;
+    rotationWall4.setOrientation(wall4Quaternion);
+
+    auto wall4 = std::make_unique<CubeShapeGenerator>(Color::WHITE);
+    wall4->setPosition(wall4CenterPosition);
+    wall4->setRotation(rotationWall4);
+    wall4->scale({wallHalfLength + wallHalfWidth, wallHalfWidth, wallHalfHeight});
+    m_gameState.addShapeGenerator("wall4", std::move(wall4));
+
+    // Wall 4 bounding volume (sphere)
+    std::unique_ptr<BoundingVolumeSphere> wall4BoundingVolume = std::make_unique<BoundingVolumeSphere>(wall4CenterPosition, radius);
+
+    // Wall 4 primitive (plane)
+    Matrix34 wall4Offset;
+    wall4Offset.setOrientationAndPosition(wall4Quaternion, wall4CenterPosition);
+    std::unique_ptr<Plane> wall4Primitive = std::make_unique<Plane>(nullptr, wall4Offset, Vector3f{-1.0f, 0.0f, 0.0f}, wallHalfWidth * 2.0f);
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(wall4BoundingVolume.get(), {wall4Primitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(wall4BoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(wall4Primitive));
+
+    // Sphere
+    float sphereRadius = 1.0f;
+    Vector3f spherePosition = groundCenterPosition + Vector3f{-5.0f, 3.0f, 3.0f};
+    Quaternion sphereQuaternion
+    {
+        1.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+    };
+
+    Vector3f sphereInitialLinearVelocity{-5.0f, 0.0f, 0.0f};
+
+    auto sphere = std::make_unique<RigidBody>(spherePosition, 1.0f, 1.0f, 1.0f, false);
+    sphere->setVelocity(sphereInitialLinearVelocity);
+    sphere->setQuaternion(sphereQuaternion);
+    m_gameState.addRigidBody("sphere", std::move(sphere));
+
+    // Sphere bounding volume (sphere)
+    radius = sphereRadius;
+    std::unique_ptr<BoundingVolumeSphere> sphereBoundingVolume = std::make_unique<BoundingVolumeSphere>(spherePosition, radius, m_gameState.getRigidbody("sphere"));
+
+    // Sphere primitive (sphere)
+    Matrix34 sphereOffset
+    {
+        {
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f
+        }
+    };
+    std::unique_ptr<Sphere> spherePrimitive = std::make_unique<Sphere>(m_gameState.getRigidbody("sphere"), sphereOffset, sphereRadius);
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(sphereBoundingVolume.get(), {spherePrimitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(sphereBoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(spherePrimitive));
+
+    // Sphere shape
+    auto sphereShape = std::make_unique<RigidBodySphereShapeGenerator>(m_gameState.getRigidbody("sphere"), Color::BLUE);
+    sphereShape->setScale(sphereRadius);
+    m_gameState.addShapeGenerator("sphere", std::move(sphereShape));
 }

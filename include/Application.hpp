@@ -70,7 +70,7 @@ private:
     std::array<float, 3> currentBlobInitialPosition = {-2.0f, -3.0f,  0.0f};
     std::array<float, 3> currentGroundCenterPosition = {0.0f, 0.0f, -6.0f};
 
-    std::array<std::string, 6> m_modes = {"Blob", "Exemples Phase 2", "Demo 1 Phase 3", "Demo 2 Phase 3 (car collision)", "Demo phase 4 (collision detection)", "Demo sphere/sphere collision"};
+    std::array<std::string, 7> m_modes = {"Blob", "Exemples Phase 2", "Demo 1 Phase 3", "Demo 2 Phase 3 (car collision)", "Demo phase 4 (collision detection)", "Demo sphere/sphere collision", "Demo sphere/plane collision"};
     int m_selected_mode = 0;
 
     bool m_carCollision = false;
@@ -113,6 +113,7 @@ private:
 
     void createDemoPhase4();
     void createSphereAndSphereCollisionDemo();
+    void createSphereAndPlaneCollisionDemo();
 };
 
 #endif // MPJVP_APPLICATION
