@@ -12,6 +12,9 @@ public:
 
     void resolve(float deltaTime);
 
+    inline Vector3f getPosition() { return m_position; }
+    inline Vector3f getNormal() { return m_normal; }
+
     friend std::ostream& operator<<(std::ostream & out, const RigidBodyContact & c);
 
 private:

@@ -18,6 +18,7 @@
 #include "RigidCubeShapeGenerator.hpp"
 #include "RigidBodyLinkShapeGenerator.hpp"
 #include "HumanShapeGenerator.hpp"
+#include "ContactShapeGenerator.hpp"
 
 #include "physics/Particle.hpp"
 #include "physics/forces/Particle/ParticleGravity.hpp"
@@ -72,6 +73,11 @@ private:
     int m_selected_mode = 0;
 
     bool m_carCollision = false;
+
+    bool m_pauseAtContact = true;
+    bool m_displayContactText = true;
+    bool m_displayContactShape = true;
+    bool m_resetContactShape = true;
 
 public:
     Application();

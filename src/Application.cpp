@@ -158,6 +158,41 @@ void Application::update(float deltaTime)
         {
             // Update physics engine
             m_physicsEngine.update(TIMESTEP, m_gameState);
+
+            // If there are rigidbody contacts
+            auto contacts = m_gameState.getRigidBodyContacts();
+            static int nbContact = 0;
+
+            if (contacts.size() > 0)
+            {
+                if (m_displayContactShape && m_resetContactShape)
+                {
+                    while (nbContact > 0)
+                    {
+                        // Remove previous contact shapes
+                        m_gameState.removeShapeGenerator("contact" + nbContact);
+                        nbContact--;
+                    }
+                }
+
+                for (RigidBodyContact & contact : contacts)
+                {
+                    nbContact++;
+
+                    if (m_displayContactText)
+                    {
+                        std::cout << "Donnees du contact " << nbContact << " : \n" << contact << std::endl;
+                    }
+
+                    if (m_displayContactShape)
+                    {
+                        auto contactShape = std::make_unique<ContactShapeGenerator>(contact, Color::DARK_BLUE);
+                        m_gameState.addShapeGenerator("contact" + nbContact, std::move(contactShape));
+                    }
+                }
+
+                if (m_pauseAtContact) pause = true;
+            }
         }
     }
 
@@ -347,6 +382,23 @@ void Application::createFrame()
             }
         }
     }
+
+    if (m_selected_mode == 4)
+    {
+        // Demo phase 4
+        ImGui::Text("Pause when contact occurs : ");
+        ImGui::Checkbox("##PauseAtContact", &m_pauseAtContact);
+
+        ImGui::Text("Display contact data (text) : ");
+        ImGui::Checkbox("##ContactDataText", &m_displayContactText);
+
+        ImGui::Text("Display contact shape : ");
+        ImGui::Checkbox("##ContactShape", &m_displayContactShape);
+
+        ImGui::Text("Reset contact shapes (when new contact occurs) : ");
+        ImGui::Checkbox("##ResetContactShape", &m_resetContactShape);
+    }
+
     ImGui::End();
 }
 
