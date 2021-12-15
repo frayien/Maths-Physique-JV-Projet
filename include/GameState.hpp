@@ -91,6 +91,7 @@ public:
         m_linksBetweenBoundingVolumesAndPrimitives.clear();
         m_boundingVolumeSpheres.clear();
         m_primitives.clear();
+        m_rigidbodyContacts.clear();
     }
 
 private:
