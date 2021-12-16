@@ -11,6 +11,7 @@
 #include "collision/octree.hpp"
 #include "physics/contacts/RigidBody/Sphere.hpp"
 #include "collision/CollisionDetector.hpp"
+#include "collision/CollisionResolver.hpp"
 
 class PhysicsEngine
 {
@@ -19,7 +20,7 @@ public:
 	PhysicsEngine();
 	~PhysicsEngine();
 
-	void update(float deltaTime, GameState & gameState);
+	void update(float deltaTime, GameState & gameState, bool applyCollisionResolution = false);
 
 	void registerForce(Particle * particle, ParticleForceGenerator * particleForceGenerator, float duration);
 	void registerForce(RigidBody* rigidBody, RigidBodyForceGenerator* rigidBodyForceGenerator, float duration);
@@ -38,6 +39,7 @@ private :
 	RigidBodyForceRegistry m_rigidBodyForceRegistry;
 	ParticleContactResolver m_particleContactResolver;
 	CollisionDetector m_collisionDetector;
+	CollisionResolver m_collisionResolver;
 };
 
 #endif // MPJVP_PHYSICSENGINE

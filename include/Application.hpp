@@ -79,6 +79,7 @@ private:
     bool m_displayContactText = true;
     bool m_displayContactShape = true;
     bool m_resetContactShape = true;
+    bool m_collisionResolution = true;
 
 public:
     Application();

@@ -165,7 +165,7 @@ void Application::update(float deltaTime)
         if (!pause)
         {
             // Update physics engine
-            m_physicsEngine.update(TIMESTEP, m_gameState);
+            m_physicsEngine.update(TIMESTEP, m_gameState, m_collisionResolution);
 
             // If there are rigidbody contacts
             auto contacts = m_gameState.getRigidBodyContacts();
@@ -247,8 +247,8 @@ void Application::createFrame()
     if (!isSizeInitialized)
     {
         // Default size
-        float imGuiWidth = 200.0f;
-        float imGuiHeight = 250.0f;
+        float imGuiWidth = 360.0f;
+        float imGuiHeight = 280.0f;
         ImGui::SetWindowSize(ImVec2(imGuiWidth, imGuiHeight));
         isSizeInitialized = true;
     }
@@ -411,6 +411,9 @@ void Application::createFrame()
 
         ImGui::Text("Reset contact shapes (when new contact occurs) : ");
         ImGui::Checkbox("##ResetContactShape", &m_resetContactShape);
+
+        ImGui::Text("Apply collision resolution (EXPERIMENTAL) : ");
+        ImGui::Checkbox("##CollisionResolution", &m_collisionResolution);
     }
 
     ImGui::End();
@@ -1693,7 +1696,7 @@ void Application::createSphereAndSphereCollisionDemo()
 
     // Sphere 2
     float sphere2Radius = 2.0f;
-    Vector3f sphere2Position = groundCenterPosition + Vector3f{0.0f, 10.0f, 6.5f};
+    Vector3f sphere2Position = groundCenterPosition + Vector3f{0.0f, 10.0f, 8.0f};
     Quaternion sphere2Quaternion
     {
         1.0f,
@@ -1748,6 +1751,20 @@ void Application::createSphereAndPlaneCollisionDemo()
     groundShape->setPosition(groundCenterPosition);
     m_gameState.addShapeGenerator("ground", std::move(groundShape));
 
+    // Ground bounding volume (sphere)
+    float radius = glm::sqrt(groundHalfLength * groundHalfLength + groundHalfWidth * groundHalfWidth + groundHalfHeight * groundHalfHeight);
+    std::unique_ptr<BoundingVolumeSphere> groundBoundingVolume = std::make_unique<BoundingVolumeSphere>(groundCenterPosition, radius);
+
+    // Ground primitive (plane)
+    Matrix34 groundOffset;
+    groundOffset.setOrientationAndPosition(Quaternion(1.0f, 0.0f, 0.0f, 0.0f), groundCenterPosition);
+    std::unique_ptr<Plane> groundPrimitive = std::make_unique<Plane>(nullptr, groundOffset, Vector3f{0.0f, 0.0f, 1.0f}, groundHalfHeight * 2.0f);
+
+    m_gameState.getLinksBetweenBoundingVolumesAndPrimitives().emplace(std::make_pair<BoundingVolumeSphere*, std::vector<Primitive*>>(groundBoundingVolume.get(), {groundPrimitive.get()}));
+
+    m_gameState.getBoundingVolumeSphere().push_back(std::move(groundBoundingVolume));
+    m_gameState.getPrimitives().push_back(std::move(groundPrimitive));
+
     // Walls
     float wallHalfLength = 40.0f / 2.0f;
     float wallHalfWidth = 0.4f / 2.0f;
@@ -1778,7 +1795,7 @@ void Application::createSphereAndPlaneCollisionDemo()
     m_gameState.addShapeGenerator("wall1", std::move(wall1));
 
     // Wall 1 bounding volume (sphere)
-    float radius = glm::sqrt(wallHalfLength * wallHalfLength + wallHalfWidth * wallHalfWidth + wallHalfHeight * wallHalfHeight);
+    radius = glm::sqrt(wallHalfLength * wallHalfLength + wallHalfWidth * wallHalfWidth + wallHalfHeight * wallHalfHeight);
     std::unique_ptr<BoundingVolumeSphere> wall1BoundingVolume = std::make_unique<BoundingVolumeSphere>(wall1CenterPosition, radius);
 
     // Wall 1 primitive (plane)
@@ -1913,7 +1930,7 @@ void Application::createSphereAndPlaneCollisionDemo()
         0.0f,
     };
 
-    Vector3f sphereInitialLinearVelocity{-5.0f, 0.0f, 0.0f};
+    Vector3f sphereInitialLinearVelocity{0.0f, 0.0f, 6.0f};
 
     auto sphere = std::make_unique<RigidBody>(spherePosition, 1.0f, 1.0f, 1.0f, false);
     sphere->setVelocity(sphereInitialLinearVelocity);
@@ -1944,4 +1961,7 @@ void Application::createSphereAndPlaneCollisionDemo()
     auto sphereShape = std::make_unique<RigidBodySphereShapeGenerator>(m_gameState.getRigidbody("sphere"), Color::BLUE);
     sphereShape->setScale(sphereRadius);
     m_gameState.addShapeGenerator("sphere", std::move(sphereShape));
+
+    // Sphere gravity
+    m_physicsEngine.registerForce(m_gameState.getRigidbody("sphere"), m_gameState.getRigidBodyForceGenerator<RigidBodyGravity>("gravity"), 0.0f);
 }

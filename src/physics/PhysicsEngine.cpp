@@ -2,8 +2,6 @@
 
 #include <vector>
 
-#include <iostream>
-
 PhysicsEngine::PhysicsEngine()
 {
 
@@ -14,7 +12,7 @@ PhysicsEngine::~PhysicsEngine()
 
 }
 
-void PhysicsEngine::update(float deltaTime, GameState & gameState)
+void PhysicsEngine::update(float deltaTime, GameState & gameState, bool applyCollisionResolution)
 {
     // Update forces
     m_particleForceRegistry.update(deltaTime);
@@ -44,7 +42,7 @@ void PhysicsEngine::update(float deltaTime, GameState & gameState)
     gameState.setRigidBodyContacts(allRigidbodyContacts);
 
     // --------------------- Resolve RigidBody contacts ------------------------------
-    // HERE
+    if (applyCollisionResolution) m_collisionResolver.resolveCollisions(allRigidbodyContacts);
 
     // Generate Particle contacts
     std::vector<ParticleContact> contacts;
