@@ -146,7 +146,7 @@ void CollisionDetector::boxAndPlane(Box* box, Plane* plane, std::vector<RigidBod
         {
             float penetration = plane->getThickness()/2.f - distance;
             Vector3f position = vertex + (penetration/2.f) * plane->getNormal();
-            allContacts.emplace_back(box->getRigidBody(), plane->getRigidBody(), penetration, plane->getNormal(), position, 0.0f, 0.5f);
+            allContacts.emplace_back(box->getRigidBody(), plane->getRigidBody(), penetration, plane->getNormal(), position, 0.0f, 0.6f);
         }
     }
 }

@@ -246,7 +246,7 @@ void RigidBodyContact::swapRigidbodies()
 
 Vector3f RigidBodyContact::calculateLocalVelocity(int rigidbodyIndex)
 {
-    Vector3f velocity = m_rigidbodies[rigidbodyIndex]->getTranformMatrix().extractMatrix33() * m_relativeContactPositions[rigidbodyIndex];
+    Vector3f velocity = m_rigidbodies[rigidbodyIndex]->getVelocity().crossProduct(m_relativeContactPositions[rigidbodyIndex]);
     velocity += m_rigidbodies[rigidbodyIndex]->getVelocity();
 
     // Turn velocity into contact coordinates

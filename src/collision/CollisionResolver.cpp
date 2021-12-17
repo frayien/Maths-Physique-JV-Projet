@@ -4,6 +4,11 @@ void CollisionResolver::resolveCollisions(std::vector<RigidBodyContact> collisio
 {
     const int maxIterations = collisions.size() * 2.0f;
 
+    for (int i = 0 ; i < collisions.size(); ++i)
+    {
+        collisions[i].calculateInternals();
+    }
+
     int i = 0;
     while (i < maxIterations && i < collisions.size())
     {
@@ -20,12 +25,14 @@ void CollisionResolver::resolveCollisions(std::vector<RigidBodyContact> collisio
         }
 
         if (indexMaxPenetration == -1) break;
-        
-        collisions[indexMaxPenetration].calculateInternals();
+
         collisions[indexMaxPenetration].applyPositionChange();
-        collisions[indexMaxPenetration].applyVelocityChange();
         // updatePenetrations(collisions, indexMaxPenetration);
+        collisions[indexMaxPenetration].applyVelocityChange();
         i++;
+
+        // TODO : remove next line when updatePenetrations is fixed
+        collisions.erase(collisions.begin() + indexMaxPenetration);
     }
 }
 
@@ -43,7 +50,7 @@ void CollisionResolver::updatePenetrations(std::vector<RigidBodyContact> collisi
 
                 cp += collisions[indexMaxPenetration].getLinearMove()[0] * collisions[indexMaxPenetration].getNormal();
 
-                collisions[i].setPenetration(collisions[i].getPenetration() - collisions[indexMaxPenetration].getAngularMove()[0] * cp.dotProduct(collisions[i].getNormal()));
+                collisions[i].setPenetration(collisions[i].getPenetration() - cp.dotProduct(collisions[i].getNormal()));
             }
             else if (collisions[i].getRigidbodies()[0] == collisions[indexMaxPenetration].getRigidbodies()[1])
             {
@@ -51,7 +58,7 @@ void CollisionResolver::updatePenetrations(std::vector<RigidBodyContact> collisi
 
                 cp += collisions[indexMaxPenetration].getLinearMove()[1] * collisions[indexMaxPenetration].getNormal();
 
-                collisions[i].setPenetration(collisions[i].getPenetration() - collisions[indexMaxPenetration].getAngularMove()[1] * cp.dotProduct(collisions[i].getNormal()));
+                collisions[i].setPenetration(collisions[i].getPenetration() - cp.dotProduct(collisions[i].getNormal()));
             }
         }
         if (collisions[i].getRigidbodies()[1])
@@ -62,7 +69,7 @@ void CollisionResolver::updatePenetrations(std::vector<RigidBodyContact> collisi
 
                 cp += collisions[indexMaxPenetration].getLinearMove()[0] * collisions[indexMaxPenetration].getNormal();
 
-                collisions[i].setPenetration(collisions[i].getPenetration() - collisions[indexMaxPenetration].getAngularMove()[0] * cp.dotProduct(collisions[i].getNormal()));
+                collisions[i].setPenetration(collisions[i].getPenetration() - cp.dotProduct(collisions[i].getNormal()));
             }
             else if (collisions[i].getRigidbodies()[1] == collisions[indexMaxPenetration].getRigidbodies()[1])
             {
@@ -70,7 +77,7 @@ void CollisionResolver::updatePenetrations(std::vector<RigidBodyContact> collisi
 
                 cp += collisions[indexMaxPenetration].getLinearMove()[1] * collisions[indexMaxPenetration].getNormal();
 
-                collisions[i].setPenetration(collisions[i].getPenetration() - collisions[indexMaxPenetration].getAngularMove()[1] * cp.dotProduct(collisions[i].getNormal()));
+                collisions[i].setPenetration(collisions[i].getPenetration() - cp.dotProduct(collisions[i].getNormal()));
             }
         }
     }
