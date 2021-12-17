@@ -10,7 +10,7 @@ void CollisionResolver::resolveCollisions(std::vector<RigidBodyContact> collisio
     }
 
     int i = 0;
-    while (i < maxIterations && i < collisions.size())
+    while (i < maxIterations)
     {
         // Find contact with the biggest penetration
         int indexMaxPenetration = -1;
